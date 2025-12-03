@@ -37,8 +37,12 @@
             },
             animation: {
               'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'float': 'float 6s ease-in-out infinite',
               'flow-beam': 'flowBeam 2s linear infinite',
+              'scan': 'scan 8s linear infinite',
+              'glitch': 'glitch 1s linear infinite',
+              'spin-slow': 'spin 8s linear infinite',
             },
             keyframes: {
               float: {
@@ -48,6 +52,15 @@
               flowBeam: {
                 '0%': { transform: 'translateX(-100%)' },
                 '100%': { transform: 'translateX(100%)' },
+              },
+              scan: {
+                '0%': { transform: 'translateY(-100%)' },
+                '100%': { transform: 'translateY(100%)' },
+              },
+              glitch: {
+                '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
+                '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
+                '62%': { transform: 'translate(0,0) skew(5deg)' },
               }
             }
           }
@@ -102,6 +115,12 @@
       @keyframes gridMove {
         0% { transform: rotateX(45deg) translateY(0); }
         100% { transform: rotateX(45deg) translateY(40px); }
+      }
+
+      /* Dot Pattern for Backgrounds */
+      .bg-dot-pattern {
+        background-image: radial-gradient(rgba(50, 50, 50, 0.5) 1px, transparent 1px);
+        background-size: 24px 24px;
       }
 
       /* Text Gradients */
