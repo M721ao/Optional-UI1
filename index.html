@@ -6,6 +6,7 @@
     <title>NeonFlow | Web3 Automation Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/reactflow/dist/style.css" rel="stylesheet" />
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -34,6 +35,7 @@
             },
             backgroundImage: {
               'grid-pattern': "linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px)",
+              'grid-pattern-light': "linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)",
             },
             animation: {
               'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -69,10 +71,16 @@
     </script>
     <style>
       body {
-        background-color: #050505;
+        background-color: #050505; /* Default dark base */
         color: #e5e7eb;
         overflow-x: hidden;
       }
+      /* In light mode, override body bg */
+      html:not(.dark) body {
+        background-color: #f3f4f6;
+        color: #111827;
+      }
+      
       .scrollbar-hide::-webkit-scrollbar {
           display: none;
       }
@@ -81,6 +89,13 @@
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
       }
+      /* Light mode glass panel */
+      html:not(.dark) .glass-panel {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        color: #000;
+      }
+
       .cyber-input {
         background: rgba(0, 0, 0, 0.5);
         border: 1px solid #333;
@@ -91,6 +106,22 @@
         outline: none;
         border-color: #00f3ff;
         box-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
+      }
+      
+      /* Gradient Border Utility */
+      .gradient-border-wrapper {
+        position: relative;
+        background: linear-gradient(to right, #00f3ff, #bc13fe);
+        padding: 1px;
+        border-radius: 8px;
+      }
+      .gradient-border-content {
+        background: #121218;
+        border-radius: 7px; /* 1px less than wrapper */
+        height: 100%;
+      }
+      html:not(.dark) .gradient-border-content {
+        background: #ffffff;
       }
       
       /* Perspective Grid Animation */
@@ -122,6 +153,9 @@
         background-image: radial-gradient(rgba(50, 50, 50, 0.5) 1px, transparent 1px);
         background-size: 24px 24px;
       }
+      html:not(.dark) .bg-dot-pattern {
+         background-image: radial-gradient(rgba(200, 200, 200, 0.8) 1px, transparent 1px);
+      }
 
       /* Text Gradients */
       .text-glow {
@@ -132,16 +166,52 @@
       .clip-path-polygon {
         clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
       }
+
+      /* --- React Flow Overrides --- */
+      /* Dark Mode (Default) */
+      .react-flow__controls {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+      }
+      .react-flow__controls-button {
+        background-color: #121218 !important;
+        border-bottom: 1px solid #333 !important;
+        fill: #fff !important;
+        color: #fff !important;
+      }
+      .react-flow__controls-button:hover {
+        background-color: #00f3ff !important;
+        fill: #000 !important;
+        color: #000 !important;
+      }
+      /* Light Mode Overrides via body class check or specific parent */
+      html:not(.dark) .react-flow__controls-button {
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        fill: #374151 !important;
+        color: #374151 !important;
+      }
+      html:not(.dark) .react-flow__controls-button:hover {
+        background-color: #bc13fe !important; /* Purple hover in light mode */
+        fill: #fff !important;
+        color: #fff !important;
+      }
+      
+      .react-flow__attribution {
+        background: rgba(0,0,0,0.5) !important;
+        color: #666 !important;
+      }
     </style>
   <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+    "react-dom/": "https://aistudiocdn.com/react-dom@18.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@18.2.0",
+    "recharts": "https://aistudiocdn.com/recharts@2.12.0",
+    "react/": "https://aistudiocdn.com/react@18.2.0/",
+    "react": "https://aistudiocdn.com/react@18.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@0.294.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "reactflow": "https://aistudiocdn.com/reactflow@11.10.1"
   }
 }
 </script>

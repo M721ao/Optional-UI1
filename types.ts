@@ -34,3 +34,14 @@ export interface Vault {
   balance: number;
   risk: 'low' | 'medium' | 'high';
 }
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  avatar: string; // URL
+  credits: number;
+  inviteCode: string;
+  plan: 'FREE' | 'MASTER';
+  walletAddress?: string;
+  chain?: 'ETH' | 'SOL' | 'ARB' | 'BASE';
+}

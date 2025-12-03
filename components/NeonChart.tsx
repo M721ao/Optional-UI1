@@ -34,11 +34,11 @@ export const NeonChart: React.FC = () => {
               <stop offset="95%" stopColor="#00f3ff" stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#666" />
-          <YAxis stroke="#666" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#555" strokeOpacity={0.2} />
+          <XAxis dataKey="name" stroke="#888" />
+          <YAxis stroke="#888" />
           <Tooltip 
-            contentStyle={{ backgroundColor: '#050505', border: '1px solid #333', color: '#fff' }}
+            contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid #333', color: '#fff' }}
             itemStyle={{ color: '#00f3ff' }}
           />
           <Area type="monotone" dataKey="uv" stroke="#00f3ff" fillOpacity={1} fill="url(#colorUv)" />
