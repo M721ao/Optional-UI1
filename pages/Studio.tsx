@@ -22,7 +22,8 @@ import {
     ChevronDown, ChevronRight, Settings, Grid, PlayCircle, RotateCw, 
     CheckCircle2, BoxSelect, Server, ArrowRight, Activity, MousePointer2,
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
-    Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge
+    Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
+    TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 
@@ -596,30 +597,50 @@ const DraggableNode = ({ type, label, inputs, description }: { type: string, lab
     );
 };
 
+interface ChatSession {
+    id: string;
+    title: string;
+    messages: ChatMessage[];
+    timestamp: number;
+}
+
 const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: 'init', role: 'model', text: 'NeonAI Architect online. Select a model and describe your strategy.', timestamp: Date.now() }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Chat History State
+  const [showHistory, setShowHistory] = useState(false);
+  const [sessions, setSessions] = useState<ChatSession[]>([
+      { id: 's1', title: 'Arbitrage Scanner Setup', timestamp: Date.now() - 3600000, messages: [] },
+      { id: 's2', title: 'Yield Farm Optimization', timestamp: Date.now() - 86400000, messages: [] }
+  ]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSendMessage = async (text: string = input) => {
+    if (!text.trim() || isLoading) return;
 
-    const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', text: input, timestamp: Date.now() };
+    // Start new session if needed
+    if (!currentSessionId) {
+        const newId = Date.now().toString();
+        setCurrentSessionId(newId);
+        setSessions(prev => [{ id: newId, title: text.slice(0, 20) + '...', timestamp: Date.now(), messages: [] }, ...prev]);
+    }
+
+    const userMsg: ChatMessage = { id: Date.now().toString(), role: 'user', text: text, timestamp: Date.now() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
     
     try {
       const history = messages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
-      const responseText = await geminiService.chat(input, history, selectedModel);
+      const responseText = await geminiService.chat(text, history, selectedModel);
       
       const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
       let finalText = responseText;
@@ -662,36 +683,164 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
     }
   };
 
+  const createNewChat = () => {
+      setMessages([]);
+      setCurrentSessionId(null);
+      setShowHistory(false);
+  }
+
+  // --- WELCOME LAUNCHPAD ---
+  const WelcomeLaunchpad = () => (
+      <div className="h-full flex flex-col items-center justify-center p-6 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+         {/* Branding */}
+         <div className="flex flex-col items-center">
+            <div className="w-16 h-16 bg-purple-500/10 dark:bg-cyber-neon/10 rounded-2xl flex items-center justify-center border border-purple-500/20 dark:border-cyber-neon/20 shadow-[0_0_30px_rgba(168,85,247,0.15)] dark:shadow-[0_0_30px_rgba(0,243,255,0.15)] mb-4 relative group">
+                <BrainCircuit size={32} className="text-purple-600 dark:text-cyber-neon relative z-10" />
+                <div className="absolute inset-0 bg-purple-500/20 dark:bg-cyber-neon/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-widest">TRADING ARCHITECT</h3>
+            <p className="text-xs text-gray-500 max-w-[240px] mx-auto mt-2 leading-relaxed">
+              Describe a strategy, paste code, or ask for market analysis. I can build the flow for you.
+            </p>
+         </div>
+
+         {/* Suggestions Grid */}
+         <div className="w-full space-y-5">
+            <div className="space-y-2">
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left pl-1 flex items-center gap-1">
+                    <TrendingUp size={10} /> Trending Strategies
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                    <button 
+                        onClick={() => handleSendMessage("Create a Delta Neutral Yield Farming strategy on AAVE with stablecoin pairing")} 
+                        className="group flex items-center gap-3 p-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-green-500/50 hover:bg-green-500/5 transition-all text-left"
+                    >
+                        <div className="p-2 bg-green-500/10 rounded-md text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><Activity size={14} /></div>
+                        <div className="flex-1">
+                            <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-green-500">Delta Neutral Farm</div>
+                            <div className="text-[9px] text-gray-500 mt-0.5">Automated hedging on Aave • <span className="text-green-500 font-mono">~14% APY</span></div>
+                        </div>
+                    </button>
+                    
+                    <button 
+                        onClick={() => handleSendMessage("Build an Arbitrage Sniper bot for Curve ETH/stETH pools")} 
+                        className="group flex items-center gap-3 p-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left"
+                    >
+                        <div className="p-2 bg-purple-500/10 rounded-md text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform"><Zap size={14} /></div>
+                        <div className="flex-1">
+                            <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-purple-500">Flash Arbitrage</div>
+                            <div className="text-[9px] text-gray-500 mt-0.5">Curve ETH/stETH • <span className="text-purple-500 font-mono">High Risk</span></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+             <div className="space-y-2">
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left pl-1 flex items-center gap-1">
+                    <Command size={10} /> Quick Actions
+                </div>
+                 <div className="flex flex-wrap gap-2 justify-center">
+                    <button 
+                        onClick={() => handleSendMessage("Audit the current workflow for security vulnerabilities and logical errors")}
+                        className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-gray-600 dark:text-gray-400"
+                    >
+                        <ShieldCheck size={10} /> Audit Security
+                    </button>
+                     <button 
+                        onClick={() => handleSendMessage("Analyze gas usage and suggest optimizations for this flow")}
+                        className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-gray-600 dark:text-gray-400"
+                    >
+                        <Search size={10} /> Optimize Gas
+                    </button>
+                 </div>
+             </div>
+         </div>
+      </div>
+  );
+
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-[#0c0c10]">
         {/* Header */}
-        <div className="p-3 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#121218] flex justify-between items-center">
-             <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                 <Sparkles size={14} className="text-cyber-neon" /> AI Assistant
-             </span>
+        <div className="p-3 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#121218] flex justify-between items-center shrink-0 relative z-20">
+             <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <Sparkles size={14} className="text-cyber-neon" /> AI Assistant
+                </span>
+                
+                {/* Chat History Button */}
+                <div className="relative">
+                    <button 
+                        onClick={() => setShowHistory(!showHistory)}
+                        className={`p-1.5 rounded-md transition-colors ${showHistory ? 'bg-purple-100 dark:bg-cyber-purple/20 text-purple-600 dark:text-cyber-neon' : 'text-gray-400 hover:text-black dark:hover:text-white'}`}
+                    >
+                        <History size={14} />
+                    </button>
+                    
+                    {/* History Popover */}
+                    {showHistory && (
+                        <>
+                            <div className="fixed inset-0 z-30" onClick={() => setShowHistory(false)}></div>
+                            <div className="absolute top-8 left-0 w-64 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 shadow-2xl rounded-md z-40 overflow-hidden animate-in fade-in zoom-in duration-200">
+                                <div className="p-2 border-b border-gray-200 dark:border-white/10 flex justify-between items-center bg-gray-50 dark:bg-white/5">
+                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">History</span>
+                                    <button onClick={createNewChat} className="flex items-center gap-1 text-[10px] text-purple-600 dark:text-cyber-neon font-bold hover:underline">
+                                        <Plus size={10} /> New Chat
+                                    </button>
+                                </div>
+                                <div className="max-h-60 overflow-y-auto">
+                                    {sessions.length === 0 ? (
+                                        <div className="p-4 text-center text-[10px] text-gray-400 italic">No history yet.</div>
+                                    ) : (
+                                        sessions.map(s => (
+                                            <button 
+                                                key={s.id}
+                                                onClick={() => {
+                                                    // In a real app, load messages here
+                                                    setMessages([]); // Mock loading
+                                                    setShowHistory(false);
+                                                }}
+                                                className="w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors border-b border-gray-100 dark:border-white/5 last:border-0 group"
+                                            >
+                                                <div className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate group-hover:text-purple-500 dark:group-hover:text-cyber-neon">{s.title}</div>
+                                                <div className="text-[9px] text-gray-400 font-mono mt-0.5">{new Date(s.timestamp).toLocaleDateString()}</div>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+             </div>
+
              <div className="flex items-center gap-1">
                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                  <span className="text-[9px] text-gray-500 font-mono">ONLINE</span>
              </div>
         </div>
 
-        {/* Messages */}
+        {/* Messages or Welcome Screen */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
-            {messages.map((msg) => (
-                <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`max-w-[90%] p-3 rounded-md text-xs font-mono leading-relaxed shadow-sm ${
-                        msg.role === 'user' 
-                        ? 'bg-purple-600 dark:bg-cyber-purple/20 border border-purple-500 dark:border-cyber-purple/40 text-white dark:text-gray-100' 
-                        : 'bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
-                    }`}>
-                        {msg.text.split('```').map((part, index) => (
-                             index % 2 === 1 
-                                ? <pre key={index} className="text-[9px] bg-black text-green-400 p-2 mt-2 overflow-x-auto rounded border border-white/10">{part}</pre>
-                                : <span key={index}>{part}</span>
-                        ))}
+            {messages.length === 0 ? (
+                <WelcomeLaunchpad />
+            ) : (
+                messages.map((msg) => (
+                    <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}>
+                        <div className={`max-w-[90%] p-3 rounded-md text-xs font-mono leading-relaxed shadow-sm ${
+                            msg.role === 'user' 
+                            ? 'bg-purple-600 dark:bg-cyber-purple/20 border border-purple-500 dark:border-cyber-purple/40 text-white dark:text-gray-100' 
+                            : 'bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
+                        }`}>
+                            {msg.text.split('```').map((part, index) => (
+                                index % 2 === 1 
+                                    ? <pre key={index} className="text-[9px] bg-black text-green-400 p-2 mt-2 overflow-x-auto rounded border border-white/10">{part}</pre>
+                                    : <span key={index}>{part}</span>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))
+            )}
+            
             {isLoading && (
                 <div className="flex items-center gap-2 text-[10px] text-purple-500 dark:text-cyber-neon animate-pulse px-2">
                     <BrainCircuit size={12} /> PROCESSING...
@@ -701,17 +850,17 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
         </div>
 
         {/* Input Area */}
-        <div className="p-3 bg-white dark:bg-[#121218] border-t border-gray-200 dark:border-white/10 space-y-2">
+        <div className="p-3 bg-white dark:bg-[#121218] border-t border-gray-200 dark:border-white/10 space-y-2 shrink-0">
              <div className="relative">
                 <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask NeonAI to build..."
+                    placeholder="Ask Trading Architect..."
                     className="w-full bg-gray-100 dark:bg-black/50 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white pl-3 pr-10 py-3 text-xs focus:outline-none focus:border-purple-500 dark:focus:border-cyber-neon font-mono resize-none rounded-sm min-h-[60px]"
                 />
                 <button 
-                    onClick={handleSendMessage} 
+                    onClick={() => handleSendMessage()} 
                     disabled={isLoading} 
                     className="absolute right-2 bottom-2 p-1.5 bg-purple-600 dark:bg-cyber-neon text-white dark:text-black rounded hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
@@ -736,7 +885,9 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                         <ChevronDown size={8} className="absolute right-0 top-1.5 text-gray-500 pointer-events-none" />
                     </div>
                 </div>
-                <button className="text-[9px] text-gray-400 hover:text-red-500" onClick={() => setMessages([])}>CLEAR CHAT</button>
+                {messages.length > 0 && (
+                    <button className="text-[9px] text-gray-400 hover:text-red-500" onClick={() => setMessages([])}>CLEAR CHAT</button>
+                )}
             </div>
         </div>
     </div>

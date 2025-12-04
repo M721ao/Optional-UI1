@@ -13,7 +13,8 @@ import {
   Code2, 
   ArrowRightLeft, 
   Lock,
-  Hexagon
+  Hexagon,
+  Workflow
 } from 'lucide-react';
 
 interface LandingProps {
@@ -140,7 +141,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
                     {/* Pillar 2: Visual Canvas */}
                     <div className="glass-panel p-10 rounded-lg border border-cyber-purple/10 hover:border-cyber-purple/60 transition-colors group relative overflow-hidden">
                          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-                            <Hexagon size={120} className="text-cyber-purple -rotate-12" />
+                            <Workflow size={120} className="text-cyber-purple -rotate-12" />
                         </div>
                         <div className="mb-8 inline-flex p-4 rounded-full bg-cyber-purple/5 border border-cyber-purple/20 group-hover:bg-cyber-purple/20 transition-colors">
                             <Layers className="w-8 h-8 text-cyber-purple" />
@@ -168,7 +169,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
             </div>
         </section>
 
-        {/* III. GALLERY (MasterFlow Gallery Nof1) */}
+        {/* III. GALLERY (TradingFlow Gallery Nof1) */}
         <section className="relative z-10 py-32 px-6 overflow-hidden">
             {/* Background Scanner Effect */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-gradient-to-b from-transparent via-cyber-neon/20 to-transparent z-0"></div>
@@ -177,13 +178,13 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
             <div className="max-w-7xl mx-auto w-full relative">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-white/10 pb-6 relative z-10">
                     <div>
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">MASTERFLOW GALLERY</h2>
+                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">TRADINGFLOW GALLERY</h2>
                         <p className="text-gray-400 max-w-xl">
                             Explore workflows designed and shared by top community Masters. Clone, customize, and deploy to your Vault in seconds.
                         </p>
                     </div>
                     <button className="hidden md:flex items-center gap-2 text-cyber-neon hover:text-white transition-colors font-mono uppercase text-sm tracking-widest mt-4 md:mt-0">
-                        Explore All MasterFlows <ArrowRight size={16} />
+                        Explore All TradingFlows <ArrowRight size={16} />
                     </button>
                 </div>
 

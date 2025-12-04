@@ -54,7 +54,6 @@ export const Loader: React.FC = () => {
       <div className="relative flex flex-col items-center gap-12 z-10 w-full">
         
         {/* Custom Logo Construction (The Windmill) */}
-        {/* We use an SVG to approximate the 4-ribbon shape */}
         <div className="relative w-32 h-32 animate-pulse-slow">
             {/* Inner Spinner Container - Rotates slowly */}
             <svg 
@@ -101,7 +100,7 @@ export const Loader: React.FC = () => {
         {/* Text Area */}
         <div className="flex flex-col items-center gap-3">
             <h2 className="text-3xl font-bold tracking-[0.2em] text-white">
-                TRADING<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-pink to-cyber-neon">FLOW</span>
+                trading<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-pink to-cyber-neon italic">flow</span>
             </h2>
             
             {/* Slogan with Typewriter Effect */}

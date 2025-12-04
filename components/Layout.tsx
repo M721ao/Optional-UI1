@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Page, UserProfile } from '../types';
-import { Terminal, LayoutDashboard, Hexagon, Wallet, User, LogOut, CreditCard, FileText, Moon, Sun, Globe, Copy } from 'lucide-react';
+import { Terminal, LayoutDashboard, Hexagon, Wallet, User, LogOut, CreditCard, FileText, Moon, Sun, Globe, Copy, Workflow } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 
 interface LayoutProps {
@@ -25,7 +25,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
             name: method === 'web3' ? '0x71...8A9' : 'NeonMaster',
             avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
             credits: 2400,
-            inviteCode: 'NEON-8821',
+            inviteCode: 'FLOW-8821',
             plan: 'FREE',
             walletAddress: '0x71C...38A9',
             chain: 'ETH'
@@ -47,11 +47,15 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
       {/* Navbar */}
       <nav className="sticky top-0 z-50 glass-panel border-b border-gray-200 dark:border-white/10 h-16 flex-none flex items-center justify-between px-6 transition-all">
         <div 
-          className="flex items-center gap-2 cursor-pointer group"
+          className="flex items-center gap-3 cursor-pointer group"
           onClick={() => onNavigate(Page.LANDING)}
         >
-          <Hexagon className="w-8 h-8 text-cyber-neon group-hover:rotate-180 transition-transform duration-500" />
-          <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white">NEON<span className="text-cyber-neon">FLOW</span></span>
+          {/* Replaced Hexagon with Workflow to match 'Flow' concept better, rotated for style */}
+          <div className="relative">
+             <Workflow className="w-8 h-8 text-cyber-neon group-hover:rotate-90 transition-transform duration-500" />
+             <div className="absolute inset-0 bg-cyber-neon/30 blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </div>
+          <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white">trading<span className="text-cyber-neon italic">flow</span></span>
         </div>
 
         <div className="flex items-center gap-8">
