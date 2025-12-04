@@ -49,6 +49,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
         <div 
           className="flex items-center gap-3 cursor-pointer group"
           onClick={() => onNavigate(Page.LANDING)}
+          title="Return to Home"
         >
           {/* Custom TradingFlow Logo (Mini Version) */}
           <div className="relative w-8 h-8">
@@ -90,12 +91,14 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
           <button 
             onClick={() => onNavigate(Page.STUDIO)}
             className={`flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-colors ${currentPage === Page.STUDIO ? 'text-cyber-purple dark:text-cyber-neon drop-shadow-[0_0_5px_rgba(0,243,255,0.8)]' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}
+            title="Open Strategy Builder"
           >
             <Terminal size={18} /> Workbench
           </button>
           <button 
              onClick={() => onNavigate(Page.DASHBOARD)}
              className={`flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-colors ${currentPage === Page.DASHBOARD ? 'text-cyber-pink drop-shadow-[0_0_5px_rgba(255,0,255,0.8)]' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}
+             title="View Asset Dashboard"
           >
             <LayoutDashboard size={18} /> Dashboard
           </button>
@@ -106,6 +109,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
                 <button 
                     onClick={() => setIsAuthModalOpen(true)}
                     className="flex items-center gap-2 bg-gray-100 dark:bg-cyber-dark border border-gray-300 dark:border-cyber-neon/30 hover:border-cyber-neon hover:bg-cyber-neon/10 text-gray-800 dark:text-cyber-neon px-4 py-2 rounded-sm transition-all duration-300 font-mono text-sm uppercase group"
+                    title="Connect Wallet"
                 >
                     <Wallet size={16} className="text-cyber-purple dark:text-cyber-neon group-hover:animate-pulse" />
                     <span>Connect</span>
@@ -113,7 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
             ) : (
                 <div className="flex items-center gap-6 relative">
                     {/* Credits Display */}
-                    <div className="hidden md:flex flex-col items-end">
+                    <div className="hidden md:flex flex-col items-end" title="Available Compute Credits">
                         <span className="text-[10px] text-gray-500 font-mono tracking-wider">CREDITS</span>
                         <span className="text-sm font-bold text-cyber-purple dark:text-cyber-neon font-mono text-glow">{user.credits.toLocaleString()}</span>
                     </div>
@@ -123,6 +127,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
                         <button 
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             className="w-10 h-10 rounded-full border border-cyber-purple/50 dark:border-cyber-neon/50 p-0.5 overflow-hidden hover:shadow-[0_0_10px_rgba(188,19,254,0.5)] dark:hover:shadow-[0_0_10px_rgba(0,243,255,0.5)] transition-all"
+                            title="User Menu"
                         >
                             <img src={user.avatar} alt="User" className="w-full h-full rounded-full object-cover" />
                         </button>
@@ -137,7 +142,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
                                         <div className="font-bold text-gray-900 dark:text-white truncate">{user.name}</div>
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono bg-gray-200 dark:bg-black/50 px-1.5 py-0.5 rounded">INVITE: {user.inviteCode}</span>
-                                            <button className="text-gray-500 hover:text-black dark:hover:text-white"><Copy size={10} /></button>
+                                            <button className="text-gray-500 hover:text-black dark:hover:text-white" title="Copy Invite Code"><Copy size={10} /></button>
                                         </div>
                                     </div>
 

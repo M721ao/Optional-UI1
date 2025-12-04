@@ -43,7 +43,7 @@ const CyberNode = ({ data, isConnectable }: any) => {
                         </div>
                         <span className="text-xs font-bold text-gray-900 dark:text-white font-sans uppercase tracking-wider">{data.label}</span>
                     </div>
-                    <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                    <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-black dark:hover:text-white transition-colors" title={expanded ? "Collapse" : "Expand"}>
                         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </button>
                 </div>
@@ -409,6 +409,7 @@ const StudioContent: React.FC = () => {
                                     value={executionInterval}
                                     onChange={(e) => setExecutionInterval(Number(e.target.value))}
                                     className="bg-gray-100 dark:bg-black/50 border border-gray-300 dark:border-gray-700 text-[10px] py-1 px-2 rounded font-mono focus:outline-none hover:border-gray-400 transition-colors"
+                                    title="Set execution speed"
                                 >
                                     <option value={1000}>1s (Turbo)</option>
                                     <option value={3000}>3s (Fast)</option>
@@ -425,6 +426,7 @@ const StudioContent: React.FC = () => {
                                         ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-500 dark:border-red-500/50 dark:hover:bg-red-500/20' 
                                         : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-500 dark:border-green-500/50 dark:hover:bg-green-500/20'
                                     }`}
+                                    title={isRunning ? "Stop Simulation" : "Start Simulation"}
                                  >
                                      {isRunning ? <StopCircle size={14} /> : <PlayCircle size={14} />}
                                      {isRunning ? 'Stop' : 'Start'}
@@ -432,6 +434,7 @@ const StudioContent: React.FC = () => {
                                  <button 
                                     onClick={handleSyntaxCheck}
                                     className="h-9 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-md font-bold text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-cyber-neon transition-all"
+                                    title="Audit workflow logic"
                                  >
                                      <CheckCircle2 size={14} />
                                      Audit
@@ -484,7 +487,7 @@ const StudioContent: React.FC = () => {
                          <div className="h-40 bg-black border-t border-gray-800 flex flex-col font-mono text-[10px] shrink-0">
                             <div className="px-3 py-1 bg-gray-900 border-b border-gray-800 flex justify-between items-center text-gray-500">
                                 <span className="uppercase flex items-center gap-2"><TerminalSquare size={10} /> Live Console</span>
-                                <button onClick={() => setCurrentLog([])} className="hover:text-white"><RefreshCw size={10} /></button>
+                                <button onClick={() => setCurrentLog([])} className="hover:text-white" title="Clear Console"><RefreshCw size={10} /></button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-2 text-gray-300 space-y-1">
                                 {currentLog.length === 0 && <span className="text-gray-600 italic">Ready for commands...</span>}
@@ -524,6 +527,7 @@ const StudioContent: React.FC = () => {
                         <h1 
                             className="text-sm font-bold text-gray-900 dark:text-white tracking-wide cursor-pointer hover:text-purple-600 dark:hover:text-cyber-neon flex items-center gap-2"
                             onClick={() => setIsEditingName(true)}
+                            title="Edit Flow Name"
                         >
                             {flowName}
                             <Edit2 size={12} className="opacity-50" />
@@ -714,6 +718,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                     <button 
                         onClick={() => handleSendMessage("Create a Delta Neutral Yield Farming strategy on AAVE with stablecoin pairing")} 
                         className="group flex items-center gap-3 p-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-green-500/50 hover:bg-green-500/5 transition-all text-left"
+                        title="Auto-fill prompt for Delta Neutral Farm"
                     >
                         <div className="p-2 bg-green-500/10 rounded-md text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"><Activity size={14} /></div>
                         <div className="flex-1">
@@ -725,6 +730,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                     <button 
                         onClick={() => handleSendMessage("Build an Arbitrage Sniper bot for Curve ETH/stETH pools")} 
                         className="group flex items-center gap-3 p-2 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left"
+                        title="Auto-fill prompt for Arbitrage Sniper"
                     >
                         <div className="p-2 bg-purple-500/10 rounded-md text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform"><Zap size={14} /></div>
                         <div className="flex-1">
@@ -743,12 +749,14 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                     <button 
                         onClick={() => handleSendMessage("Audit the current workflow for security vulnerabilities and logical errors")}
                         className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-gray-600 dark:text-gray-400"
+                        title="Analyze current flow for risks"
                     >
                         <ShieldCheck size={10} /> Audit Security
                     </button>
                      <button 
                         onClick={() => handleSendMessage("Analyze gas usage and suggest optimizations for this flow")}
                         className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-gray-600 dark:text-gray-400"
+                        title="Optimize flow for lower fees"
                     >
                         <Search size={10} /> Optimize Gas
                     </button>
@@ -772,6 +780,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                     <button 
                         onClick={() => setShowHistory(!showHistory)}
                         className={`p-1.5 rounded-md transition-colors ${showHistory ? 'bg-purple-100 dark:bg-cyber-purple/20 text-purple-600 dark:text-cyber-neon' : 'text-gray-400 hover:text-black dark:hover:text-white'}`}
+                        title="View Chat History"
                     >
                         <History size={14} />
                     </button>
@@ -783,7 +792,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                             <div className="absolute top-8 left-0 w-64 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 shadow-2xl rounded-md z-40 overflow-hidden animate-in fade-in zoom-in duration-200">
                                 <div className="p-2 border-b border-gray-200 dark:border-white/10 flex justify-between items-center bg-gray-50 dark:bg-white/5">
                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">History</span>
-                                    <button onClick={createNewChat} className="flex items-center gap-1 text-[10px] text-purple-600 dark:text-cyber-neon font-bold hover:underline">
+                                    <button onClick={createNewChat} className="flex items-center gap-1 text-[10px] text-purple-600 dark:text-cyber-neon font-bold hover:underline" title="Start new conversation">
                                         <Plus size={10} /> New Chat
                                     </button>
                                 </div>
@@ -800,6 +809,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                                                     setShowHistory(false);
                                                 }}
                                                 className="w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors border-b border-gray-100 dark:border-white/5 last:border-0 group"
+                                                title={`Load: ${s.title}`}
                                             >
                                                 <div className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate group-hover:text-purple-500 dark:group-hover:text-cyber-neon">{s.title}</div>
                                                 <div className="text-[9px] text-gray-400 font-mono mt-0.5">{new Date(s.timestamp).toLocaleDateString()}</div>
@@ -863,6 +873,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                     onClick={() => handleSendMessage()} 
                     disabled={isLoading} 
                     className="absolute right-2 bottom-2 p-1.5 bg-purple-600 dark:bg-cyber-neon text-white dark:text-black rounded hover:opacity-90 transition-opacity disabled:opacity-50"
+                    title="Send Message"
                 >
                     <Send size={14} />
                 </button>
@@ -877,6 +888,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                             value={selectedModel}
                             onChange={(e) => setSelectedModel(e.target.value)}
                             className="appearance-none bg-transparent text-gray-600 dark:text-gray-400 text-[9px] font-mono focus:text-purple-600 dark:focus:text-cyber-neon outline-none cursor-pointer pr-4 hover:underline"
+                            title="Select AI Model"
                         >
                             <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                             <option value="gemini-flash-lite-latest">Gemini Flash Lite</option>
@@ -886,7 +898,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                     </div>
                 </div>
                 {messages.length > 0 && (
-                    <button className="text-[9px] text-gray-400 hover:text-red-500" onClick={() => setMessages([])}>CLEAR CHAT</button>
+                    <button className="text-[9px] text-gray-400 hover:text-red-500" onClick={() => setMessages([])} title="Clear conversation history">CLEAR CHAT</button>
                 )}
             </div>
         </div>
