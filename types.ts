@@ -24,6 +24,7 @@ export interface Flow {
   triggers: number;
   lastRun: string;
   tvl: number;
+  thumbnailType: 'linear' | 'branching' | 'complex'; // For CSS visualizer
 }
 
 export interface Vault {
@@ -44,4 +45,17 @@ export interface UserProfile {
   plan: 'FREE' | 'MASTER';
   walletAddress?: string;
   chain?: 'ETH' | 'SOL' | 'ARB' | 'BASE';
+}
+
+export interface CommunityStrategy {
+  id: string;
+  name: string;
+  author: string;
+  authorAvatar: string;
+  apy: number;
+  risk: 'low' | 'medium' | 'high';
+  description: string;
+  tags: string[];
+  copiers: number;
+  price: string;
 }

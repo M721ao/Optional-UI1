@@ -100,7 +100,7 @@ export const Loader: React.FC = () => {
         {/* Text Area */}
         <div className="flex flex-col items-center gap-3">
             <h2 className="text-3xl font-bold tracking-[0.2em] text-white">
-                trading<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-pink to-cyber-neon italic">flow</span>
+                Trading<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-pink to-cyber-neon">Flow</span>
             </h2>
             
             {/* Slogan with Typewriter Effect */}

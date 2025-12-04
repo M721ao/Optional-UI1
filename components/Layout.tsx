@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Page, UserProfile } from '../types';
-import { Terminal, LayoutDashboard, Hexagon, Wallet, User, LogOut, CreditCard, FileText, Moon, Sun, Globe, Copy, Workflow } from 'lucide-react';
+import { Terminal, LayoutDashboard, Wallet, User, LogOut, CreditCard, FileText, Moon, Sun, Globe, Copy } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 
 interface LayoutProps {
@@ -50,12 +50,40 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
           className="flex items-center gap-3 cursor-pointer group"
           onClick={() => onNavigate(Page.LANDING)}
         >
-          {/* Replaced Hexagon with Workflow to match 'Flow' concept better, rotated for style */}
-          <div className="relative">
-             <Workflow className="w-8 h-8 text-cyber-neon group-hover:rotate-90 transition-transform duration-500" />
-             <div className="absolute inset-0 bg-cyber-neon/30 blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          {/* Custom TradingFlow Logo (Mini Version) */}
+          <div className="relative w-8 h-8">
+             <svg 
+                viewBox="0 0 100 100" 
+                className="w-full h-full drop-shadow-[0_0_8px_rgba(188,19,254,0.5)] group-hover:rotate-90 transition-transform duration-700 ease-in-out"
+            >
+                <defs>
+                    <linearGradient id="nav-grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ff00ff" />
+                        <stop offset="100%" stopColor="#bc13fe" />
+                    </linearGradient>
+                    <linearGradient id="nav-grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ff7e5f" />
+                        <stop offset="100%" stopColor="#feb47b" />
+                    </linearGradient>
+                    <linearGradient id="nav-grad3" x1="100%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#bc13fe" />
+                        <stop offset="100%" stopColor="#240b36" />
+                    </linearGradient>
+                    <linearGradient id="nav-grad4" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#fcee0a" />
+                        <stop offset="100%" stopColor="#fb8c00" />
+                    </linearGradient>
+                </defs>
+                <path d="M52 50 Q 52 20 80 20 L 80 48 Q 52 48 52 50" fill="url(#nav-grad1)" />
+                <path d="M50 52 Q 80 52 80 80 L 52 80 Q 52 52 50 52" fill="url(#nav-grad2)" />
+                <path d="M48 50 Q 48 80 20 80 L 20 52 Q 48 52 48 50" fill="url(#nav-grad3)" />
+                <path d="M50 48 Q 20 48 20 20 L 48 20 Q 48 48 50 48" fill="url(#nav-grad4)" />
+                <circle cx="50" cy="50" r="4" fill="#fff" />
+            </svg>
           </div>
-          <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white">trading<span className="text-cyber-neon italic">flow</span></span>
+          <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
+            Trading<span className="text-cyber-neon">Flow</span>
+          </span>
         </div>
 
         <div className="flex items-center gap-8">
