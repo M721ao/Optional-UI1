@@ -301,7 +301,7 @@ const StudioContent: React.FC = () => {
   return (
     <div className="h-full flex flex-col md:flex-row overflow-hidden bg-white dark:bg-[#080808]">
         {/* 1. LEFT SIDEBAR: DUAL MODE COMMAND CENTER (w-80) */}
-        <div className="flex w-80 z-20 shadow-xl bg-white dark:bg-[#0a0a0f] border-r border-gray-200 dark:border-white/5">
+        <div className="flex w-80 z-20 shadow-xl bg-white dark:bg-[#0a0a0f] border-r border-gray-200 dark:border-white/5 shrink-0">
              
              {/* A. NAV STRIP (Icons) */}
              <div className="w-12 bg-gray-100 dark:bg-black/40 border-r border-gray-200 dark:border-white/5 flex flex-col items-center py-4 gap-4 shrink-0">
@@ -415,24 +415,24 @@ const StudioContent: React.FC = () => {
                                 </select>
                              </div>
 
-                             {/* Action Buttons - Less Aggressive */}
+                             {/* Action Buttons - Compact */}
                              <div className="grid grid-cols-2 gap-3">
                                  <button 
                                     onClick={toggleExecution}
-                                    className={`h-10 rounded-md font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm border ${
+                                    className={`h-9 rounded-md font-bold text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm border ${
                                         isRunning 
                                         ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-500 dark:border-red-500/50 dark:hover:bg-red-500/20' 
                                         : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-500 dark:border-green-500/50 dark:hover:bg-green-500/20'
                                     }`}
                                  >
-                                     {isRunning ? <StopCircle size={16} /> : <PlayCircle size={16} />}
-                                     {isRunning ? 'Stop Engine' : 'Start Engine'}
+                                     {isRunning ? <StopCircle size={14} /> : <PlayCircle size={14} />}
+                                     {isRunning ? 'Stop' : 'Start'}
                                  </button>
                                  <button 
                                     onClick={handleSyntaxCheck}
-                                    className="h-10 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-md font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-cyber-neon transition-all"
+                                    className="h-9 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-md font-bold text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-cyber-neon transition-all"
                                  >
-                                     <CheckCircle2 size={16} />
+                                     <CheckCircle2 size={14} />
                                      Audit
                                  </button>
                              </div>
@@ -503,9 +503,9 @@ const StudioContent: React.FC = () => {
 
         {/* 2. MIDDLE: CANVAS */}
         <div className="flex-1 h-full relative flex flex-col bg-white dark:bg-[#080808]" ref={reactFlowWrapper}>
-            {/* Canvas Header Overlay - Simplified */}
-            <div className="absolute top-4 left-4 z-10 flex items-center gap-3 pointer-events-none">
-                {/* Title */}
+            {/* Canvas Header Overlay */}
+            <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between pointer-events-none">
+                {/* Title (Left) */}
                 <div className="bg-white/90 dark:bg-cyber-panel/90 backdrop-blur-md p-2 rounded border border-gray-200 dark:border-white/10 shadow-lg pointer-events-auto flex items-center gap-3">
                     <div className="p-1.5 bg-purple-100 dark:bg-cyber-neon/20 rounded">
                         <TerminalSquare size={16} className="text-purple-600 dark:text-cyber-neon" />
@@ -528,6 +528,11 @@ const StudioContent: React.FC = () => {
                             <Edit2 size={12} className="opacity-50" />
                         </h1>
                     )}
+                </div>
+
+                {/* Vault Widget (Right) */}
+                <div className="pointer-events-auto">
+                    <VaultWidget />
                 </div>
             </div>
 
@@ -555,12 +560,9 @@ const StudioContent: React.FC = () => {
             </ReactFlow>
         </div>
 
-        {/* 3. RIGHT SIDEBAR: VAULT + CHAT (w-96) */}
-        <div className="w-96 bg-white dark:bg-[#0a0a0f] border-l border-gray-200 dark:border-white/5 flex flex-col z-20 shadow-2xl">
-            {/* Vault Status Widget (Fixed Top) */}
-            <VaultWidget />
-            
-            {/* Chat Interface (Fills Remaining) */}
+        {/* 3. RIGHT SIDEBAR: CHAT ONLY (w-96) */}
+        <div className="w-96 bg-white dark:bg-[#0a0a0f] border-l border-gray-200 dark:border-white/5 flex flex-col z-20 shadow-2xl shrink-0">
+            {/* Chat Interface (Fills entire Right Sidebar now) */}
             <div className="flex-1 flex flex-col overflow-hidden relative">
                  <ChatInterface setNodes={setNodes} setEdges={setEdges} />
             </div>

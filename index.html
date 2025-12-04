@@ -81,9 +81,28 @@
         color: #111827;
       }
       
+      /* --- Custom Scrollbars --- */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(150, 150, 150, 0.2);
+        border-radius: 10px;
+        transition: background 0.2s;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(150, 150, 150, 0.5);
+      }
+      /* Dark mode specifics if needed, but rgba handles both decently */
+
       .scrollbar-hide::-webkit-scrollbar {
           display: none;
       }
+      
       .glass-panel {
         background: rgba(18, 18, 24, 0.6);
         backdrop-filter: blur(12px);
