@@ -1,78 +1,122 @@
-import React, { useState } from 'react';
-import { Flow, Vault, CommunityStrategy } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Flow, Vault, VaultAsset, VaultTransaction } from '../types';
 import { 
-    Play, Pause, TrendingUp, Box, Activity, 
-    Copy, Users, Zap, Search, ArrowUpRight, 
-    Lock, Globe, MoreHorizontal, ChevronDown, ChevronUp,
-    BarChart3, Radio, Wifi, Database
+    Box, Activity, Search, MoreHorizontal, ChevronDown, ChevronUp,
+    BarChart3, Radio, Database, Zap, Lock, Globe, ArrowUpRight,
+    Wallet, Shield, History, Plus, Clock, Settings, TrendingUp, CheckCircle2,
+    Radar, Target, AlertTriangle, Filter
 } from 'lucide-react';
 import { NeonChart } from '../components/NeonChart';
 
-// --- CSS-BASED FLOW THUMBNAIL VISUALIZER ---
+// --- REALISTIC CANVAS THUMBNAIL GENERATOR ---
 const FlowThumbnail: React.FC<{ type: 'linear' | 'branching' | 'complex' }> = ({ type }) => {
     return (
-        <div className="w-full h-24 bg-[#080808] relative overflow-hidden group-hover:bg-[#0a0a0f] transition-colors border-b border-white/5">
-            <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-            
-            {/* Simulation of Nodes & Edges */}
-            <div className="absolute inset-0 flex items-center justify-center scale-75 opacity-60 group-hover:opacity-100 group-hover:scale-90 transition-all duration-500">
-                {type === 'linear' && (
-                    <div className="flex items-center gap-4">
-                        <div className="w-6 h-6 rounded bg-cyber-purple/20 border border-cyber-purple flex items-center justify-center"><Zap size={10} className="text-cyber-purple"/></div>
-                        <div className="w-6 h-0.5 bg-gray-700"></div>
-                        <div className="w-6 h-6 rounded bg-cyber-neon/20 border border-cyber-neon flex items-center justify-center"><Activity size={10} className="text-cyber-neon"/></div>
-                        <div className="w-6 h-0.5 bg-gray-700"></div>
-                        <div className="w-6 h-6 rounded bg-white/10 border border-white/40 flex items-center justify-center"><Box size={10} className="text-white"/></div>
-                    </div>
-                )}
-
-                {type === 'branching' && (
-                    <div className="flex items-center gap-4">
-                        <div className="w-6 h-6 rounded bg-yellow-500/20 border border-yellow-500 flex items-center justify-center"><Activity size={10} className="text-yellow-500"/></div>
-                        <div className="w-4 h-0.5 bg-gray-700"></div>
-                        <div className="flex flex-col gap-4 relative">
-                             {/* Vertical connector */}
-                            <div className="absolute left-[-16px] top-[12px] bottom-[12px] w-0.5 bg-gray-700"></div>
-                            {/* Top Branch */}
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-0.5 bg-gray-700"></div>
-                                <div className="w-6 h-6 rounded bg-cyber-pink/20 border border-cyber-pink"></div>
-                            </div>
-                            {/* Bottom Branch */}
-                            <div className="flex items-center gap-2">
-                                <div className="w-4 h-0.5 bg-gray-700"></div>
-                                <div className="w-6 h-6 rounded bg-cyber-neon/20 border border-cyber-neon"></div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {type === 'complex' && (
-                    <div className="relative w-32 h-16">
-                        <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-gray-700" strokeWidth="1">
-                            <line x1="50%" y1="10%" x2="10%" y2="90%" />
-                            <line x1="50%" y1="10%" x2="90%" y2="80%" />
-                            <line x1="10%" y1="90%" x2="90%" y2="80%" />
-                        </svg>
-                        <div className="absolute top-0 left-10 w-4 h-4 rounded bg-cyber-purple/20 border border-cyber-purple z-10"></div>
-                        <div className="absolute bottom-0 left-0 w-4 h-4 rounded bg-cyber-neon/20 border border-cyber-neon z-10"></div>
-                        <div className="absolute bottom-4 right-4 w-4 h-4 rounded bg-cyber-pink/20 border border-cyber-pink z-10"></div>
-                    </div>
-                )}
+        <div className="w-full h-36 bg-[#121218] relative overflow-hidden group-hover:bg-[#15151b] transition-colors border-b border-white/5">
+            {/* Background Grid Pattern */}
+            <div className="absolute inset-0 opacity-30" 
+                 style={{ backgroundImage: 'radial-gradient(#444 1px, transparent 1px)', backgroundSize: '12px 12px' }}>
             </div>
+            
+            <div className="absolute inset-0 flex items-center justify-center transform scale-[0.7] origin-center pointer-events-none">
+                <svg width="400" height="200" viewBox="0 0 400 200" className="drop-shadow-2xl">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                        </marker>
+                    </defs>
+
+                    {/* EDGES (Wires) */}
+                    {type === 'linear' && (
+                        <>
+                            <path d="M 90 100 C 140 100, 160 100, 210 100" stroke="#00f3ff" strokeWidth="3" fill="none" markerEnd="url(#arrowhead)" className="animate-pulse" />
+                            <path d="M 290 100 C 310 100, 310 100, 330 100" stroke="#555" strokeWidth="2" fill="none" />
+                        </>
+                    )}
+                    {type === 'branching' && (
+                        <>
+                            <path d="M 90 100 C 150 100, 150 60, 210 60" stroke="#bc13fe" strokeWidth="3" fill="none" />
+                            <path d="M 90 100 C 150 100, 150 140, 210 140" stroke="#bc13fe" strokeWidth="3" fill="none" />
+                            <path d="M 290 60 C 310 60, 320 60, 340 60" stroke="#555" strokeWidth="2" fill="none" />
+                        </>
+                    )}
+                    {type === 'complex' && (
+                        <>
+                             <path d="M 80 50 C 120 50, 120 100, 180 100" stroke="#ff00ff" strokeWidth="3" fill="none" />
+                             <path d="M 80 150 C 120 150, 120 100, 180 100" stroke="#00f3ff" strokeWidth="3" fill="none" />
+                             <path d="M 260 100 C 300 100, 300 100, 340 100" stroke="#555" strokeWidth="2" fill="none" />
+                        </>
+                    )}
+
+                    {/* NODES (Rectangles) */}
+                    {/* Node 1 (Start) */}
+                    <g transform={type === 'complex' ? "translate(10, 20)" : "translate(10, 80)"}>
+                        <rect width="80" height="40" rx="4" fill="#1e1e24" stroke="#888" strokeWidth="1" />
+                        <rect x="0" y="0" width="80" height="10" rx="4" fill="#333" />
+                        <circle cx="75" cy="20" r="3" fill="#666" /> {/* Handle */}
+                    </g>
+                    
+                    {/* Complex Node 1b */}
+                    {type === 'complex' && (
+                        <g transform="translate(10, 130)">
+                            <rect width="80" height="40" rx="4" fill="#1e1e24" stroke="#888" strokeWidth="1" />
+                            <rect x="0" y="0" width="80" height="10" rx="4" fill="#333" />
+                            <circle cx="75" cy="20" r="3" fill="#666" />
+                        </g>
+                    )}
+
+                    {/* Node 2 (Middle) */}
+                    <g transform={type === 'branching' ? "translate(210, 40)" : "translate(210, 80)"}>
+                        <rect width="80" height="40" rx="4" fill="#1e1e24" stroke={type === 'linear' ? '#00f3ff' : type === 'branching' ? '#bc13fe' : '#ff00ff'} strokeWidth="2" filter="drop-shadow(0 0 4px rgba(0,243,255,0.3))" />
+                        <rect x="0" y="0" width="80" height="10" rx="4" fill={type === 'linear' ? 'rgba(0,243,255,0.2)' : type === 'branching' ? 'rgba(188,19,254,0.2)' : 'rgba(255,0,255,0.2)'} />
+                        <circle cx="5" cy="20" r="3" fill="#00f3ff" /> {/* Input Handle */}
+                        <circle cx="75" cy="20" r="3" fill="#00f3ff" /> {/* Output Handle */}
+                    </g>
+
+                    {/* Node 2b (Branching Bottom) */}
+                    {type === 'branching' && (
+                         <g transform="translate(210, 120)">
+                            <rect width="80" height="40" rx="4" fill="#1e1e24" stroke="#bc13fe" strokeWidth="2" />
+                            <rect x="0" y="0" width="80" height="10" rx="4" fill="rgba(188,19,254,0.2)" />
+                            <circle cx="5" cy="20" r="3" fill="#bc13fe" />
+                        </g>
+                    )}
+
+                    {/* Node 3 (End) */}
+                    <g transform={type === 'branching' ? "translate(340, 40)" : "translate(340, 80)"}>
+                        <rect width="50" height="40" rx="4" fill="#1e1e24" stroke="#fff" strokeWidth="1" />
+                        <circle cx="5" cy="20" r="3" fill="#fff" />
+                    </g>
+
+                </svg>
+            </div>
+            
+            {/* Overlay Gradient for depth */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#121218] to-transparent opacity-30"></div>
         </div>
     );
 };
 
 export const Dashboard: React.FC = () => {
     const [isChartExpanded, setIsChartExpanded] = useState(false);
+    
+    // --- VAULT MANAGER STATE ---
+    const [selectedChain, setSelectedChain] = useState<'Aptos' | 'Flow EVM' | 'BSC' | 'Solana' | 'Sui'>('Flow EVM');
+    // Track the index of the selected vault within the current chain
+    const [selectedVaultIndex, setSelectedVaultIndex] = useState(0);
+    const [vaultTab, setVaultTab] = useState<'allocation' | 'history'>('allocation');
+
+    // Effect: Reset vault selection when chain changes
+    useEffect(() => {
+        setSelectedVaultIndex(0);
+        setVaultTab('allocation');
+    }, [selectedChain]);
 
     // --- MOCK DATA ---
-    const [intelStream] = useState([
-        { id: '1', signal: 'ARBITRAGE', pair: 'ETH/USDC', dex: 'Uniswap -> Curve', gain: '+1.2%', time: '12s ago', type: 'neon' },
-        { id: '2', signal: 'WHALE BUY', pair: 'PEPE', dex: 'Binance', gain: '$450k Vol', time: '45s ago', type: 'pink' },
-        { id: '3', signal: 'YIELD SPIKE', pair: 'GMX', dex: 'Arbitrum', gain: '24% APY', time: '2m ago', type: 'purple' },
-        { id: '4', signal: 'LIQUIDATION', pair: 'WBTC', dex: 'Aave', gain: '$1.2M', time: '5m ago', type: 'red' },
+    const [radarItems] = useState([
+        { id: '1', signal: 'ARBITRAGE', pair: 'ETH/USDC', dex: 'Uniswap', confidence: 98, gain: '+1.2%', time: '12s', type: 'neon' },
+        { id: '2', signal: 'WHALE BUY', pair: 'PEPE', dex: 'Binance', confidence: 85, gain: '$450k', time: '45s', type: 'pink' },
+        { id: '3', signal: 'YIELD SPIKE', pair: 'GMX', dex: 'Arbitrum', confidence: 92, gain: '24%', time: '2m', type: 'purple' },
+        { id: '4', signal: 'LIQUIDATION', pair: 'WBTC', dex: 'Aave', confidence: 74, gain: '$1.2M', time: '5m', type: 'red' },
     ]);
 
     const [flows] = useState<Flow[]>([
@@ -80,21 +124,67 @@ export const Dashboard: React.FC = () => {
         { id: 'f2', name: 'ETH Stop-Loss Protect', status: 'paused', triggers: 0, lastRun: '5d ago', tvl: 12000, thumbnailType: 'branching' },
         { id: 'f3', name: 'Arbitrage Scanner V2', status: 'error', triggers: 89, lastRun: '1h ago', tvl: 0, thumbnailType: 'complex' },
         { id: 'f4', name: 'Stablecoin Peg Watch', status: 'active', triggers: 1240, lastRun: '30s ago', tvl: 8500, thumbnailType: 'linear' },
+        { id: 'f5', name: 'Mempool Sniper', status: 'active', triggers: 2305, lastRun: '1s ago', tvl: 120000, thumbnailType: 'complex' },
     ]);
 
-    const [vaults] = useState<Vault[]>([
-        { id: 'v1', name: 'Alpha Vault [USDC]', asset: 'USDC', apy: 12.4, balance: 24500.50, risk: 'medium' },
-        { id: 'v2', name: 'HODL Stash [WBTC]', asset: 'WBTC', apy: 4.2, balance: 1.05, risk: 'low' },
-        { id: 'v3', name: 'Degen Farm [PEPE]', asset: 'PEPE', apy: 420.69, balance: 50000000, risk: 'high' },
-    ]);
+    // Detailed Vault Data per chain - NOW AS ARRAYS
+    const vaultData: Record<string, Vault[]> = {
+        'Aptos': [], // Empty state example
+        'Flow EVM': [
+            { 
+                id: 'v-flow-1', name: 'Flow Yield Master', chain: 'Flow EVM', address: '0x71c...38a', 
+                isDeployed: true, 
+                asset: 'FLOW', apy: 12.4, balance: 24500.50, risk: 'medium',
+                assets: [
+                    { symbol: 'FLOW', name: 'Flow Token', balance: 14500, value: 14500, icon: 'bg-green-500' },
+                    { symbol: 'USDC', name: 'USD Coin', balance: 10000, value: 10000.50, icon: 'bg-blue-500' },
+                    { symbol: 'WETH', name: 'Wrapped ETH', balance: 0.5, value: 1200, icon: 'bg-purple-500' }
+                ],
+                history: [
+                    { id: 't1', type: 'harvest', hash: '0xabc...123', time: '2h ago', amount: '+45.2 FLOW', status: 'success' },
+                    { id: 't2', type: 'deposit', hash: '0xdef...456', time: '1d ago', amount: '10,000 USDC', status: 'success' },
+                    { id: 't3', type: 'swap', hash: '0x789...012', time: '3d ago', amount: 'FLOW -> USDC', status: 'success' },
+                    { id: 't4', type: 'harvest', hash: '0xabc...124', time: '1d ago', amount: '+42.1 FLOW', status: 'success' },
+                    { id: 't5', type: 'harvest', hash: '0xabc...125', time: '2d ago', amount: '+40.8 FLOW', status: 'success' },
+                    { id: 't6', type: 'deposit', hash: '0xdef...457', time: '4d ago', amount: '5,000 USDC', status: 'success' },
+                    { id: 't7', type: 'swap', hash: '0x789...013', time: '5d ago', amount: 'FLOW -> USDC', status: 'success' },
+                    { id: 't8', type: 'harvest', hash: '0xabc...126', time: '6d ago', amount: '+38.5 FLOW', status: 'success' },
+                ]
+            },
+            { 
+                id: 'v-flow-2', name: 'Stablecoin LP', chain: 'Flow EVM', address: '0x88d...11b', 
+                isDeployed: true, 
+                asset: 'USDC', apy: 8.2, balance: 5400.00, risk: 'low',
+                assets: [
+                    { symbol: 'USDC', name: 'USD Coin', balance: 5400, value: 5400, icon: 'bg-blue-500' }
+                ],
+                history: [
+                    { id: 't9', type: 'deposit', hash: '0x999...111', time: '5d ago', amount: '+5400 USDC', status: 'success' },
+                ]
+            }
+        ],
+        'BSC': [
+            {
+                id: 'v-bsc-1', name: 'BSC Degen', chain: 'BSC', address: '0x99a...22c', 
+                isDeployed: true,
+                asset: 'BNB', apy: 5.2, balance: 1200, risk: 'high',
+                assets: [{ symbol: 'BNB', name: 'Binance Coin', balance: 2.5, value: 1200, icon: 'bg-yellow-500' }],
+                history: []
+            }
+        ],
+        'Solana': [],
+        'Sui': [],
+    };
+
+    const currentChainVaults = vaultData[selectedChain] || [];
+    const activeVault = currentChainVaults[selectedVaultIndex];
 
     return (
         <div className="h-full overflow-y-auto bg-[#050505] pb-20 scrollbar-hide">
             
-            {/* 1. SLIM MARKET TICKER (Collapsible Header) */}
+            {/* 1. SLIM GLOBAL TICKER */}
             <div className="sticky top-0 z-30 bg-[#0a0a0f]/95 backdrop-blur-md border-b border-white/10">
                 <div className="flex items-center justify-between px-6 py-2">
-                    {/* Ticker Items */}
                     <div className="flex items-center gap-6 overflow-hidden">
                         <div className="flex items-center gap-2 text-xs font-mono text-gray-400">
                             <Globe size={12} className="text-cyber-neon" />
@@ -104,14 +194,12 @@ export const Dashboard: React.FC = () => {
                             <Zap size={12} className="text-yellow-500" />
                             <span>GAS: <b className="text-yellow-500">14</b></span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs font-mono text-gray-400 hidden md:flex">
-                            <Activity size={12} className="text-cyber-pink" />
-                            <span>ETH: <b className="text-white">$2,840</b></span>
-                            <span className="text-green-500 text-[10px]">(+2.4%)</span>
+                        <div className="flex items-center gap-2 text-xs font-mono text-gray-400 hidden sm:flex">
+                            <TrendingUp size={12} className="text-green-500" />
+                            <span>BTC: <b className="text-white">$64,230</b></span>
                         </div>
                     </div>
 
-                    {/* Chart Toggle */}
                     <button 
                         onClick={() => setIsChartExpanded(!isChartExpanded)}
                         className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded transition-all ${isChartExpanded ? 'bg-cyber-purple text-white' : 'bg-white/5 text-gray-400 hover:text-white'}`}
@@ -121,7 +209,6 @@ export const Dashboard: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Expanded Chart Area */}
                 {isChartExpanded && (
                     <div className="h-64 border-b border-white/10 animate-in slide-in-from-top-2">
                         <NeonChart />
@@ -129,175 +216,319 @@ export const Dashboard: React.FC = () => {
                 )}
             </div>
 
-            {/* MAIN CONTENT GRID */}
-            <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* MAIN CONTENT GRID - 50/50 SPLIT */}
+            <div className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-[1600px] mx-auto items-start">
                 
-                {/* 2. LEFT COLUMN: MY OPERATIONS (70% Width) */}
-                <div className="lg:col-span-8 space-y-8">
+                {/* 2. LEFT COLUMN: RADAR + FLOWS (50%) */}
+                <div className="space-y-8">
                     
-                    {/* MY FLOWS HEADER */}
-                    <div className="flex items-center justify-between">
-                         <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <div className="p-1.5 bg-cyber-neon/10 rounded border border-cyber-neon/30">
-                                <Box size={18} className="text-cyber-neon" /> 
+                    {/* A. MARKET RADAR (Top of Left Column) */}
+                    <div className="bg-[#0c0c10] border border-gray-800 rounded-xl overflow-hidden flex flex-col relative group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        
+                        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
+                            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                                <Radar size={16} className="text-green-500 animate-spin-slow" /> Market Radar
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[9px] font-bold text-green-500 animate-pulse">SCANNING</span>
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></div>
                             </div>
-                            Active Workflows
-                        </h3>
-                        <div className="flex gap-2">
-                             <button className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"><Search size={16} /></button>
-                             <button className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"><MoreHorizontal size={16} /></button>
                         </div>
-                    </div>
-
-                    {/* FLOWS GRID */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {flows.map(flow => (
-                            <div key={flow.id} className="bg-[#0c0c10] border border-white/5 rounded-xl overflow-hidden hover:border-cyber-neon/50 transition-all group cursor-pointer shadow-lg relative">
-                                {/* Thumbnail */}
-                                <FlowThumbnail type={flow.thumbnailType} />
-                                
-                                {/* Status Light */}
-                                <div className={`absolute top-3 right-3 w-2 h-2 rounded-full ${
-                                    flow.status === 'active' ? 'bg-cyber-neon shadow-[0_0_8px_rgba(0,243,255,0.8)]' : 
-                                    flow.status === 'paused' ? 'bg-yellow-500' : 'bg-red-500'
-                                }`}></div>
-
-                                {/* Body */}
-                                <div className="p-4">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h4 className="font-bold text-white group-hover:text-cyber-neon truncate text-sm">{flow.name}</h4>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-[10px] font-mono text-gray-500 bg-white/5 px-1 rounded">ID: {flow.id.toUpperCase()}</span>
+                        
+                        {/* Radar Content */}
+                        <div className="max-h-[220px] overflow-y-auto scrollbar-hide relative">
+                             <div className="divide-y divide-gray-800/50">
+                                {radarItems.map((item) => (
+                                    <div key={item.id} className="p-3 hover:bg-white/5 transition-all cursor-pointer border-l-2 border-transparent hover:border-green-500 flex items-center justify-between group/item">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-1.5 rounded bg-gray-800 text-gray-400 group-hover/item:text-green-400 group-hover/item:bg-green-400/10 transition-colors">
+                                                <Target size={14} />
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-0.5">
+                                                     <span className="text-[10px] font-bold text-white bg-white/10 px-1.5 py-0.5 rounded">{item.signal}</span>
+                                                     <span className="text-[10px] font-bold text-gray-300">{item.pair}</span>
+                                                </div>
+                                                <div className="text-[9px] text-gray-500">{item.dex} • {item.time} ago</div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-3 gap-2 py-3 border-t border-white/5 border-b mb-3">
-                                         <div className="text-center border-r border-white/5">
-                                            <span className="text-[9px] text-gray-500 uppercase block">Run</span>
-                                            <span className="text-xs font-mono text-white">{flow.lastRun}</span>
-                                         </div>
-                                         <div className="text-center border-r border-white/5">
-                                            <span className="text-[9px] text-gray-500 uppercase block">Ops</span>
-                                            <span className="text-xs font-mono text-cyber-purple">{flow.triggers}</span>
-                                         </div>
-                                         <div className="text-center">
-                                            <span className="text-[9px] text-gray-500 uppercase block">TVL</span>
-                                            <span className="text-xs font-mono text-white">${(flow.tvl/1000).toFixed(1)}k</span>
-                                         </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <button className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-[10px] font-bold uppercase py-2 rounded transition-colors flex items-center justify-center gap-2">
-                                            <Activity size={12} /> Inspect
-                                        </button>
-                                        <button className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-cyber-neon/20 hover:text-cyber-neon text-gray-500 rounded transition-colors">
-                                            {flow.status === 'active' ? <Pause size={12} /> : <Play size={12} />}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                         
-                         {/* Create New Flow Button */}
-                        <div className="border border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center p-6 hover:bg-white/5 transition-colors cursor-pointer group gap-2 min-h-[220px]">
-                            <div className="w-10 h-10 rounded-full bg-cyber-neon/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Zap size={20} className="text-cyber-neon" />
-                            </div>
-                            <span className="text-xs font-bold text-gray-400 group-hover:text-white uppercase tracking-wider mt-2">Design New Flow</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 3. RIGHT COLUMN: VAULTS & INTEL (30% Width) */}
-                <div className="lg:col-span-4 space-y-8">
-                    
-                    {/* A. MY VAULTS */}
-                    <div className="space-y-4">
-                        <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                            <div className="p-1.5 bg-cyber-purple/10 rounded border border-cyber-purple/30">
-                                <Lock size={18} className="text-cyber-purple" />
-                            </div>
-                            My Vaults
-                        </h3>
-                        
-                        <div className="bg-[#0c0c10] border border-white/5 rounded-xl p-1 divide-y divide-white/5">
-                            {vaults.map(vault => (
-                                <div key={vault.id} className="p-3 hover:bg-white/5 transition-colors group cursor-pointer">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-white group-hover:text-cyber-purple transition-colors">{vault.name}</span>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${vault.risk === 'low' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                        <div className="text-right">
+                                            <div className="text-xs font-bold text-green-400">{item.gain}</div>
+                                            <div className="text-[9px] text-gray-600">{item.confidence}% Conf</div>
                                         </div>
-                                        <span className="text-xs font-mono font-bold text-cyber-purple">{vault.apy}%</span>
-                                    </div>
-                                    <div className="flex justify-between items-end">
-                                        <span className="text-[10px] text-gray-500 font-mono">{vault.asset}</span>
-                                        <span className="text-[10px] text-gray-300 font-mono">${vault.balance.toLocaleString()}</span>
-                                    </div>
-                                </div>
-                            ))}
-                            <div className="p-2">
-                                <button className="w-full text-[10px] text-gray-500 hover:text-white uppercase tracking-wider py-1 hover:bg-white/5 rounded transition-colors">
-                                    + Deploy New Vault
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* B. LIVE INTEL STREAM (Reinvented Community) */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                <Radio size={14} className="text-green-500 animate-pulse" /> Live Intel
-                            </h3>
-                            <span className="text-[9px] bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded border border-green-500/20 animate-pulse">LIVE</span>
-                        </div>
-
-                        <div className="bg-black border border-gray-800 rounded-lg overflow-hidden flex flex-col font-mono">
-                             {/* Terminal Header */}
-                            <div className="bg-gray-900 px-3 py-1.5 border-b border-gray-800 flex justify-between items-center">
-                                <span className="text-[9px] text-gray-500">SIGNAL_STREAM_V4.0</span>
-                                <Wifi size={10} className="text-gray-600" />
-                            </div>
-                            
-                            {/* Feed */}
-                            <div className="divide-y divide-gray-800/50">
-                                {intelStream.map(item => (
-                                    <div key={item.id} className="p-3 hover:bg-gray-900 transition-colors group relative overflow-hidden">
-                                        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-transparent group-hover:bg-cyber-neon transition-colors"></div>
-                                        
-                                        <div className="flex justify-between items-start mb-1">
-                                            <span className={`text-[10px] font-bold ${
-                                                item.type === 'neon' ? 'text-cyber-neon' : 
-                                                item.type === 'pink' ? 'text-cyber-pink' : 
-                                                item.type === 'red' ? 'text-red-500' : 'text-cyber-purple'
-                                            } uppercase`}>
-                                                [{item.signal}]
-                                            </span>
-                                            <span className="text-[9px] text-gray-600">{item.time}</span>
-                                        </div>
-                                        
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-xs text-gray-300">{item.pair} on {item.dex}</span>
-                                            <span className="text-xs text-green-500 font-bold">{item.gain}</span>
-                                        </div>
-
-                                        <button className="w-full flex items-center justify-center gap-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white text-[9px] uppercase tracking-wider rounded transition-colors opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 duration-200">
-                                            <Database size={10} /> Clone Strategy
-                                        </button>
                                     </div>
                                 ))}
                             </div>
-                            <div className="p-2 bg-gray-900 border-t border-gray-800 text-center">
-                                <span className="text-[9px] text-gray-600 cursor-pointer hover:text-white">View Full Signal Log...</span>
+                             {/* Faded bottom for visual continuity if scrolling */}
+                             <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#0c0c10] to-transparent pointer-events-none"></div>
+                        </div>
+                    </div>
+
+
+                    {/* B. MY FLOWS */}
+                    <div className="space-y-5">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                             <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                                <div className="p-2 bg-cyber-neon/10 rounded border border-cyber-neon/30 shadow-[0_0_10px_rgba(0,243,255,0.2)]">
+                                    <Box size={18} className="text-cyber-neon" /> 
+                                </div>
+                                My Flows
+                            </h3>
+                            <div className="flex gap-2">
+                                 <button className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"><Search size={16} /></button>
+                                 <button className="p-2 hover:bg-white/5 rounded-full text-gray-500 hover:text-white transition-colors"><MoreHorizontal size={16} /></button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div className="border border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center p-6 hover:bg-white/5 hover:border-cyber-neon/50 transition-all cursor-pointer group gap-3 min-h-[220px]">
+                                <div className="w-14 h-14 rounded-full bg-cyber-neon/5 flex items-center justify-center group-hover:scale-110 group-hover:bg-cyber-neon/20 transition-all duration-300">
+                                    <Plus size={28} className="text-gray-400 group-hover:text-cyber-neon" />
+                                </div>
+                                <span className="text-sm font-bold text-gray-400 group-hover:text-white uppercase tracking-wider">Create New Flow</span>
+                            </div>
+
+                            {flows.map(flow => (
+                                <div key={flow.id} className="bg-[#0c0c10] border border-gray-800 hover:border-cyber-neon/50 dark:border-white/10 rounded-xl overflow-hidden hover:shadow-[0_0_20px_rgba(0,0,0,0.7)] transition-all duration-300 group cursor-pointer relative flex flex-col h-[280px]">
+                                    <FlowThumbnail type={flow.thumbnailType} />
+                                    <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full border border-white/10 shadow-lg">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${
+                                            flow.status === 'active' ? 'bg-cyber-neon shadow-[0_0_5px_rgba(0,243,255,1)] animate-pulse' : 
+                                            flow.status === 'paused' ? 'bg-yellow-500' : 'bg-red-500'
+                                        }`}></div>
+                                        <span className="text-[9px] font-bold uppercase text-white">{flow.status}</span>
+                                    </div>
+                                    <div className="p-5 flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <h4 className="font-bold text-white text-base group-hover:text-cyber-neon transition-colors truncate mb-1">{flow.name}</h4>
+                                            <div className="flex items-center gap-2 text-[10px] font-mono text-gray-500">
+                                                <Clock size={10} /> Last run: {flow.lastRun}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-auto">
+                                             <div className="flex flex-col">
+                                                <span className="text-[9px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">Executions</span>
+                                                <span className="text-sm font-mono text-white font-bold">{flow.triggers.toLocaleString()}</span>
+                                             </div>
+                                             <div className="flex flex-col text-right">
+                                                <span className="text-[9px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">TVL</span>
+                                                <span className="text-sm font-mono text-cyber-purple font-bold">${(flow.tvl).toLocaleString()}</span>
+                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 3. RIGHT COLUMN: VAULT MANAGER (50%) */}
+                <div className="space-y-4 flex flex-col h-full">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <Lock size={16} className="text-cyber-purple" /> Vault Manager
+                        </h3>
+                        <button className="text-[10px] text-gray-500 hover:text-white underline">What is this?</button>
+                    </div>
+
+                    {/* Merged Header: Chain Tabs & Vault Switcher */}
+                    <div className="bg-[#0c0c10] border border-white/10 rounded-lg p-3 flex flex-col gap-3">
+                         {/* 1. Chain Selector */}
+                         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide border-b border-white/5 pb-2">
+                            {['Aptos', 'Flow EVM', 'BSC', 'Solana', 'Sui'].map((chain) => (
+                                <button
+                                    key={chain}
+                                    onClick={() => setSelectedChain(chain as any)}
+                                    className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all border ${
+                                        selectedChain === chain 
+                                        ? 'bg-white/10 border-white text-white' 
+                                        : 'bg-transparent border-transparent text-gray-500 hover:text-gray-300 hover:bg-white/5'
+                                    }`}
+                                >
+                                    {chain}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 2. Vault Selector (Multi-Vault Support) */}
+                        {currentChainVaults.length > 0 && (
+                            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                                {currentChainVaults.map((vault, index) => (
+                                    <button
+                                        key={vault.id}
+                                        onClick={() => setSelectedVaultIndex(index)}
+                                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all border ${
+                                            selectedVaultIndex === index
+                                            ? 'bg-cyber-purple/20 border-cyber-purple text-cyber-purple shadow-[0_0_10px_rgba(188,19,254,0.3)]'
+                                            : 'bg-black/40 border-white/10 text-gray-500 hover:text-white hover:border-white/30'
+                                        }`}
+                                    >
+                                        <Shield size={10} />
+                                        {vault.name}
+                                    </button>
+                                ))}
+                                <button className="flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/5 transition-all">
+                                    <Plus size={10} /> New
+                                </button>
+                            </div>
+                        )}
+
+                        {/* 3. Wallet Context */}
+                        <div className="flex items-center justify-between px-1 mt-1">
+                            <span className="text-[10px] text-gray-500 font-mono flex items-center gap-1">
+                                <Wallet size={10} /> {activeVault?.address || 'Not Connected'}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold text-gray-600 uppercase">Status</span>
+                                <div className={`w-2 h-2 rounded-full ${activeVault?.isDeployed ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,1)]' : 'bg-gray-600'}`}></div>
                             </div>
                         </div>
                     </div>
 
-                </div>
+                    {/* Vault Content Card */}
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex-1" key={`${selectedChain}-${selectedVaultIndex}`}>
+                        {!activeVault || !activeVault.isDeployed ? (
+                            <div className="bg-gradient-to-br from-[#151520] to-[#0c0c10] border border-white/10 rounded-xl p-8 flex flex-col items-center text-center h-[400px] justify-center">
+                                <div className="w-16 h-16 rounded-full bg-gray-800/50 flex items-center justify-center mb-4">
+                                    <Shield size={32} className="text-gray-600" />
+                                </div>
+                                <div className="text-base font-bold text-white mb-2">No Vault Deployed</div>
+                                <div className="text-xs text-gray-500 mb-6 max-w-xs leading-relaxed">
+                                    Deploy a non-custodial Smart Vault on <span className="text-cyber-purple">{selectedChain}</span> to manage assets and run automated flows.
+                                </div>
+                                <button className="px-6 py-2.5 bg-cyber-purple text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-cyber-purple/80 transition-all shadow-[0_0_20px_rgba(188,19,254,0.3)] hover:shadow-[0_0_30px_rgba(188,19,254,0.5)]">
+                                    Deploy New Vault
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="bg-[#0c0c10] border border-white/10 rounded-xl overflow-hidden flex flex-col h-full">
+                                {/* 1. Net Worth Header */}
+                                <div className="bg-gradient-to-r from-gray-900 to-black p-5 border-b border-white/5 relative group">
+                                    <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button className="text-gray-500 hover:text-white"><Settings size={14} /></button>
+                                    </div>
+                                    <div className="text-[10px] text-gray-400 font-mono uppercase mb-1">Total Vault Value</div>
+                                    <div className="flex items-end gap-3">
+                                        <span className="text-4xl font-bold text-white tracking-tight">${activeVault.balance.toLocaleString()}</span>
+                                        <div className="flex items-center gap-1 mb-2 px-2 py-0.5 bg-green-900/20 rounded border border-green-500/20">
+                                            <TrendingUp size={12} className="text-green-500" />
+                                            <span className="text-xs text-green-500 font-bold">+{activeVault.apy}% APY</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Actions Bar */}
+                                    <div className="grid grid-cols-2 gap-3 mt-6">
+                                        <button className="flex items-center justify-center gap-2 py-2.5 bg-white text-black hover:bg-gray-200 text-xs font-bold uppercase rounded transition-colors">
+                                            <ArrowUpRight size={14} className="rotate-180" /> Deposit
+                                        </button>
+                                        <button className="flex items-center justify-center gap-2 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase rounded transition-colors">
+                                            <ArrowUpRight size={14} /> Withdraw
+                                        </button>
+                                    </div>
+                                </div>
 
+                                {/* 2. Tabbed View: Assets vs History */}
+                                <div className="flex flex-col flex-1">
+                                    {/* Tabs */}
+                                    <div className="flex border-b border-white/5">
+                                        <button 
+                                            onClick={() => setVaultTab('allocation')}
+                                            className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 ${vaultTab === 'allocation' ? 'bg-white/5 text-white border-b-2 border-cyber-purple' : 'text-gray-500 hover:text-white'}`}
+                                        >
+                                            <Database size={12} /> Allocation
+                                        </button>
+                                        <button 
+                                            onClick={() => setVaultTab('history')}
+                                            className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 ${vaultTab === 'history' ? 'bg-white/5 text-white border-b-2 border-cyber-purple' : 'text-gray-500 hover:text-white'}`}
+                                        >
+                                            <History size={12} /> History
+                                        </button>
+                                    </div>
+
+                                    {/* Content Panel */}
+                                    <div className="flex-1 bg-[#0c0c10] p-0 overflow-hidden">
+                                        
+                                        {/* TAB: ALLOCATION */}
+                                        {vaultTab === 'allocation' && (
+                                            <div className="h-[300px] overflow-y-auto scrollbar-hide p-4 space-y-2">
+                                                 <div className="flex justify-between text-[9px] text-gray-500 font-mono uppercase px-2 mb-2">
+                                                    <span>Asset</span>
+                                                    <span>Value / %</span>
+                                                 </div>
+                                                 {activeVault.assets?.map((asset, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg transition-colors group border border-transparent hover:border-white/5">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg ${asset.icon}`}>
+                                                                {asset.symbol[0]}
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-sm font-bold text-white">{asset.symbol}</div>
+                                                                <div className="text-[10px] text-gray-500">{asset.balance.toLocaleString()}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="text-sm font-mono text-white">${asset.value.toLocaleString()}</div>
+                                                            <div className="text-[10px] text-gray-600 group-hover:text-cyber-neon transition-colors">
+                                                                {((asset.value / activeVault.balance) * 100).toFixed(1)}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <div className="p-4 flex justify-center">
+                                                    <div className="w-full h-[1px] bg-white/5"></div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* TAB: HISTORY */}
+                                        {vaultTab === 'history' && (
+                                             <div className="h-[300px] overflow-y-auto scrollbar-hide p-4 space-y-2">
+                                                {(!activeVault.history || activeVault.history.length === 0) ? (
+                                                     <div className="h-full flex flex-col items-center justify-center text-gray-600 opacity-50 py-10">
+                                                         <Activity size={32} className="mb-2" />
+                                                         <span className="text-xs">No activity recorded</span>
+                                                     </div>
+                                                ) : (
+                                                    <>
+                                                        {activeVault.history.map((tx) => (
+                                                            <div key={tx.id} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-lg transition-colors group border border-transparent hover:border-white/5">
+                                                                <div className="flex items-center gap-3">
+                                                                     <div className={`p-2 rounded-md text-white ${
+                                                                        tx.type === 'deposit' ? 'bg-green-500/10 text-green-500' : 
+                                                                        tx.type === 'withdraw' ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'
+                                                                    }`}>
+                                                                        {tx.type === 'deposit' ? <ArrowUpRight size={14} className="rotate-180" /> : <ArrowUpRight size={14} />}
+                                                                    </div>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-xs font-bold text-gray-300 uppercase group-hover:text-white">{tx.type}</span>
+                                                                        <span className="text-[10px] text-gray-600 font-mono flex items-center gap-1">
+                                                                            {tx.time} <span className="text-gray-700">•</span> {tx.hash}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex flex-col items-end">
+                                                                    <span className="text-xs font-mono text-white font-bold">{tx.amount}</span>
+                                                                    <span className={`text-[9px] uppercase font-bold ${tx.status === 'success' ? 'text-green-500' : 'text-gray-500'}`}>{tx.status}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        
+                                                        {/* Pagination Load More */}
+                                                        <button className="w-full py-2 text-[10px] text-gray-500 hover:text-white uppercase font-bold tracking-widest border border-dashed border-white/10 hover:border-white/30 rounded mt-2 transition-all">
+                                                            Load Previous Activity
+                                                        </button>
+                                                    </>
+                                                )}
+                                             </div>
+                                        )}
+
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -27,13 +27,36 @@ export interface Flow {
   thumbnailType: 'linear' | 'branching' | 'complex'; // For CSS visualizer
 }
 
+export interface VaultAsset {
+  symbol: string;
+  name: string;
+  balance: number;
+  value: number;
+  icon: string; // Color code or url
+}
+
+export interface VaultTransaction {
+  id: string;
+  type: 'deposit' | 'withdraw' | 'swap' | 'harvest';
+  hash: string;
+  time: string;
+  amount: string;
+  status: 'success' | 'pending' | 'failed';
+}
+
 export interface Vault {
   id: string;
   name: string;
-  asset: string;
+  asset: string; // Primary asset name for simple list
   apy: number;
   balance: number;
   risk: 'low' | 'medium' | 'high';
+  // Detailed fields
+  chain?: string;
+  address?: string;
+  isDeployed?: boolean;
+  assets?: VaultAsset[];
+  history?: VaultTransaction[];
 }
 
 export interface UserProfile {
