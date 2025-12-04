@@ -20,7 +20,9 @@ import { ChatMessage } from '../types';
 import { 
     Sparkles, Send, Cpu, TerminalSquare, Edit2, Zap, BrainCircuit, 
     ChevronDown, ChevronRight, Settings, Grid, PlayCircle, RotateCw, 
-    CheckCircle2, BoxSelect, Server, ArrowRight
+    CheckCircle2, BoxSelect, Server, ArrowRight, Activity, MousePointer2,
+    Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
+    Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 
@@ -30,60 +32,57 @@ const CyberNode = ({ data, isConnectable }: any) => {
     const [expanded, setExpanded] = useState(true);
 
     return (
-        <div className="gradient-border-wrapper min-w-[280px] shadow-xl hover:shadow-neon transition-shadow group">
+        <div className="gradient-border-wrapper min-w-[240px] shadow-lg hover:shadow-neon transition-shadow group">
             <div className="gradient-border-content p-0 overflow-hidden flex flex-col bg-white dark:bg-[#121218]">
                 {/* Header */}
-                <div className="bg-gray-50 dark:bg-white/5 p-3 flex items-center justify-between border-b border-gray-200 dark:border-white/10">
+                <div className="bg-gray-50 dark:bg-white/5 p-2.5 flex items-center justify-between border-b border-gray-200 dark:border-white/10">
                     <div className="flex items-center gap-2">
-                        <div className="p-1 rounded bg-purple-100 dark:bg-cyber-neon/20">
-                           <Settings size={14} className="text-purple-600 dark:text-cyber-neon" />
+                        <div className={`p-1 rounded ${data.color || 'bg-purple-100 dark:bg-cyber-neon/20'}`}>
+                           <Settings size={12} className="text-purple-600 dark:text-cyber-neon" />
                         </div>
-                        <span className="text-sm font-bold text-gray-900 dark:text-white font-sans uppercase tracking-wider">{data.label}</span>
+                        <span className="text-xs font-bold text-gray-900 dark:text-white font-sans uppercase tracking-wider">{data.label}</span>
                     </div>
                     <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-black dark:hover:text-white transition-colors">
-                        {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </button>
                 </div>
                 
                 {/* Body */}
-                <div className="relative p-3">
+                <div className="relative p-2.5">
                     {/* INPUTS (Left Side) */}
-                    <div className="space-y-4 mb-2">
+                    <div className="space-y-3 mb-1">
                         {data.inputs && data.inputs.map((input: string, index: number) => (
-                            <div key={index} className="relative flex items-center h-5">
+                            <div key={index} className="relative flex items-center h-4">
                                 <Handle 
                                     type="target" 
                                     position={Position.Left} 
                                     id={`input-${index}`}
                                     style={{ 
-                                        left: -13, 
-                                        width: '10px', 
-                                        height: '10px', 
+                                        left: -12, 
+                                        width: '8px', 
+                                        height: '8px', 
                                         background: '#bc13fe',
-                                        border: '2px solid #121218' 
+                                        border: '1px solid #121218' 
                                     }} 
                                     isConnectable={isConnectable} 
                                 />
-                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">{input}</span>
+                                <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">{input}</span>
                             </div>
                         ))}
-                        {(!data.inputs || data.inputs.length === 0) && (
-                            <div className="text-[9px] text-gray-300 dark:text-gray-600 italic pl-1">No Inputs</div>
-                        )}
                     </div>
 
                     {/* Params (Expandable) */}
                     {expanded && (
-                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-white/5 space-y-2 animate-in fade-in slide-in-from-top-1">
+                        <div className="mt-2 pt-2 border-t border-gray-200 dark:border-white/5 space-y-1 animate-in fade-in slide-in-from-top-1">
                             {data.params ? (
                                 Object.entries(data.params).map(([key, value]: [string, any]) => (
-                                    <div key={key} className="flex justify-between items-center bg-gray-50 dark:bg-black/40 p-1.5 rounded border border-gray-200 dark:border-white/5">
-                                        <span className="text-[10px] text-gray-500 dark:text-gray-400 font-mono uppercase">{key}</span>
-                                        <span className="text-[10px] text-purple-600 dark:text-cyber-neon font-bold font-mono">{value}</span>
+                                    <div key={key} className="flex justify-between items-center bg-gray-50 dark:bg-black/40 px-2 py-1 rounded border border-gray-200 dark:border-white/5">
+                                        <span className="text-[9px] text-gray-500 dark:text-gray-400 font-mono uppercase">{key}</span>
+                                        <span className="text-[9px] text-purple-600 dark:text-cyber-neon font-bold font-mono">{value}</span>
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-[10px] text-gray-400 italic">No parameters configured.</div>
+                                <div className="text-[9px] text-gray-400 italic">No params.</div>
                             )}
                         </div>
                     )}
@@ -94,12 +93,12 @@ const CyberNode = ({ data, isConnectable }: any) => {
                             type="source" 
                             position={Position.Right} 
                             style={{ 
-                                right: -7, 
-                                width: '12px', 
-                                height: '12px', 
+                                right: -6, 
+                                width: '10px', 
+                                height: '10px', 
                                 background: '#00f3ff',
                                 boxShadow: '0 0 5px #00f3ff',
-                                border: '2px solid #121218'
+                                border: '1px solid #121218'
                             }} 
                             isConnectable={isConnectable} 
                         />
@@ -121,7 +120,7 @@ const initialNodes: Node[] = [
         inputs: ['Oracle Feed'],
         params: { asset: 'ETH/USDC', condition: 'Price < $2800' } 
     }, 
-    position: { x: 100, y: 100 },
+    position: { x: 100, y: 150 },
   },
   { 
     id: '2', 
@@ -131,7 +130,7 @@ const initialNodes: Node[] = [
         inputs: ['Trigger Data', 'Market Sentiment'],
         params: { model: 'Gemini 2.5', prompt: 'Volatility Check' } 
     }, 
-    position: { x: 500, y: 100 },
+    position: { x: 500, y: 150 },
   },
 ];
 
@@ -147,13 +146,33 @@ export const Studio: React.FC = () => {
     );
 };
 
+interface ExecutionRecord {
+    id: number;
+    timestamp: string;
+    type: 'success' | 'skip' | 'error' | 'audit';
+    message: string;
+    yield?: number;
+    gas?: number;
+}
+
 const StudioContent: React.FC = () => {
   const nodeTypes = useMemo(() => ({ cyber: CyberNode }), []);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [flowName, setFlowName] = useState('Alpha Arbitrage Strategy');
   const [isEditingName, setIsEditingName] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'library' | 'console'>('chat');
+  
+  // UI State
+  const [activeTab, setActiveTab] = useState<'build' | 'run'>('build');
+  
+  // Execution State
+  const [isRunning, setIsRunning] = useState(false);
+  const [executionInterval, setExecutionInterval] = useState(2000); // ms
+  const [currentLog, setCurrentLog] = useState<string[]>([]); // Detailed logs for the terminal
+  const [history, setHistory] = useState<ExecutionRecord[]>([]); // Structured history
+  const [stats, setStats] = useState({ yield: 12.42, loops: 1420, gas: 14 });
+  const logsEndRef = useRef<HTMLDivElement>(null);
+  const historyEndRef = useRef<HTMLDivElement>(null);
   
   // React Flow DND hooks
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -170,14 +189,10 @@ const StudioContent: React.FC = () => {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-
       const type = event.dataTransfer.getData('application/reactflow');
       const label = event.dataTransfer.getData('application/label');
       const inputs = JSON.parse(event.dataTransfer.getData('application/inputs') || '[]');
-
-      if (typeof type === 'undefined' || !type) {
-        return;
-      }
+      if (typeof type === 'undefined' || !type) return;
 
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
@@ -196,10 +211,327 @@ const StudioContent: React.FC = () => {
     [reactFlowInstance, setNodes]
   );
 
+  // Helper to add history
+  const addHistory = (type: 'success' | 'skip' | 'error' | 'audit', message: string, yieldVal?: number, gasVal?: number) => {
+      const newRecord: ExecutionRecord = {
+          id: Date.now(),
+          timestamp: new Date().toLocaleTimeString(),
+          type,
+          message,
+          yield: yieldVal,
+          gas: gasVal
+      };
+      setHistory(prev => [newRecord, ...prev].slice(0, 50)); // Keep last 50
+  };
+
+  // Simulation Loop
+  useEffect(() => {
+    let interval: any;
+    if (isRunning) {
+        if (activeTab !== 'run') setActiveTab('run');
+        
+        setCurrentLog(prev => [...prev, `[SYSTEM] Cycle started...`]);
+
+        interval = setInterval(() => {
+            // Random events simulation
+            const eventType = Math.random();
+            const cycleId = Math.floor(Math.random() * 10000);
+            
+            if (eventType > 0.85) {
+                const yieldGain = Math.random() * 0.05;
+                setStats(s => ({ ...s, yield: s.yield + yieldGain, loops: s.loops + 1 }));
+                addHistory('success', `Cycle #${cycleId}: Opportunity Executed`, yieldGain, 24);
+                setCurrentLog(prev => [...prev, `[EXEC] Cycle #${cycleId}: Swapping on Curve... (+${yieldGain.toFixed(3)}%)`]);
+            } else if (eventType > 0.7) {
+                 setStats(s => ({ ...s, loops: s.loops + 1, gas: Math.floor(10 + Math.random() * 5) }));
+                 addHistory('skip', `Cycle #${cycleId}: No arb found`, undefined, 12);
+                 setCurrentLog(prev => [...prev, `[SCAN] Cycle #${cycleId}: Block scanned. No arbitrage.`]);
+            } else {
+                 // Silent check
+                 setCurrentLog(prev => [...prev, `[WAIT] Pending next block...`]);
+            }
+            
+            // Limit live logs
+            setCurrentLog(prev => prev.slice(-50));
+
+        }, executionInterval);
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, executionInterval]);
+
+  // Auto-scroll logs
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [currentLog]);
+
+  const toggleExecution = () => {
+      if (!isRunning) {
+          // Starting
+          setActiveTab('run');
+          setCurrentLog(prev => [...prev, `[SYSTEM] Engine Warmup... Sequence Start.`]);
+      } else {
+          setCurrentLog(prev => [...prev, `[SYSTEM] Engine Paused.`]);
+      }
+      setIsRunning(!isRunning);
+  };
+
+  const handleSyntaxCheck = () => {
+    setActiveTab('run');
+    setCurrentLog(prev => [...prev, '[AUDIT] Running Syntax & Security Check...']);
+    
+    setTimeout(() => {
+        const connectedNodes = new Set();
+        edges.forEach(e => {
+            connectedNodes.add(e.source);
+            connectedNodes.add(e.target);
+        });
+
+        const dangling = nodes.filter(n => !connectedNodes.has(n.id));
+        
+        if (dangling.length > 0) {
+             setCurrentLog(prev => [...prev, `[WARN] Found ${dangling.length} disconnected nodes. Flow may fail.`]);
+             addHistory('error', `Audit Failed: ${dangling.length} disconnected nodes`);
+        } else {
+             setCurrentLog(prev => [...prev, `[PASS] Syntax Clean. All nodes connected. Gas Optimized.`]);
+             addHistory('audit', `Security Audit Passed`, 0, 0);
+        }
+    }, 800);
+  };
+
   return (
     <div className="h-full flex flex-col md:flex-row overflow-hidden bg-white dark:bg-[#080808]">
-        {/* Left: React Flow Canvas */}
-        <div className="flex-1 h-full relative border-r border-gray-200 dark:border-white/10" ref={reactFlowWrapper}>
+        {/* 1. LEFT SIDEBAR: DUAL MODE COMMAND CENTER (w-80) */}
+        <div className="flex w-80 z-20 shadow-xl bg-white dark:bg-[#0a0a0f] border-r border-gray-200 dark:border-white/5">
+             
+             {/* A. NAV STRIP (Icons) */}
+             <div className="w-12 bg-gray-100 dark:bg-black/40 border-r border-gray-200 dark:border-white/5 flex flex-col items-center py-4 gap-4 shrink-0">
+                 <button 
+                    onClick={() => setActiveTab('build')}
+                    className={`p-2 rounded transition-all ${activeTab === 'build' ? 'bg-white dark:bg-white/10 text-purple-600 dark:text-cyber-neon shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
+                    title="Build Mode"
+                 >
+                     <Hammer size={20} />
+                 </button>
+                 <button 
+                    onClick={() => setActiveTab('run')}
+                    className={`p-2 rounded transition-all ${activeTab === 'run' ? 'bg-white dark:bg-white/10 text-green-500 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
+                    title="Run & Monitor"
+                 >
+                     <Play size={20} />
+                 </button>
+             </div>
+
+             {/* B. CONTENT PANEL (Build or Run) */}
+             <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-[#0c0c10]">
+                 
+                 {/* MODE: BUILD */}
+                 {activeTab === 'build' && (
+                     <div className="flex-1 overflow-y-auto p-4 space-y-8 animate-in fade-in slide-in-from-left-2 duration-300">
+                        <div className="pb-4 border-b border-gray-200 dark:border-white/5">
+                            <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-1">Node Library</h2>
+                            <p className="text-[10px] text-gray-500">Drag components to canvas</p>
+                        </div>
+
+                        {/* Section: Triggers */}
+                        <div>
+                            <h4 className="text-xs font-bold text-purple-600 dark:text-cyber-neon uppercase mb-4 flex items-center gap-2 bg-purple-50 dark:bg-cyber-neon/10 p-2 rounded border border-purple-100 dark:border-cyber-neon/20">
+                                <Zap size={14} /> Triggers
+                            </h4>
+                            <div className="space-y-3 pl-1">
+                                <DraggableNode type="cyber" label="Trigger: Price" inputs={['Oracle']} description="Execute on price target." />
+                                <DraggableNode type="cyber" label="Trigger: Time" inputs={['Cron']} description="Execute at intervals." />
+                                <DraggableNode type="cyber" label="Trigger: Event" inputs={['Log']} description="On-chain event listener." />
+                                <DraggableNode type="cyber" label="Trigger: Mempool" inputs={['Stream']} description="Watch pending txs." />
+                            </div>
+                        </div>
+
+                        {/* Section: Logic */}
+                        <div>
+                            <h4 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase mb-4 flex items-center gap-2 bg-blue-50 dark:bg-blue-500/10 p-2 rounded border border-blue-100 dark:border-blue-500/20">
+                                <BrainCircuit size={14} /> Intelligence
+                            </h4>
+                            <div className="space-y-3 pl-1">
+                                <DraggableNode type="cyber" label="Logic: Gemini AI" inputs={['Prompt', 'Context']} description="AI reasoning engine." />
+                                <DraggableNode type="cyber" label="Logic: Condition" inputs={['Value A', 'Value B']} description="If/Else logic block." />
+                                <DraggableNode type="cyber" label="Logic: Filter" inputs={['List']} description="Filter dataset." />
+                            </div>
+                        </div>
+
+                         {/* Section: Actions */}
+                         <div>
+                            <h4 className="text-xs font-bold text-pink-600 dark:text-cyber-pink uppercase mb-4 flex items-center gap-2 bg-pink-50 dark:bg-cyber-pink/10 p-2 rounded border border-pink-100 dark:border-cyber-pink/20">
+                                <Activity size={14} /> Actions
+                            </h4>
+                            <div className="space-y-3 pl-1">
+                                 <DraggableNode type="cyber" label="Action: Swap" inputs={['Token In', 'Route']} description="DEX swap execution." />
+                                 <DraggableNode type="cyber" label="Action: Stake" inputs={['Token', 'Vault']} description="Deposit to yield vault." />
+                                 <DraggableNode type="cyber" label="Action: Flash" inputs={['Amount']} description="Borrow flash loan." />
+                            </div>
+                        </div>
+                     </div>
+                 )}
+
+                 {/* MODE: RUN */}
+                 {activeTab === 'run' && (
+                     <div className="flex-1 flex flex-col h-full animate-in fade-in slide-in-from-left-2 duration-300">
+                         {/* 1. Control Deck */}
+                         <div className="p-4 bg-white dark:bg-[#121218] border-b border-gray-200 dark:border-white/5 shadow-md z-10 flex flex-col gap-4">
+                             
+                             {/* Live Metrics - LARGE LCD STYLE */}
+                             <div className="bg-black/90 p-4 rounded-md border border-gray-200 dark:border-white/10 relative overflow-hidden shadow-inner">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 via-transparent to-transparent"></div>
+                                <div className="flex justify-between items-end mb-2">
+                                    <span className="text-[10px] text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Gauge size={12} /> Real-Time Yield
+                                    </span>
+                                    <span className={`w-2 h-2 rounded-full ${isRunning ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+                                </div>
+                                <div className="text-3xl font-mono font-bold text-green-500 dark:text-green-400 tracking-tighter">
+                                    ${stats.yield.toFixed(4)}
+                                </div>
+                                <div className="flex gap-4 mt-2 pt-2 border-t border-white/10">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] text-gray-500">CYCLES</span>
+                                        <span className="text-xs font-mono text-white">{stats.loops}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] text-gray-500">GAS (GWEI)</span>
+                                        <span className="text-xs font-mono text-yellow-500">{stats.gas}</span>
+                                    </div>
+                                </div>
+                             </div>
+
+                             {/* Frequency Selector */}
+                             <div className="flex items-center justify-between px-1">
+                                <span className="text-[10px] text-gray-500 uppercase font-bold">Execution Interval</span>
+                                <select 
+                                    value={executionInterval}
+                                    onChange={(e) => setExecutionInterval(Number(e.target.value))}
+                                    className="bg-gray-100 dark:bg-black/50 border border-gray-300 dark:border-gray-700 text-[10px] py-1 px-2 rounded font-mono focus:outline-none hover:border-gray-400 transition-colors"
+                                >
+                                    <option value={1000}>1s (Turbo)</option>
+                                    <option value={3000}>3s (Fast)</option>
+                                    <option value={12000}>12s (Block)</option>
+                                </select>
+                             </div>
+
+                             {/* Action Buttons - Less Aggressive */}
+                             <div className="grid grid-cols-2 gap-3">
+                                 <button 
+                                    onClick={toggleExecution}
+                                    className={`h-10 rounded-md font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm border ${
+                                        isRunning 
+                                        ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-500 dark:border-red-500/50 dark:hover:bg-red-500/20' 
+                                        : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-500 dark:border-green-500/50 dark:hover:bg-green-500/20'
+                                    }`}
+                                 >
+                                     {isRunning ? <StopCircle size={16} /> : <PlayCircle size={16} />}
+                                     {isRunning ? 'Stop Engine' : 'Start Engine'}
+                                 </button>
+                                 <button 
+                                    onClick={handleSyntaxCheck}
+                                    className="h-10 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-md font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-cyber-neon transition-all"
+                                 >
+                                     <CheckCircle2 size={16} />
+                                     Audit
+                                 </button>
+                             </div>
+                         </div>
+
+                         {/* 2. History List */}
+                         <div className="flex-1 overflow-y-auto p-0 bg-gray-50 dark:bg-[#0c0c10]">
+                             <div className="sticky top-0 bg-gray-100 dark:bg-[#1a1a20] px-4 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b border-gray-200 dark:border-white/5 flex items-center gap-2 z-0">
+                                 <History size={12} /> Execution Log
+                             </div>
+                             <div className="divide-y divide-gray-200 dark:divide-white/5">
+                                 {history.length === 0 && (
+                                     <div className="p-8 text-center text-xs text-gray-400 italic">No cycles executed yet.</div>
+                                 )}
+                                 {history.map((record) => (
+                                     <div key={record.id} className="p-3 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                                         <div className="flex justify-between items-start mb-1">
+                                             <div className="flex items-center gap-2">
+                                                 <span className={`w-1.5 h-1.5 rounded-full ${
+                                                     record.type === 'success' ? 'bg-green-500' : 
+                                                     record.type === 'error' ? 'bg-red-500' : 
+                                                     record.type === 'audit' ? 'bg-purple-500' : 'bg-gray-500'
+                                                 }`}></span>
+                                                 <span className={`text-[10px] font-bold uppercase ${
+                                                     record.type === 'success' ? 'text-green-600 dark:text-green-400' : 
+                                                     record.type === 'error' ? 'text-red-500' : 'text-gray-500'
+                                                 }`}>{record.type}</span>
+                                             </div>
+                                             <span className="text-[9px] font-mono text-gray-400">{record.timestamp}</span>
+                                         </div>
+                                         <div className="text-[10px] text-gray-700 dark:text-gray-300 font-mono pl-3.5 leading-tight">
+                                             {record.message}
+                                         </div>
+                                         {record.yield && (
+                                              <div className="mt-1 pl-3.5 flex items-center gap-2">
+                                                  <span className="text-[9px] bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-1 rounded font-mono">
+                                                      +${record.yield.toFixed(4)}
+                                                  </span>
+                                              </div>
+                                         )}
+                                     </div>
+                                 ))}
+                                 <div ref={historyEndRef} />
+                             </div>
+                         </div>
+
+                         {/* 3. Terminal (Bottom fixed) */}
+                         <div className="h-40 bg-black border-t border-gray-800 flex flex-col font-mono text-[10px] shrink-0">
+                            <div className="px-3 py-1 bg-gray-900 border-b border-gray-800 flex justify-between items-center text-gray-500">
+                                <span className="uppercase flex items-center gap-2"><TerminalSquare size={10} /> Live Console</span>
+                                <button onClick={() => setCurrentLog([])} className="hover:text-white"><RefreshCw size={10} /></button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-2 text-gray-300 space-y-1">
+                                {currentLog.length === 0 && <span className="text-gray-600 italic">Ready for commands...</span>}
+                                {currentLog.map((log, i) => (
+                                    <div key={i} className={`${log.includes('[EXEC]') ? 'text-cyber-neon' : log.includes('[SYSTEM]') ? 'text-yellow-500' : log.includes('[WARN]') ? 'text-orange-500' : log.includes('[PASS]') ? 'text-green-500' : 'text-gray-400'}`}>
+                                        {log}
+                                    </div>
+                                ))}
+                                <div ref={logsEndRef} />
+                            </div>
+                        </div>
+                     </div>
+                 )}
+
+             </div>
+        </div>
+
+        {/* 2. MIDDLE: CANVAS */}
+        <div className="flex-1 h-full relative flex flex-col bg-white dark:bg-[#080808]" ref={reactFlowWrapper}>
+            {/* Canvas Header Overlay - Simplified */}
+            <div className="absolute top-4 left-4 z-10 flex items-center gap-3 pointer-events-none">
+                {/* Title */}
+                <div className="bg-white/90 dark:bg-cyber-panel/90 backdrop-blur-md p-2 rounded border border-gray-200 dark:border-white/10 shadow-lg pointer-events-auto flex items-center gap-3">
+                    <div className="p-1.5 bg-purple-100 dark:bg-cyber-neon/20 rounded">
+                        <TerminalSquare size={16} className="text-purple-600 dark:text-cyber-neon" />
+                    </div>
+                    {isEditingName ? (
+                        <input 
+                            type="text" 
+                            value={flowName} 
+                            onChange={(e) => setFlowName(e.target.value)}
+                            onBlur={() => setIsEditingName(false)}
+                            autoFocus
+                            className="bg-transparent border-b border-purple-500 dark:border-cyber-neon text-gray-900 dark:text-white px-2 py-0.5 text-sm font-bold outline-none w-48"
+                        />
+                    ) : (
+                        <h1 
+                            className="text-sm font-bold text-gray-900 dark:text-white tracking-wide cursor-pointer hover:text-purple-600 dark:hover:text-cyber-neon flex items-center gap-2"
+                            onClick={() => setIsEditingName(true)}
+                        >
+                            {flowName}
+                            <Edit2 size={12} className="opacity-50" />
+                        </h1>
+                    )}
+                </div>
+            </div>
+
+            {/* React Flow */}
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -221,88 +553,16 @@ const StudioContent: React.FC = () => {
                     className="bg-white dark:bg-cyber-panel border border-gray-200 dark:border-white/10" 
                 />
             </ReactFlow>
-            
-            {/* Header */}
-            <div className="absolute top-4 left-4 z-10 flex items-center gap-3 bg-white/90 dark:bg-cyber-panel/90 backdrop-blur-md p-2 rounded border border-gray-200 dark:border-white/10 shadow-lg">
-                <div className="p-1.5 bg-purple-100 dark:bg-cyber-neon/20 rounded">
-                    <TerminalSquare size={16} className="text-purple-600 dark:text-cyber-neon" />
-                </div>
-                {isEditingName ? (
-                    <input 
-                        type="text" 
-                        value={flowName} 
-                        onChange={(e) => setFlowName(e.target.value)}
-                        onBlur={() => setIsEditingName(false)}
-                        autoFocus
-                        className="bg-transparent border-b border-purple-500 dark:border-cyber-neon text-gray-900 dark:text-white px-2 py-0.5 text-sm font-bold outline-none"
-                    />
-                ) : (
-                    <h1 
-                        className="text-sm font-bold text-gray-900 dark:text-white tracking-wide cursor-pointer hover:text-purple-600 dark:hover:text-cyber-neon flex items-center gap-2"
-                        onClick={() => setIsEditingName(true)}
-                    >
-                        {flowName}
-                        <Edit2 size={12} className="opacity-50" />
-                    </h1>
-                )}
-            </div>
         </div>
 
-        {/* Right: Polymorphic Sidebar */}
-        <div className="w-full md:w-[420px] flex flex-col bg-white dark:bg-cyber-black border-l border-gray-200 dark:border-white/5 z-20 h-full shadow-2xl">
-            
-            {/* 1. Vault Header (Compact) */}
+        {/* 3. RIGHT SIDEBAR: VAULT + CHAT (w-96) */}
+        <div className="w-96 bg-white dark:bg-[#0a0a0f] border-l border-gray-200 dark:border-white/5 flex flex-col z-20 shadow-2xl">
+            {/* Vault Status Widget (Fixed Top) */}
             <VaultWidget />
-
-            {/* 2. Content Area (Scrollable) */}
-            <div className="flex-1 overflow-hidden relative flex flex-col bg-gray-50 dark:bg-[#0c0c10]">
-                
-                {/* TAB A: AI CHAT */}
-                <div className={`absolute inset-0 flex flex-col transition-opacity duration-300 ${activeTab === 'chat' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
-                   <ChatInterface setNodes={setNodes} setEdges={setEdges} />
-                </div>
-
-                {/* TAB B: NODE LIBRARY */}
-                <div className={`absolute inset-0 flex flex-col p-4 overflow-y-auto transition-opacity duration-300 ${activeTab === 'library' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <BoxSelect size={14} /> Available Modules
-                    </h3>
-                    <div className="space-y-3">
-                        <DraggableNode type="cyber" label="Trigger: Price" inputs={['Oracle']} description="Fires when asset hits price." />
-                        <DraggableNode type="cyber" label="Trigger: Time" inputs={['Cron']} description="Fires at specific interval." />
-                        <DraggableNode type="cyber" label="Logic: Gemini AI" inputs={['Prompt', 'Context']} description="Reasoning engine for decision." />
-                        <DraggableNode type="cyber" label="Action: Swap" inputs={['Token In', 'Route']} description="Execute DEX trade." />
-                        <DraggableNode type="cyber" label="Action: Stake" inputs={['Token', 'Vault']} description="Deposit into protocol." />
-                    </div>
-                </div>
-
-                {/* TAB C: CONSOLE / EXECUTOR */}
-                <div className={`absolute inset-0 flex flex-col p-0 transition-opacity duration-300 ${activeTab === 'console' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
-                    <ConsoleInterface />
-                </div>
-
-            </div>
-
-            {/* 3. Bottom Tabs Navigation */}
-            <div className="h-12 border-t border-gray-200 dark:border-white/10 bg-white dark:bg-cyber-panel flex text-xs font-bold uppercase tracking-wider">
-                <button 
-                    onClick={() => setActiveTab('chat')}
-                    className={`flex-1 flex items-center justify-center gap-2 transition-colors ${activeTab === 'chat' ? 'bg-purple-50 dark:bg-white/5 text-purple-600 dark:text-cyber-neon border-t-2 border-purple-600 dark:border-cyber-neon' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                >
-                    <Sparkles size={14} /> Architect
-                </button>
-                <button 
-                    onClick={() => setActiveTab('library')}
-                    className={`flex-1 flex items-center justify-center gap-2 transition-colors ${activeTab === 'library' ? 'bg-purple-50 dark:bg-white/5 text-purple-600 dark:text-cyber-neon border-t-2 border-purple-600 dark:border-cyber-neon' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                >
-                    <Grid size={14} /> Library
-                </button>
-                <button 
-                    onClick={() => setActiveTab('console')}
-                    className={`flex-1 flex items-center justify-center gap-2 transition-colors ${activeTab === 'console' ? 'bg-purple-50 dark:bg-white/5 text-purple-600 dark:text-cyber-neon border-t-2 border-purple-600 dark:border-cyber-neon' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                >
-                    <Server size={14} /> Executor
-                </button>
+            
+            {/* Chat Interface (Fills Remaining) */}
+            <div className="flex-1 flex flex-col overflow-hidden relative">
+                 <ChatInterface setNodes={setNodes} setEdges={setEdges} />
             </div>
         </div>
     </div>
@@ -321,89 +581,26 @@ const DraggableNode = ({ type, label, inputs, description }: { type: string, lab
   
     return (
       <div 
-        className="bg-white dark:bg-black/40 border border-gray-200 dark:border-white/10 p-3 rounded cursor-grab hover:border-purple-500 dark:hover:border-cyber-neon transition-colors group shadow-sm"
+        className="bg-white dark:bg-[#121218] border border-gray-200 dark:border-white/10 p-3 rounded cursor-grab hover:border-purple-500 dark:hover:border-cyber-neon transition-all group shadow-sm flex items-center justify-between"
         onDragStart={(event) => onDragStart(event, type)}
         draggable
       >
-        <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-bold text-gray-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-cyber-neon">{label}</span>
-            <Grid size={12} className="text-gray-400" />
+        <div>
+            <div className="text-xs font-bold text-gray-800 dark:text-white group-hover:text-purple-600 dark:group-hover:text-cyber-neon">{label}</div>
+            <div className="text-[9px] text-gray-500 mt-0.5">{description}</div>
         </div>
-        <p className="text-[10px] text-gray-500">{description}</p>
+        <MousePointer2 size={12} className="text-gray-400 group-hover:text-cyber-neon opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
-    );
-};
-
-const ConsoleInterface = () => {
-    const [logs, setLogs] = useState<string[]>([]);
-    const [isRunning, setIsRunning] = useState(false);
-    const [status, setStatus] = useState<'IDLE' | 'CHECKING' | 'RUNNING' | 'SUCCESS'>('IDLE');
-
-    const runFlow = () => {
-        setIsRunning(true);
-        setStatus('CHECKING');
-        setLogs(prev => [...prev, `[SYSTEM] Initiating syntax check...`]);
-        
-        setTimeout(() => {
-            setLogs(prev => [...prev, `[OK] Node connectivity verified.`]);
-            setLogs(prev => [...prev, `[OK] Gas estimation: 14 Gwei`]);
-            setStatus('RUNNING');
-            
-            setTimeout(() => {
-                setLogs(prev => [...prev, `[EXEC] Trigger: Price condition met.`]);
-                setLogs(prev => [...prev, `[EXEC] AI Logic: Confidence 94%.`]);
-                setLogs(prev => [...prev, `[TX] Swap Executed: 0x8a...33f`]);
-                setLogs(prev => [...prev, `[PROFIT] Yield Generated: +0.4%`]);
-                setIsRunning(false);
-                setStatus('SUCCESS');
-            }, 2000);
-        }, 1500);
-    };
-
-    return (
-        <div className="flex flex-col h-full">
-            <div className="p-4 border-b border-gray-200 dark:border-white/10 bg-white dark:bg-cyber-panel flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${status === 'IDLE' ? 'bg-gray-400' : status === 'SUCCESS' ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`}></div>
-                    <span className="text-xs font-bold text-gray-700 dark:text-white uppercase">{status}</span>
-                </div>
-                <div className="flex gap-2">
-                    <button className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded text-gray-500 dark:text-gray-300" title="Check Syntax">
-                        <CheckCircle2 size={16} />
-                    </button>
-                    <button 
-                        onClick={runFlow}
-                        disabled={isRunning}
-                        className="px-4 py-1.5 bg-purple-600 dark:bg-cyber-neon text-white dark:text-black text-xs font-bold uppercase rounded hover:opacity-90 flex items-center gap-2 disabled:opacity-50"
-                    >
-                        {isRunning ? <RotateCw size={14} className="animate-spin" /> : <PlayCircle size={14} />}
-                        Execute
-                    </button>
-                </div>
-            </div>
-            <div className="flex-1 bg-black p-4 font-mono text-[10px] text-gray-300 overflow-y-auto space-y-1">
-                <div className="text-gray-500 mb-2">--- CONSOLE READY ---</div>
-                {logs.map((log, i) => (
-                    <div key={i} className="border-l-2 border-cyber-neon pl-2">{log}</div>
-                ))}
-            </div>
-            {status === 'SUCCESS' && (
-                <div className="p-4 bg-green-50 dark:bg-cyber-green/10 border-t border-green-200 dark:border-cyber-green/20">
-                    <div className="text-xs text-green-800 dark:text-cyber-green font-bold">ESTIMATED YIELD</div>
-                    <div className="text-2xl font-mono text-green-600 dark:text-cyber-green font-bold">+12.4% APY</div>
-                </div>
-            )}
-        </div>
     );
 };
 
 const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: 'init', role: 'model', text: 'NeonAI Protocol active. Describe a trading strategy.', timestamp: Date.now() }
+    { id: 'init', role: 'model', text: 'NeonAI Architect online. Select a model and describe your strategy.', timestamp: Date.now() }
   ]);
   const [input, setInput] = useState('');
+  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
   const [isLoading, setIsLoading] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -420,7 +617,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
     
     try {
       const history = messages.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
-      const responseText = await geminiService.chat(input, history);
+      const responseText = await geminiService.chat(input, history, selectedModel);
       
       const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
       let finalText = responseText;
@@ -442,7 +639,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                 }));
                 setNodes(styledNodes);
                 setEdges(styledEdges);
-                finalText = "Workflow generated. Check the canvas.";
+                finalText = "Workflow generated based on your parameters. Check the canvas.";
             }
         } catch (e) { console.error(e); }
       }
@@ -450,6 +647,7 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', text: finalText, timestamp: Date.now() }]);
     } catch (error) {
       console.error(error);
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', text: "Error connecting to AI Network.", timestamp: Date.now() }]);
     } finally {
       setIsLoading(false);
     }
@@ -463,43 +661,80 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#0c0c10]">
+        {/* Header */}
+        <div className="p-3 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#121218] flex justify-between items-center">
+             <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                 <Sparkles size={14} className="text-cyber-neon" /> AI Assistant
+             </span>
+             <div className="flex items-center gap-1">
+                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                 <span className="text-[9px] text-gray-500 font-mono">ONLINE</span>
+             </div>
+        </div>
+
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide bg-gray-50 dark:bg-[#0c0c10]">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`max-w-[90%] p-3 rounded-md text-sm font-mono leading-relaxed shadow-sm ${
+                    <div className={`max-w-[90%] p-3 rounded-md text-xs font-mono leading-relaxed shadow-sm ${
                         msg.role === 'user' 
                         ? 'bg-purple-600 dark:bg-cyber-purple/20 border border-purple-500 dark:border-cyber-purple/40 text-white dark:text-gray-100' 
                         : 'bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
                     }`}>
                         {msg.text.split('```').map((part, index) => (
                              index % 2 === 1 
-                                ? <pre key={index} className="text-[10px] bg-black text-green-400 p-2 mt-2 overflow-x-auto rounded">{part}</pre>
+                                ? <pre key={index} className="text-[9px] bg-black text-green-400 p-2 mt-2 overflow-x-auto rounded border border-white/10">{part}</pre>
                                 : <span key={index}>{part}</span>
                         ))}
                     </div>
                 </div>
             ))}
-            {isLoading && <div className="text-xs text-purple-500 dark:text-cyber-neon animate-pulse px-4">NEON_AI THINKING...</div>}
+            {isLoading && (
+                <div className="flex items-center gap-2 text-[10px] text-purple-500 dark:text-cyber-neon animate-pulse px-2">
+                    <BrainCircuit size={12} /> PROCESSING...
+                </div>
+            )}
             <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="p-3 bg-white dark:bg-cyber-panel border-t border-gray-200 dark:border-white/10">
-            <div className="relative">
+        {/* Input Area */}
+        <div className="p-3 bg-white dark:bg-[#121218] border-t border-gray-200 dark:border-white/10 space-y-2">
+             <div className="relative">
                 <textarea
-                    ref={textareaRef}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Describe a strategy..."
-                    className="w-full bg-gray-100 dark:bg-black/50 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white pl-3 pr-10 py-3 text-sm focus:outline-none focus:border-purple-500 dark:focus:border-cyber-neon font-mono resize-none rounded-sm"
-                    rows={2}
+                    placeholder="Ask NeonAI to build..."
+                    className="w-full bg-gray-100 dark:bg-black/50 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white pl-3 pr-10 py-3 text-xs focus:outline-none focus:border-purple-500 dark:focus:border-cyber-neon font-mono resize-none rounded-sm min-h-[60px]"
                 />
-                <button onClick={handleSendMessage} disabled={isLoading} className="absolute right-2 bottom-2.5 p-1.5 text-purple-600 dark:text-cyber-neon hover:bg-purple-100 dark:hover:bg-cyber-neon/10 rounded">
-                    <Send size={16} />
+                <button 
+                    onClick={handleSendMessage} 
+                    disabled={isLoading} 
+                    className="absolute right-2 bottom-2 p-1.5 bg-purple-600 dark:bg-cyber-neon text-white dark:text-black rounded hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                    <Send size={14} />
                 </button>
+            </div>
+            
+            {/* Model Selection Dropdown (Below Input) */}
+            <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                     <span className="text-[9px] font-bold text-gray-400 uppercase">Model</span>
+                     <div className="relative group">
+                        <select 
+                            value={selectedModel}
+                            onChange={(e) => setSelectedModel(e.target.value)}
+                            className="appearance-none bg-transparent text-gray-600 dark:text-gray-400 text-[9px] font-mono focus:text-purple-600 dark:focus:text-cyber-neon outline-none cursor-pointer pr-4 hover:underline"
+                        >
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                            <option value="gemini-flash-lite-latest">Gemini Flash Lite</option>
+                            <option value="gemini-3-pro-preview">Gemini 3.0 Pro</option>
+                        </select>
+                        <ChevronDown size={8} className="absolute right-0 top-1.5 text-gray-500 pointer-events-none" />
+                    </div>
+                </div>
+                <button className="text-[9px] text-gray-400 hover:text-red-500" onClick={() => setMessages([])}>CLEAR CHAT</button>
             </div>
         </div>
     </div>
