@@ -4,7 +4,8 @@ import {
     Box, Activity, Search, MoreHorizontal, ChevronDown, ChevronUp,
     BarChart3, Radio, Database, Zap, Lock, Globe, ArrowUpRight,
     Wallet, Shield, History, Plus, Clock, Timer, AlertTriangle, Hammer, Play, Gauge,
-    TrendingUp, ShieldCheck, MessageSquare, Trash2, Radar, Target, Eye, PauseCircle, PlayCircle, Settings
+    TrendingUp, ShieldCheck, MessageSquare, Trash2, Radar, Target, Eye, PauseCircle, PlayCircle, Settings,
+    Link, RefreshCw, AlertCircle
 } from 'lucide-react';
 import { NeonChart } from '../components/NeonChart';
 import { VaultModal } from '../components/VaultModal';
@@ -124,6 +125,62 @@ const RadarScanner: React.FC = () => (
     </div>
 );
 
+// --- SIMPLE SPARKLINE COMPONENT ---
+const SimpleSparkline: React.FC<{ data: number[], isPositive: boolean }> = ({ data, isPositive }) => {
+    const width = 60;
+    const height = 20;
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+
+    // Create path d
+    const points = data.map((val, i) => {
+        const x = (i / (data.length - 1)) * width;
+        const y = height - ((val - min) / range) * height;
+        return `${x},${y}`;
+    }).join(' ');
+
+    const color = isPositive ? '#22c55e' : '#ef4444'; // Green or Red
+
+    return (
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+            <polyline 
+                points={points} 
+                fill="none" 
+                stroke={color} 
+                strokeWidth="1.5" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+            />
+        </svg>
+    );
+};
+
+// --- MOCK WALLET TOKENS ---
+const CHAIN_TOKENS: Record<string, VaultAsset[]> = {
+    'Flow EVM': [
+        { symbol: 'FLOW', name: 'Flow Token', balance: 1450.00, value: 0, icon: 'bg-green-500' },
+        { symbol: 'USDC', name: 'USD Coin', balance: 5000.00, value: 0, icon: 'bg-blue-500' },
+        { symbol: 'WETH', name: 'Wrapped ETH', balance: 1.2, value: 0, icon: 'bg-purple-500' }
+    ],
+    'Aptos': [
+        { symbol: 'APT', name: 'Aptos', balance: 240.5, value: 0, icon: 'bg-gray-500' },
+        { symbol: 'USDC', name: 'USD Coin (LayerZero)', balance: 1200, value: 0, icon: 'bg-blue-500' }
+    ],
+    'BSC': [
+        { symbol: 'BNB', name: 'Binance Coin', balance: 12.5, value: 0, icon: 'bg-yellow-500' },
+        { symbol: 'BUSD', name: 'Binance USD', balance: 1000, value: 0, icon: 'bg-yellow-300' },
+        { symbol: 'CAKE', name: 'PancakeSwap', balance: 500, value: 0, icon: 'bg-orange-400' }
+    ],
+    'Solana': [
+        { symbol: 'SOL', name: 'Solana', balance: 45.2, value: 0, icon: 'bg-purple-600' },
+        { symbol: 'USDC', name: 'USD Coin', balance: 850, value: 0, icon: 'bg-blue-500' }
+    ],
+    'Sui': [
+         { symbol: 'SUI', name: 'Sui', balance: 4500, value: 0, icon: 'bg-blue-400' }
+    ]
+};
+
 export const Dashboard: React.FC = () => {
     const [isChartExpanded, setIsChartExpanded] = useState(false);
     
@@ -134,6 +191,10 @@ export const Dashboard: React.FC = () => {
     const [historyLimit, setHistoryLimit] = useState(6);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
     
+    // Wallet State
+    const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
+    const [isWalletRefreshing, setIsWalletRefreshing] = useState(false);
+
     // Modal State
     const [modalConfig, setModalConfig] = useState<{isOpen: boolean, type: 'deposit' | 'withdraw'}>({
         isOpen: false, 
@@ -153,11 +214,11 @@ export const Dashboard: React.FC = () => {
 
     // --- DATA ---
     const [radarItems] = useState([
-        { id: '1', signal: 'ARBITRAGE', pair: 'ETH/USDC', dex: 'Uniswap', confidence: 98, gain: '+1.2%', time: '12s', type: 'neon' },
-        { id: '2', signal: 'WHALE BUY', pair: 'PEPE', dex: 'Binance', confidence: 85, gain: '$450k', time: '45s', type: 'pink' },
-        { id: '3', signal: 'YIELD SPIKE', pair: 'GMX', dex: 'Arbitrum', confidence: 92, gain: '24%', time: '2m', type: 'purple' },
-        { id: '4', signal: 'LIQUIDATION', pair: 'WBTC', dex: 'Aave', confidence: 74, gain: '$1.2M', time: '5m', type: 'red' },
-        { id: '5', signal: 'FRONTRUN', pair: 'SOL/USDC', dex: 'Raydium', confidence: 66, gain: '+0.8%', time: '7m', type: 'yellow' },
+        { id: '1', signal: 'ARBITRAGE', pair: 'ETH/USDC', dex: 'Uniswap', confidence: 98, gain: '+1.2%', time: '12s', type: 'neon', chartData: [10, 15, 12, 18, 24, 28, 32], isPositive: true },
+        { id: '2', signal: 'WHALE BUY', pair: 'PEPE', dex: 'Binance', confidence: 85, gain: '$450k', time: '45s', type: 'pink', chartData: [5, 8, 20, 18, 25, 30, 45], isPositive: true },
+        { id: '3', signal: 'YIELD SPIKE', pair: 'GMX', dex: 'Arbitrum', confidence: 92, gain: '24%', time: '2m', type: 'purple', chartData: [12, 12, 14, 15, 20, 22, 24], isPositive: true },
+        { id: '4', signal: 'LIQUIDATION', pair: 'WBTC', dex: 'Aave', confidence: 74, gain: '$1.2M', time: '5m', type: 'red', chartData: [50, 40, 35, 30, 25, 20, 15], isPositive: false },
+        { id: '5', signal: 'FRONTRUN', pair: 'SOL/USDC', dex: 'Raydium', confidence: 66, gain: '+0.8%', time: '7m', type: 'yellow', chartData: [10, 12, 11, 14, 13, 15, 16], isPositive: true },
     ]);
 
     const allFlows: Flow[] = [
@@ -229,9 +290,26 @@ export const Dashboard: React.FC = () => {
     const activeVault = currentChainVaults[selectedVaultIndex];
     const visibleHistory = activeVault?.history?.slice(0, historyLimit) || [];
     const hasMoreHistory = activeVault?.history ? activeVault.history.length > historyLimit : false;
+    
+    // Check if connected wallet matches vault owner (Simulated)
+    const isOwnerMatch = connectedWallet === activeVault?.address;
 
     // --- HANDLERS ---
     
+    const handleConnectWallet = () => {
+        // Simulate a connect delay
+        setTimeout(() => {
+            setConnectedWallet('0x71c...38a'); // Matches one of the demo vaults
+        }, 500);
+    };
+
+    const handleRefreshWallet = () => {
+        setIsWalletRefreshing(true);
+        setTimeout(() => {
+            setIsWalletRefreshing(false);
+        }, 1200);
+    };
+
     const handleLoadMoreHistory = () => {
         setIsHistoryLoading(true);
         setTimeout(() => {
@@ -267,8 +345,7 @@ export const Dashboard: React.FC = () => {
                 isOpen={modalConfig.isOpen} 
                 onClose={() => setModalConfig({ ...modalConfig, isOpen: false })} 
                 type={modalConfig.type} 
-                ticker={activeVault?.asset || 'TOKEN'} 
-                balance={activeVault?.balance || 0} 
+                tokens={CHAIN_TOKENS[selectedChain] || []}
             />
 
             {/* 1. SLIM GLOBAL TICKER */}
@@ -352,9 +429,16 @@ export const Dashboard: React.FC = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <div className="text-xs font-bold text-green-600 dark:text-green-400 font-mono tracking-tight">{item.gain}</div>
-                                            <div className="text-[9px] text-gray-500 dark:text-gray-600">{item.confidence}% Conf</div>
+                                        
+                                        {/* Chart & Stats */}
+                                        <div className="flex items-center gap-4">
+                                            <div className="hidden sm:block opacity-60">
+                                                <SimpleSparkline data={item.chartData} isPositive={item.isPositive} />
+                                            </div>
+                                            <div className="text-right">
+                                                <div className={`text-xs font-bold font-mono tracking-tight ${item.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>{item.gain}</div>
+                                                <div className="text-[9px] text-gray-500 dark:text-gray-600">{item.confidence}% Conf</div>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -518,11 +602,36 @@ export const Dashboard: React.FC = () => {
                             </div>
                         )}
 
-                        {/* 3. Wallet Context */}
+                        {/* 3. Wallet Context - UPDATED LOGIC */}
                         <div className="flex items-center justify-between px-1 mt-1">
-                            <span className="text-[10px] text-gray-500 font-mono flex items-center gap-1" title="Connected Wallet Address">
-                                <Wallet size={10} /> {activeVault?.address || 'Not Connected'}
-                            </span>
+                            {connectedWallet ? (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[10px] text-gray-500 font-mono flex items-center gap-1" title="Connected Wallet Address">
+                                        <Wallet size={10} /> {connectedWallet}
+                                    </span>
+                                    <button 
+                                        onClick={handleRefreshWallet} 
+                                        disabled={isWalletRefreshing}
+                                        className={`text-[10px] text-gray-400 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors ${isWalletRefreshing ? 'animate-spin' : ''}`}
+                                        title="Refresh Wallet Connection"
+                                    >
+                                        <RefreshCw size={10} />
+                                    </button>
+                                    {!isOwnerMatch && activeVault && (
+                                        <div className="flex items-center gap-1 text-[9px] text-orange-500 font-bold bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/20" title="Connected wallet does not match vault owner">
+                                            <AlertCircle size={8} /> OWNER MISMATCH
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <button 
+                                    onClick={handleConnectWallet}
+                                    className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-cyber-purple/20 text-[10px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-cyber-neon rounded transition-colors"
+                                >
+                                    <Wallet size={10} /> Connect Wallet
+                                </button>
+                            )}
+
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Status</span>
                                 <div className={`w-2 h-2 rounded-full ${activeVault?.isDeployed ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,1)]' : 'bg-gray-400 dark:bg-gray-600'}`} title={activeVault?.isDeployed ? 'Vault Active' : 'Vault Inactive'}></div>
@@ -565,15 +674,17 @@ export const Dashboard: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-3 mt-6">
                                         <button 
                                             onClick={() => setModalConfig({isOpen: true, type: 'deposit'})}
-                                            className="flex items-center justify-center gap-2 py-2.5 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-xs font-bold uppercase rounded transition-colors"
-                                            title="Deposit assets into vault"
+                                            disabled={!connectedWallet}
+                                            className="flex items-center justify-center gap-2 py-2.5 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-xs font-bold uppercase rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            title={!connectedWallet ? "Connect Wallet first" : "Deposit assets into vault"}
                                         >
                                             <ArrowUpRight size={14} className="rotate-180" /> Deposit
                                         </button>
                                         <button 
                                             onClick={() => setModalConfig({isOpen: true, type: 'withdraw'})}
-                                            className="flex items-center justify-center gap-2 py-2.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-900 dark:text-white text-xs font-bold uppercase rounded transition-colors"
-                                            title="Withdraw assets from vault"
+                                            disabled={!connectedWallet}
+                                            className="flex items-center justify-center gap-2 py-2.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-900 dark:text-white text-xs font-bold uppercase rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            title={!connectedWallet ? "Connect Wallet first" : "Withdraw assets from vault"}
                                         >
                                             <ArrowUpRight size={14} /> Withdraw
                                         </button>
