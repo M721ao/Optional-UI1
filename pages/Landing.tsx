@@ -23,7 +23,7 @@ interface LandingProps {
 
 export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
   return (
-    <div className="min-h-screen flex flex-col relative bg-[#030305] overflow-hidden selection:bg-cyber-neon selection:text-black">
+    <div className="h-full overflow-y-auto overflow-x-hidden relative bg-[#030305] selection:bg-cyber-neon selection:text-black">
         
         {/* === GLOBAL AMBIENT LAYER === */}
         {/* Large colored orbs to create depth and break the black monotony */}
