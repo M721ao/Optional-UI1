@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -23,35 +24,125 @@ import {
     CheckCircle2, BoxSelect, Server, ArrowRight, Activity, MousePointer2,
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
-    TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2
+    TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
+    Database, Network
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 
 // --- CUSTOM NODE COMPONENT ---
 // Inputs on Left, Single Output on Right
-const CyberNode = ({ data, isConnectable }: any) => {
+const CyberNode = ({ id, data, isConnectable }: any) => {
     const [expanded, setExpanded] = useState(true);
+    
+    // 1. Determine Category & Colors based on Label
+    // 4 Categories: Trigger (Yellow/Gold), Logic (Cyan/Blue), AI (Violet/Purple), Action (Emerald/Green)
+    const getCategoryStyles = () => {
+        const label = data.label?.toLowerCase() || '';
+        
+        if (label.includes('trigger')) {
+            return {
+                border: 'border-amber-400/60 hover:border-amber-400',
+                bg: 'bg-amber-400/5',
+                header: 'bg-amber-400/10',
+                text: 'text-amber-400',
+                shadow: 'shadow-[0_0_10px_rgba(251,191,36,0.1)] hover:shadow-[0_0_15px_rgba(251,191,36,0.3)]',
+                handle: '#fbbf24',
+                icon: <Zap size={12} />
+            };
+        } else if (label.includes('action')) {
+             return {
+                border: 'border-emerald-500/60 hover:border-emerald-500',
+                bg: 'bg-emerald-500/5',
+                header: 'bg-emerald-500/10',
+                text: 'text-emerald-500',
+                shadow: 'shadow-[0_0_10px_rgba(16,185,129,0.1)] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]',
+                handle: '#10b981',
+                icon: <Activity size={12} />
+            };
+        } else if (label.includes('ai') || label.includes('gemini') || label.includes('model')) {
+             return {
+                border: 'border-violet-500/60 hover:border-violet-500',
+                bg: 'bg-violet-500/5',
+                header: 'bg-violet-500/10',
+                text: 'text-violet-400',
+                shadow: 'shadow-[0_0_10px_rgba(139,92,246,0.1)] hover:shadow-[0_0_15px_rgba(139,92,246,0.3)]',
+                handle: '#8b5cf6',
+                icon: <BrainCircuit size={12} />
+            };
+        } else {
+             // Logic / Default
+             return {
+                border: 'border-cyan-500/60 hover:border-cyan-500',
+                bg: 'bg-cyan-500/5',
+                header: 'bg-cyan-500/10',
+                text: 'text-cyan-400',
+                shadow: 'shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]',
+                handle: '#06b6d4',
+                icon: <Network size={12} />
+            };
+        }
+    };
+
+    const styles = getCategoryStyles();
+    const status = data.status || 'idle'; // idle, running, success, failed
+
+    const handleStatusClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (data.onStatusClick) {
+            data.onStatusClick(id, data.label, status);
+        }
+    };
+
+    const getStatusIcon = () => {
+        switch(status) {
+            case 'running': return <Loader2 size={10} className="animate-spin text-yellow-500" />;
+            case 'success': return <CheckCircle2 size={10} className="text-green-500" />;
+            case 'failed': return <AlertOctagon size={10} className="text-red-500" />;
+            default: return <div className="w-2 h-2 rounded-full bg-gray-400"></div>;
+        }
+    };
 
     return (
-        <div className="gradient-border-wrapper min-w-[240px] shadow-lg hover:shadow-neon transition-shadow group">
-            <div className="gradient-border-content p-0 overflow-hidden flex flex-col bg-white dark:bg-[#121218]">
+        <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
+            
+            <div className="p-0 overflow-hidden flex flex-col">
                 {/* Header */}
-                <div className="bg-gray-50 dark:bg-white/5 p-2.5 flex items-center justify-between border-b border-gray-200 dark:border-white/10">
+                <div className={`p-2.5 flex items-center justify-between border-b border-white/5 ${styles.header}`}>
                     <div className="flex items-center gap-2">
-                        <div className={`p-1 rounded ${data.color || 'bg-purple-100 dark:bg-cyber-neon/20'}`}>
-                           <Settings size={12} className="text-purple-600 dark:text-cyber-neon" />
+                        <div className={`p-1 rounded bg-black/20 ${styles.text}`}>
+                           {styles.icon}
                         </div>
-                        <span className="text-xs font-bold text-gray-900 dark:text-white font-sans uppercase tracking-wider">{data.label}</span>
+                        <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text}`}>
+                            {data.label}
+                        </span>
                     </div>
-                    <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-black dark:hover:text-white transition-colors" title={expanded ? "Collapse" : "Expand"}>
-                        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                    
+                    {/* Status Pill - Clickable for Logs */}
+                    <button 
+                        onClick={handleStatusClick}
+                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/40 border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all cursor-pointer group/status"
+                        title="View Node Logs"
+                    >
+                        {getStatusIcon()}
+                        <span className="text-[9px] font-bold uppercase text-gray-400 group-hover/status:text-white transition-colors">
+                            {status === 'running' ? 'Running' : status}
+                        </span>
+                        <TerminalSquare size={8} className="text-gray-600 group-hover/status:text-gray-400 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
                     </button>
                 </div>
                 
                 {/* Body */}
-                <div className="relative p-2.5">
+                <div className={`relative p-2.5 ${styles.bg}`}>
+                    {/* Expand Toggle */}
+                    <button 
+                        onClick={() => setExpanded(!expanded)} 
+                        className="absolute top-2 right-2 text-gray-500 hover:text-white transition-colors z-10" 
+                    >
+                        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                    </button>
+
                     {/* INPUTS (Left Side) */}
-                    <div className="space-y-3 mb-1">
+                    <div className="space-y-4 mb-2">
                         {data.inputs && data.inputs.map((input: string, index: number) => (
                             <div key={index} className="relative flex items-center h-4">
                                 <Handle 
@@ -59,31 +150,34 @@ const CyberNode = ({ data, isConnectable }: any) => {
                                     position={Position.Left} 
                                     id={`input-${index}`}
                                     style={{ 
-                                        left: -12, 
+                                        left: -14, 
                                         width: '8px', 
                                         height: '8px', 
-                                        background: '#bc13fe',
+                                        background: styles.handle,
                                         border: '1px solid #121218' 
                                     }} 
                                     isConnectable={isConnectable} 
                                 />
-                                <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">{input}</span>
+                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider ml-1">{input}</span>
                             </div>
                         ))}
                     </div>
 
                     {/* Params (Expandable) */}
                     {expanded && (
-                        <div className="mt-2 pt-2 border-t border-gray-200 dark:border-white/5 space-y-1 animate-in fade-in slide-in-from-top-1">
+                        <div className="mt-3 pt-2 border-t border-white/5 space-y-1.5 animate-in fade-in slide-in-from-top-1">
                             {data.params ? (
-                                Object.entries(data.params).map(([key, value]: [string, any]) => (
-                                    <div key={key} className="flex justify-between items-center bg-gray-50 dark:bg-black/40 px-2 py-1 rounded border border-gray-200 dark:border-white/5">
-                                        <span className="text-[9px] text-gray-500 dark:text-gray-400 font-mono uppercase">{key}</span>
-                                        <span className="text-[9px] text-purple-600 dark:text-cyber-neon font-bold font-mono">{value}</span>
-                                    </div>
-                                ))
+                                Object.entries(data.params).map(([key, value]: [string, any]) => {
+                                    if (key === 'status') return null; // Don't show status in params list
+                                    return (
+                                        <div key={key} className="flex justify-between items-center bg-black/20 px-2 py-1.5 rounded border border-white/5">
+                                            <span className="text-[9px] text-gray-500 font-mono uppercase">{key}</span>
+                                            <span className={`text-[9px] font-bold font-mono ${styles.text} truncate max-w-[120px]`}>{value}</span>
+                                        </div>
+                                    );
+                                })
                             ) : (
-                                <div className="text-[9px] text-gray-400 italic">No params.</div>
+                                <div className="text-[9px] text-gray-500 italic">No params.</div>
                             )}
                         </div>
                     )}
@@ -94,11 +188,11 @@ const CyberNode = ({ data, isConnectable }: any) => {
                             type="source" 
                             position={Position.Right} 
                             style={{ 
-                                right: -6, 
+                                right: -8, 
                                 width: '10px', 
                                 height: '10px', 
-                                background: '#00f3ff',
-                                boxShadow: '0 0 5px #00f3ff',
+                                background: styles.handle,
+                                boxShadow: `0 0 8px ${styles.handle}`,
                                 border: '1px solid #121218'
                             }} 
                             isConnectable={isConnectable} 
@@ -119,6 +213,7 @@ const initialNodes: Node[] = [
     data: { 
         label: 'TRIGGER: PRICE', 
         inputs: ['Oracle Feed'],
+        status: 'success',
         params: { asset: 'ETH/USDC', condition: 'Price < $2800' } 
     }, 
     position: { x: 100, y: 150 },
@@ -127,8 +222,9 @@ const initialNodes: Node[] = [
     id: '2', 
     type: 'cyber', 
     data: { 
-        label: 'LOGIC: AI FILTER', 
+        label: 'AI: GEMINI FLASH', 
         inputs: ['Trigger Data', 'Market Sentiment'],
+        status: 'running',
         params: { model: 'Gemini 2.5', prompt: 'Volatility Check' } 
     }, 
     position: { x: 500, y: 150 },
@@ -136,7 +232,7 @@ const initialNodes: Node[] = [
 ];
 
 const initialEdges: Edge[] = [
-    { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#00f3ff', strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: '#00f3ff' } }
+    { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: '#8b5cf6' } }
 ];
 
 export const Studio: React.FC = () => {
@@ -179,6 +275,28 @@ const StudioContent: React.FC = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 
+  // LOG HANDLER
+  const handleNodeStatusClick = useCallback((nodeId: string, label: string, status: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setCurrentLog(prev => [
+        ...prev,
+        `\n>>> INSPECTING NODE [${nodeId}]: ${label}`,
+        `[${timestamp}] STATUS: ${status.toUpperCase()}`,
+        `[${timestamp}] MEMORY: ${Math.floor(Math.random() * 128 + 64)}MB used`,
+        `[${timestamp}] LATENCY: ${Math.random().toFixed(2)}ms`,
+        status === 'failed' ? `[ERROR] Connection timeout at block 192843` : `[INFO] Execution verified on-chain.`,
+        `----------------------------------------`
+    ]);
+  }, []);
+
+  // Update nodes with the log handler on mount
+  useEffect(() => {
+    setNodes((nds) => nds.map(n => ({
+        ...n,
+        data: { ...n.data, onStatusClick: handleNodeStatusClick }
+    })));
+  }, [handleNodeStatusClick, setNodes]);
+
   const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: '#00f3ff' } }, eds)), [setEdges]);
 
   // DND Handlers
@@ -204,12 +322,18 @@ const StudioContent: React.FC = () => {
         id: `${Date.now()}`,
         type,
         position,
-        data: { label: label, inputs: inputs, params: { status: 'New' } },
+        data: { 
+            label: label, 
+            inputs: inputs, 
+            status: 'idle', // Initialize status
+            params: { status: 'New' },
+            onStatusClick: handleNodeStatusClick
+        },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance, setNodes, handleNodeStatusClick]
   );
 
   // Helper to add history
@@ -233,6 +357,9 @@ const StudioContent: React.FC = () => {
         
         setCurrentLog(prev => [...prev, `[SYSTEM] Cycle started...`]);
 
+        // Update random node to running status
+        setNodes((nds) => nds.map(n => ({...n, data: {...n.data, status: 'running'}})));
+
         interval = setInterval(() => {
             // Random events simulation
             const eventType = Math.random();
@@ -243,10 +370,12 @@ const StudioContent: React.FC = () => {
                 setStats(s => ({ ...s, yield: s.yield + yieldGain, loops: s.loops + 1 }));
                 addHistory('success', `Cycle #${cycleId}: Opportunity Executed`, yieldGain, 24);
                 setCurrentLog(prev => [...prev, `[EXEC] Cycle #${cycleId}: Swapping on Curve... (+${yieldGain.toFixed(3)}%)`]);
+                setNodes((nds) => nds.map(n => ({...n, data: {...n.data, status: 'success'}})));
             } else if (eventType > 0.7) {
                  setStats(s => ({ ...s, loops: s.loops + 1, gas: Math.floor(10 + Math.random() * 5) }));
                  addHistory('skip', `Cycle #${cycleId}: No arb found`, undefined, 12);
                  setCurrentLog(prev => [...prev, `[SCAN] Cycle #${cycleId}: Block scanned. No arbitrage.`]);
+                 setNodes((nds) => nds.map(n => ({...n, data: {...n.data, status: 'idle'}})));
             } else {
                  // Silent check
                  setCurrentLog(prev => [...prev, `[WAIT] Pending next block...`]);
@@ -256,9 +385,12 @@ const StudioContent: React.FC = () => {
             setCurrentLog(prev => prev.slice(-50));
 
         }, executionInterval);
+    } else {
+        // Reset status when stopped
+        setNodes((nds) => nds.map(n => ({...n, data: {...n.data, status: 'idle'}})));
     }
     return () => clearInterval(interval);
-  }, [isRunning, executionInterval]);
+  }, [isRunning, executionInterval, setNodes]);
 
   // Auto-scroll logs
   useEffect(() => {
@@ -280,6 +412,9 @@ const StudioContent: React.FC = () => {
     setActiveTab('run');
     setCurrentLog(prev => [...prev, '[AUDIT] Running Syntax & Security Check...']);
     
+    // Set all to checking
+    setNodes((nds) => nds.map(n => ({...n, data: {...n.data, status: 'running'}})));
+
     setTimeout(() => {
         const connectedNodes = new Set();
         edges.forEach(e => {
@@ -292,11 +427,17 @@ const StudioContent: React.FC = () => {
         if (dangling.length > 0) {
              setCurrentLog(prev => [...prev, `[WARN] Found ${dangling.length} disconnected nodes. Flow may fail.`]);
              addHistory('error', `Audit Failed: ${dangling.length} disconnected nodes`);
+             // Mark dangling as failed
+             setNodes((nds) => nds.map(n => {
+                 if (!connectedNodes.has(n.id)) return {...n, data: {...n.data, status: 'failed'}};
+                 return {...n, data: {...n.data, status: 'success'}};
+             }));
         } else {
              setCurrentLog(prev => [...prev, `[PASS] Syntax Clean. All nodes connected. Gas Optimized.`]);
              addHistory('audit', `Security Audit Passed`, 0, 0);
+             setNodes((nds) => nds.map(n => ({...n, data: {...n.data, status: 'success'}})));
         }
-    }, 800);
+    }, 1500);
   };
 
   return (
@@ -333,40 +474,51 @@ const StudioContent: React.FC = () => {
                             <p className="text-[10px] text-gray-500">Drag components to canvas</p>
                         </div>
 
-                        {/* Section: Triggers */}
+                        {/* Category 1: Triggers (Yellow) */}
                         <div>
-                            <h4 className="text-xs font-bold text-purple-600 dark:text-cyber-neon uppercase mb-4 flex items-center gap-2 bg-purple-50 dark:bg-cyber-neon/10 p-2 rounded border border-purple-100 dark:border-cyber-neon/20">
+                            <h4 className="text-xs font-bold text-amber-500 uppercase mb-4 flex items-center gap-2 bg-amber-500/10 p-2 rounded border border-amber-500/20">
                                 <Zap size={14} /> Triggers
                             </h4>
                             <div className="space-y-3 pl-1">
                                 <DraggableNode type="cyber" label="Trigger: Price" inputs={['Oracle']} description="Execute on price target." />
                                 <DraggableNode type="cyber" label="Trigger: Time" inputs={['Cron']} description="Execute at intervals." />
                                 <DraggableNode type="cyber" label="Trigger: Event" inputs={['Log']} description="On-chain event listener." />
-                                <DraggableNode type="cyber" label="Trigger: Mempool" inputs={['Stream']} description="Watch pending txs." />
                             </div>
                         </div>
 
-                        {/* Section: Logic */}
+                         {/* Category 2: Logic (Cyan) */}
                         <div>
-                            <h4 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase mb-4 flex items-center gap-2 bg-blue-50 dark:bg-blue-500/10 p-2 rounded border border-blue-100 dark:border-blue-500/20">
-                                <BrainCircuit size={14} /> Intelligence
+                            <h4 className="text-xs font-bold text-cyan-500 uppercase mb-4 flex items-center gap-2 bg-cyan-500/10 p-2 rounded border border-cyan-500/20">
+                                <Network size={14} /> Logic & Flow
                             </h4>
                             <div className="space-y-3 pl-1">
-                                <DraggableNode type="cyber" label="Logic: Gemini AI" inputs={['Prompt', 'Context']} description="AI reasoning engine." />
                                 <DraggableNode type="cyber" label="Logic: Condition" inputs={['Value A', 'Value B']} description="If/Else logic block." />
                                 <DraggableNode type="cyber" label="Logic: Filter" inputs={['List']} description="Filter dataset." />
+                                <DraggableNode type="cyber" label="Logic: Loop" inputs={['Array']} description="Iterate over items." />
                             </div>
                         </div>
 
-                         {/* Section: Actions */}
+                        {/* Category 3: AI (Violet) */}
+                        <div>
+                            <h4 className="text-xs font-bold text-violet-500 uppercase mb-4 flex items-center gap-2 bg-violet-500/10 p-2 rounded border border-violet-500/20">
+                                <BrainCircuit size={14} /> AI Models
+                            </h4>
+                            <div className="space-y-3 pl-1">
+                                <DraggableNode type="cyber" label="AI: Gemini Flash" inputs={['Prompt', 'Context']} description="High-speed reasoning." />
+                                <DraggableNode type="cyber" label="AI: Sentiment" inputs={['Text']} description="Analyze market mood." />
+                                <DraggableNode type="cyber" label="AI: Prediction" inputs={['History']} description="Price trend forecast." />
+                            </div>
+                        </div>
+
+                         {/* Category 4: Actions (Emerald) */}
                          <div>
-                            <h4 className="text-xs font-bold text-pink-600 dark:text-cyber-pink uppercase mb-4 flex items-center gap-2 bg-pink-50 dark:bg-cyber-pink/10 p-2 rounded border border-pink-100 dark:border-cyber-pink/20">
+                            <h4 className="text-xs font-bold text-emerald-500 uppercase mb-4 flex items-center gap-2 bg-emerald-500/10 p-2 rounded border border-emerald-500/20">
                                 <Activity size={14} /> Actions
                             </h4>
                             <div className="space-y-3 pl-1">
                                  <DraggableNode type="cyber" label="Action: Swap" inputs={['Token In', 'Route']} description="DEX swap execution." />
                                  <DraggableNode type="cyber" label="Action: Stake" inputs={['Token', 'Vault']} description="Deposit to yield vault." />
-                                 <DraggableNode type="cyber" label="Action: Flash" inputs={['Amount']} description="Borrow flash loan." />
+                                 <DraggableNode type="cyber" label="Action: Flash Loan" inputs={['Amount']} description="Borrow capital." />
                             </div>
                         </div>
                      </div>
@@ -490,9 +642,9 @@ const StudioContent: React.FC = () => {
                                 <button onClick={() => setCurrentLog([])} className="hover:text-white" title="Clear Console"><RefreshCw size={10} /></button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-2 text-gray-300 space-y-1">
-                                {currentLog.length === 0 && <span className="text-gray-600 italic">Ready for commands...</span>}
+                                {currentLog.length === 0 && <span className="text-gray-600 italic">Ready for commands... Click a node status to inspect.</span>}
                                 {currentLog.map((log, i) => (
-                                    <div key={i} className={`${log.includes('[EXEC]') ? 'text-cyber-neon' : log.includes('[SYSTEM]') ? 'text-yellow-500' : log.includes('[WARN]') ? 'text-orange-500' : log.includes('[PASS]') ? 'text-green-500' : 'text-gray-400'}`}>
+                                    <div key={i} className={`${log.includes('[EXEC]') ? 'text-cyber-neon' : log.includes('[SYSTEM]') ? 'text-yellow-500' : log.includes('[WARN]') ? 'text-orange-500' : log.includes('[PASS]') ? 'text-green-500' : log.includes('>>>') ? 'text-white font-bold bg-white/10' : 'text-gray-400'}`}>
                                         {log}
                                     </div>
                                 ))}

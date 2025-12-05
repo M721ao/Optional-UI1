@@ -140,7 +140,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
             className={`flex items-center gap-2 text-sm font-bold uppercase tracking-widest transition-colors ${currentPage === Page.STUDIO ? 'text-purple-600 dark:text-cyber-neon drop-shadow-[0_0_5px_rgba(188,19,254,0.5)] dark:drop-shadow-[0_0_5px_rgba(0,243,255,0.8)]' : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'}`}
             title="Open Strategy Builder"
           >
-            <Terminal size={18} /> Workbench
+            <Terminal size={18} />  Studio
           </button>
           <button 
              onClick={() => onNavigate(Page.DASHBOARD)}
