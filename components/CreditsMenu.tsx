@@ -190,7 +190,7 @@ export const CreditsMenu: React.FC<CreditsMenuProps> = ({ isOpen, onClose, user,
 };
 
 // Mini list item for dropdown
-const ActivityItem = ({ label, amount, time, isPositive = false }: { label: string, amount: number, time: string, isPositive?: boolean }) => (
+const ActivityItem: React.FC<{ label: string, amount: number, time: string, isPositive?: boolean }> = ({ label, amount, time, isPositive = false }) => (
     <div className="px-4 py-2.5 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-default">
         <div className="flex items-center gap-3">
              <div className={`p-1 rounded-full ${isPositive ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-500' : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400'}`}>
@@ -208,7 +208,7 @@ const ActivityItem = ({ label, amount, time, isPositive = false }: { label: stri
 );
 
 // Expanded row for Modal
-const HistoryRow = ({ index }: { index: number }) => {
+const HistoryRow: React.FC<{ index: number }> = ({ index }) => {
     // Mock Data Generator
     const actions = [
         { label: 'Strategy Execution: Delta Farm', type: 'EXEC', amount: -15, icon: Zap },

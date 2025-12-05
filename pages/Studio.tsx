@@ -28,6 +28,7 @@ import {
     Database, Network
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
+import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
 
 // --- CUSTOM NODE COMPONENT ---
 // Inputs on Left, Single Output on Right
@@ -271,19 +272,80 @@ const StudioContent: React.FC = () => {
   const logsEndRef = useRef<HTMLDivElement>(null);
   const historyEndRef = useRef<HTMLDivElement>(null);
   
+  // Modal State for Node Logs
+  const [logModal, setLogModal] = useState<{
+      isOpen: boolean;
+      nodeLabel: string;
+      status: string;
+      logs: LogEntry[];
+      startTime: string;
+      endTime: string;
+  }>({
+      isOpen: false,
+      nodeLabel: '',
+      status: 'idle',
+      logs: [],
+      startTime: '',
+      endTime: ''
+  });
+
   // React Flow DND hooks
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
 
   // LOG HANDLER
   const handleNodeStatusClick = useCallback((nodeId: string, label: string, status: string) => {
-    const timestamp = new Date().toLocaleTimeString();
+    const now = new Date();
+    const startTime = new Date(now.getTime() - 10000).toLocaleString();
+    const endTime = status === 'running' ? '' : now.toLocaleString();
+    const formattedTime = now.toLocaleTimeString();
+
+    // Generate Context-Aware Mock Logs for the Modal
+    const mockLogs: LogEntry[] = [
+        { id: `l1-${nodeId}`, level: 'INFO', source: 'system', timestamp: new Date(now.getTime() - 10000).toLocaleTimeString(), message: `Node execution started for [${label}]` },
+        { id: `l2-${nodeId}`, level: 'INFO', source: 'context', timestamp: new Date(now.getTime() - 9500).toLocaleTimeString(), message: `Loaded context data from upstream nodes. Inputs verified.` },
+    ];
+
+    if (label.toLowerCase().includes('trigger') || label.toLowerCase().includes('price')) {
+         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'oracle', timestamp: new Date(now.getTime() - 8000).toLocaleTimeString(), message: `Connecting to Chainlink Aggregator (0x5f4...243) for ETH/USD` });
+         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'logic', timestamp: new Date(now.getTime() - 7000).toLocaleTimeString(), message: `Received price: $2845.20. Comparison: 2845.20 < 2800.00 = FALSE.` });
+         mockLogs.push({ id: `l5-${nodeId}`, level: 'WARN', source: 'logic', timestamp: new Date(now.getTime() - 6000).toLocaleTimeString(), message: `Threshold not met. Execution might skip downstream nodes.` });
+    } else if (label.toLowerCase().includes('ai') || label.toLowerCase().includes('gemini')) {
+         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 8000).toLocaleTimeString(), message: `Preparing prompt context window (4096 tokens)...` });
+         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 4000).toLocaleTimeString(), message: `Sending request to Gemini 2.5 Flash API...` });
+         mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Response received. Sentiment Analysis: Bullish (0.89 confidence).` });
+    } else if (label.toLowerCase().includes('action') || label.toLowerCase().includes('swap')) {
+         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'dex_aggregator', timestamp: new Date(now.getTime() - 5000).toLocaleTimeString(), message: `Finding best route for 1000 USDC -> ETH...` });
+         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'dex_aggregator', timestamp: new Date(now.getTime() - 4000).toLocaleTimeString(), message: `Route found: Uniswap V3 (0.3%) -> Curve sETH` });
+         
+         if (status === 'success') {
+            mockLogs.push({ id: `l6-${nodeId}`, level: 'INFO', source: 'chain', timestamp: new Date(now.getTime() - 500).toLocaleTimeString(), message: `Transaction submitted: 0x8a...32f (Gas: 15 gwei)` });
+            mockLogs.push({ id: `l7-${nodeId}`, level: 'INFO', source: 'chain', timestamp: now.toLocaleTimeString(), message: `Transaction confirmed in block 18239402.` });
+         }
+    }
+
+    if (status === 'failed') {
+        mockLogs.push({ id: `err-${nodeId}`, level: 'ERROR', source: 'runtime', timestamp: now.toLocaleTimeString(), message: `Execution halted. Error: Timeout waiting for RPC response or gas limit exceeded.` });
+    } else if (status === 'success') {
+         mockLogs.push({ id: `suc-${nodeId}`, level: 'INFO', source: 'system', timestamp: now.toLocaleTimeString(), message: `Node execution completed successfully.` });
+    }
+
+    // Open Modal
+    setLogModal({
+        isOpen: true,
+        nodeLabel: label,
+        status: status,
+        logs: mockLogs,
+        startTime,
+        endTime
+    });
+
+    // Also update bottom console for continuity
     setCurrentLog(prev => [
         ...prev,
         `\n>>> INSPECTING NODE [${nodeId}]: ${label}`,
-        `[${timestamp}] STATUS: ${status.toUpperCase()}`,
-        `[${timestamp}] MEMORY: ${Math.floor(Math.random() * 128 + 64)}MB used`,
-        `[${timestamp}] LATENCY: ${Math.random().toFixed(2)}ms`,
+        `[${formattedTime}] STATUS: ${status.toUpperCase()}`,
+        `[${formattedTime}] LOGS: View detailed logs in modal...`,
         status === 'failed' ? `[ERROR] Connection timeout at block 192843` : `[INFO] Execution verified on-chain.`,
         `----------------------------------------`
     ]);
@@ -442,6 +504,17 @@ const StudioContent: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col md:flex-row overflow-hidden bg-white dark:bg-[#080808]">
+        {/* Node Log Modal - Rendered conditionally */}
+        <NodeLogsModal 
+            isOpen={logModal.isOpen} 
+            onClose={() => setLogModal(prev => ({ ...prev, isOpen: false }))} 
+            nodeLabel={logModal.nodeLabel}
+            status={logModal.status}
+            logs={logModal.logs}
+            startTime={logModal.startTime}
+            endTime={logModal.endTime}
+        />
+
         {/* 1. LEFT SIDEBAR: DUAL MODE COMMAND CENTER (w-80) */}
         <div className="flex w-80 z-20 shadow-xl bg-white dark:bg-[#0a0a0f] border-r border-gray-200 dark:border-white/5 shrink-0">
              
