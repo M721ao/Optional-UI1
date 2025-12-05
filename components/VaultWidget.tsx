@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Shield, ArrowUpRight, DollarSign, Rocket, Activity, Check } from 'lucide-react';
 
-export const VaultWidget: React.FC = () => {
+interface VaultWidgetProps {
+    needsAttention?: boolean;
+}
+
+export const VaultWidget: React.FC<VaultWidgetProps> = ({ needsAttention }) => {
     const [isDeployed, setIsDeployed] = useState(false);
 
     return (
-        <div className="flex items-center gap-3 bg-white/90 dark:bg-cyber-panel/90 backdrop-blur-md p-1.5 pr-3 rounded-full border border-gray-200 dark:border-white/10 shadow-lg transition-colors animate-in fade-in slide-in-from-top-4">
+        <div className={`flex items-center gap-3 bg-white/90 dark:bg-cyber-panel/90 backdrop-blur-md p-1.5 pr-3 rounded-full border border-gray-200 dark:border-white/10 shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-top-4 ${needsAttention ? 'ring-2 ring-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] scale-105' : ''}`}>
             {/* Status Icon Area */}
             <div className={`flex items-center justify-center w-8 h-8 rounded-full border ${isDeployed ? 'bg-cyber-green/10 border-cyber-green/30 text-cyber-green' : 'bg-gray-100 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400'}`}>
                 {isDeployed ? <Check size={14} /> : <Shield size={14} />}
