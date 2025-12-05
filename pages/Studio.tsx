@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -45,7 +44,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 border: 'border-amber-400/60 hover:border-amber-400',
                 bg: 'bg-amber-400/5',
                 header: 'bg-amber-400/10',
-                text: 'text-amber-400',
+                text: 'text-amber-600 dark:text-amber-400',
                 shadow: 'shadow-[0_0_10px_rgba(251,191,36,0.1)] hover:shadow-[0_0_15px_rgba(251,191,36,0.3)]',
                 handle: '#fbbf24',
                 icon: <Zap size={12} />
@@ -55,7 +54,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 border: 'border-emerald-500/60 hover:border-emerald-500',
                 bg: 'bg-emerald-500/5',
                 header: 'bg-emerald-500/10',
-                text: 'text-emerald-500',
+                text: 'text-emerald-600 dark:text-emerald-500',
                 shadow: 'shadow-[0_0_10px_rgba(16,185,129,0.1)] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]',
                 handle: '#10b981',
                 icon: <Activity size={12} />
@@ -65,7 +64,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 border: 'border-violet-500/60 hover:border-violet-500',
                 bg: 'bg-violet-500/5',
                 header: 'bg-violet-500/10',
-                text: 'text-violet-400',
+                text: 'text-violet-600 dark:text-violet-400',
                 shadow: 'shadow-[0_0_10px_rgba(139,92,246,0.1)] hover:shadow-[0_0_15px_rgba(139,92,246,0.3)]',
                 handle: '#8b5cf6',
                 icon: <BrainCircuit size={12} />
@@ -76,7 +75,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 border: 'border-cyan-500/60 hover:border-cyan-500',
                 bg: 'bg-cyan-500/5',
                 header: 'bg-cyan-500/10',
-                text: 'text-cyan-400',
+                text: 'text-cyan-600 dark:text-cyan-400',
                 shadow: 'shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]',
                 handle: '#06b6d4',
                 icon: <Network size={12} />
@@ -104,13 +103,13 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
     };
 
     return (
-        <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
+        <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-white dark:bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
             
             <div className="p-0 overflow-hidden flex flex-col">
                 {/* Header */}
-                <div className={`p-2.5 flex items-center justify-between border-b border-white/5 ${styles.header}`}>
+                <div className={`p-2.5 flex items-center justify-between border-b border-gray-100 dark:border-white/5 ${styles.header}`}>
                     <div className="flex items-center gap-2">
-                        <div className={`p-1 rounded bg-black/20 ${styles.text}`}>
+                        <div className={`p-1 rounded bg-white dark:bg-black/20 ${styles.text}`}>
                            {styles.icon}
                         </div>
                         <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text}`}>
@@ -121,14 +120,14 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     {/* Status Pill - Clickable for Logs */}
                     <button 
                         onClick={handleStatusClick}
-                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/40 border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all cursor-pointer group/status"
+                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/30 transition-all cursor-pointer group/status"
                         title="View Node Logs"
                     >
                         {getStatusIcon()}
-                        <span className="text-[9px] font-bold uppercase text-gray-400 group-hover/status:text-white transition-colors">
+                        <span className="text-[9px] font-bold uppercase text-gray-500 dark:text-gray-400 group-hover/status:text-gray-900 dark:group-hover/status:text-white transition-colors">
                             {status === 'running' ? 'Running' : status}
                         </span>
-                        <TerminalSquare size={8} className="text-gray-600 group-hover/status:text-gray-400 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
+                        <TerminalSquare size={8} className="text-gray-400 dark:text-gray-600 group-hover/status:text-gray-600 dark:group-hover/status:text-gray-400 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
                     </button>
                 </div>
                 
@@ -137,7 +136,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     {/* Expand Toggle */}
                     <button 
                         onClick={() => setExpanded(!expanded)} 
-                        className="absolute top-2 right-2 text-gray-500 hover:text-white transition-colors z-10" 
+                        className="absolute top-2 right-2 text-gray-400 hover:text-black dark:hover:text-white transition-colors z-10" 
                     >
                         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </button>
@@ -155,30 +154,31 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                                         width: '8px', 
                                         height: '8px', 
                                         background: styles.handle,
-                                        border: '1px solid #121218' 
+                                        border: '1px solid #999', // Better contrast in light mode
+                                        borderColor: 'var(--edge-primary)'
                                     }} 
                                     isConnectable={isConnectable} 
                                 />
-                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider ml-1">{input}</span>
+                                <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">{input}</span>
                             </div>
                         ))}
                     </div>
 
                     {/* Params (Expandable) */}
                     {expanded && (
-                        <div className="mt-3 pt-2 border-t border-white/5 space-y-1.5 animate-in fade-in slide-in-from-top-1">
+                        <div className="mt-3 pt-2 border-t border-gray-200 dark:border-white/5 space-y-1.5 animate-in fade-in slide-in-from-top-1">
                             {data.params ? (
                                 Object.entries(data.params).map(([key, value]: [string, any]) => {
                                     if (key === 'status') return null; // Don't show status in params list
                                     return (
-                                        <div key={key} className="flex justify-between items-center bg-black/20 px-2 py-1.5 rounded border border-white/5">
+                                        <div key={key} className="flex justify-between items-center bg-gray-50 dark:bg-black/20 px-2 py-1.5 rounded border border-gray-100 dark:border-white/5">
                                             <span className="text-[9px] text-gray-500 font-mono uppercase">{key}</span>
                                             <span className={`text-[9px] font-bold font-mono ${styles.text} truncate max-w-[120px]`}>{value}</span>
                                         </div>
                                     );
                                 })
                             ) : (
-                                <div className="text-[9px] text-gray-500 italic">No params.</div>
+                                <div className="text-[9px] text-gray-400 italic">No params.</div>
                             )}
                         </div>
                     )}
@@ -303,30 +303,33 @@ const StudioContent: React.FC = () => {
   // LOG HANDLER
   const handleNodeStatusClick = useCallback((nodeId: string, label: string, status: string) => {
     const now = new Date();
-    const startTime = new Date(now.getTime() - 10000).toLocaleString();
-    const endTime = status === 'running' ? '' : now.toLocaleString();
+    // Simulate realistic timestamps based on status
+    const endTime = status === 'running' ? '' : now.toLocaleTimeString();
+    // Start time was 2.4s ago
+    const startTime = new Date(now.getTime() - 2400).toLocaleTimeString();
+    
     const formattedTime = now.toLocaleTimeString();
 
     // Generate Context-Aware Mock Logs for the Modal
     const mockLogs: LogEntry[] = [
-        { id: `l1-${nodeId}`, level: 'INFO', source: 'system', timestamp: new Date(now.getTime() - 10000).toLocaleTimeString(), message: `Node execution started for [${label}]` },
-        { id: `l2-${nodeId}`, level: 'INFO', source: 'context', timestamp: new Date(now.getTime() - 9500).toLocaleTimeString(), message: `Loaded context data from upstream nodes. Inputs verified.` },
+        { id: `l1-${nodeId}`, level: 'INFO', source: 'system', timestamp: new Date(now.getTime() - 2400).toLocaleTimeString(), message: `Node execution started for [${label}]` },
+        { id: `l2-${nodeId}`, level: 'INFO', source: 'context', timestamp: new Date(now.getTime() - 2000).toLocaleTimeString(), message: `Loaded context data from upstream nodes. Inputs verified.` },
     ];
 
     if (label.toLowerCase().includes('trigger') || label.toLowerCase().includes('price')) {
-         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'oracle', timestamp: new Date(now.getTime() - 8000).toLocaleTimeString(), message: `Connecting to Chainlink Aggregator (0x5f4...243) for ETH/USD` });
-         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'logic', timestamp: new Date(now.getTime() - 7000).toLocaleTimeString(), message: `Received price: $2845.20. Comparison: 2845.20 < 2800.00 = FALSE.` });
-         mockLogs.push({ id: `l5-${nodeId}`, level: 'WARN', source: 'logic', timestamp: new Date(now.getTime() - 6000).toLocaleTimeString(), message: `Threshold not met. Execution might skip downstream nodes.` });
+         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'oracle', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Connecting to Chainlink Aggregator (0x5f4...243) for ETH/USD` });
+         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'logic', timestamp: new Date(now.getTime() - 1200).toLocaleTimeString(), message: `Received price: $2845.20. Comparison: 2845.20 < 2800.00 = FALSE.` });
+         mockLogs.push({ id: `l5-${nodeId}`, level: 'WARN', source: 'logic', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Threshold not met. Execution might skip downstream nodes.` });
     } else if (label.toLowerCase().includes('ai') || label.toLowerCase().includes('gemini')) {
-         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 8000).toLocaleTimeString(), message: `Preparing prompt context window (4096 tokens)...` });
-         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 4000).toLocaleTimeString(), message: `Sending request to Gemini 2.5 Flash API...` });
-         mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Response received. Sentiment Analysis: Bullish (0.89 confidence).` });
+         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 1800).toLocaleTimeString(), message: `Preparing prompt context window (4096 tokens)...` });
+         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 800).toLocaleTimeString(), message: `Sending request to Gemini 2.5 Flash API...` });
+         mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 200).toLocaleTimeString(), message: `Response received. Sentiment Analysis: Bullish (0.89 confidence).` });
     } else if (label.toLowerCase().includes('action') || label.toLowerCase().includes('swap')) {
-         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'dex_aggregator', timestamp: new Date(now.getTime() - 5000).toLocaleTimeString(), message: `Finding best route for 1000 USDC -> ETH...` });
-         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'dex_aggregator', timestamp: new Date(now.getTime() - 4000).toLocaleTimeString(), message: `Route found: Uniswap V3 (0.3%) -> Curve sETH` });
+         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'dex_aggregator', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Finding best route for 1000 USDC -> ETH...` });
+         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'dex_aggregator', timestamp: new Date(now.getTime() - 800).toLocaleTimeString(), message: `Route found: Uniswap V3 (0.3%) -> Curve sETH` });
          
          if (status === 'success') {
-            mockLogs.push({ id: `l6-${nodeId}`, level: 'INFO', source: 'chain', timestamp: new Date(now.getTime() - 500).toLocaleTimeString(), message: `Transaction submitted: 0x8a...32f (Gas: 15 gwei)` });
+            mockLogs.push({ id: `l6-${nodeId}`, level: 'INFO', source: 'chain', timestamp: new Date(now.getTime() - 100).toLocaleTimeString(), message: `Transaction submitted: 0x8a...32f (Gas: 15 gwei)` });
             mockLogs.push({ id: `l7-${nodeId}`, level: 'INFO', source: 'chain', timestamp: now.toLocaleTimeString(), message: `Transaction confirmed in block 18239402.` });
          }
     }
