@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Clock, Info, CheckCircle2, AlertOctagon, Loader2, AlertTriangle, Terminal } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Copy, CheckCircle2, AlertOctagon, Loader2, AlertTriangle, Terminal } from 'lucide-react';
 
 export interface LogEntry {
   id: string;
@@ -19,96 +19,125 @@ interface NodeLogsModalProps {
   endTime: string;
 }
 
-export const NodeLogsModal: React.FC<NodeLogsModalProps> = ({ isOpen, onClose, nodeLabel, status, logs, startTime, endTime }) => {
+export const NodeLogsModal: React.FC<NodeLogsModalProps> = ({ isOpen, onClose, nodeLabel, status, logs }) => {
+  const [filter, setFilter] = useState<'ALL' | 'INFO' | 'WARN' | 'ERROR'>('ALL');
+  const [copied, setCopied] = useState(false);
+
   if (!isOpen) return null;
 
-  const getStatusBadge = () => {
-     switch(status.toLowerCase()) {
-      case 'success': return <span className="flex items-center gap-1.5 bg-green-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-[0_0_10px_rgba(34,197,94,0.4)]"><CheckCircle2 size={12} /> Completed</span>;
-      case 'failed': return <span className="flex items-center gap-1.5 bg-red-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-[0_0_10px_rgba(239,68,68,0.4)]"><AlertOctagon size={12} /> Failed</span>;
-      case 'running': return <span className="flex items-center gap-1.5 bg-yellow-500 text-black text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-[0_0_10px_rgba(234,179,8,0.4)]"><Loader2 size={12} className="animate-spin" /> Running</span>;
-      default: return <span className="bg-gray-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Idle</span>;
+  const filteredLogs = logs.filter(log => {
+      if (filter === 'ALL') return true;
+      return log.level === filter;
+  });
+
+  const handleCopy = () => {
+      const text = logs.map(l => `[${l.timestamp}] [${l.level}] [${l.source}]: ${l.message}`).join('\n');
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+  };
+
+  const getStatusIcon = () => {
+    switch(status.toLowerCase()) {
+      case 'running': return <Loader2 size={16} className="animate-spin text-yellow-500" />;
+      case 'success': return <CheckCircle2 size={16} className="text-green-500" />;
+      case 'failed': return <AlertOctagon size={16} className="text-red-500" />;
+      default: return <Terminal size={16} className="text-gray-400" />;
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div 
-        className="w-full max-w-4xl bg-[#0a0a0f] border border-gray-800 rounded-xl shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800 bg-[#121218]">
-            <div className="flex items-center gap-4">
-                <h2 className="text-xl font-bold text-white tracking-wide font-sans">{nodeLabel} - Node Execution</h2>
-                {getStatusBadge()}
-            </div>
-            <div className="flex items-center gap-6">
-                 <div className="hidden md:flex items-center gap-2 text-xs text-gray-400 font-mono">
-                    <Clock size={14} className="text-gray-500" />
-                    <span>Duration: {endTime ? '10.2s' : 'Running...'}</span>
-                 </div>
-                <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-full">
-                    <X size={20} />
-                </button>
-            </div>
-        </div>
-
-        {/* Info Banner */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 bg-[#0c0c10] border-b border-gray-800 text-sm">
-            <div className="flex flex-col">
-                <span className="text-gray-500 text-[10px] uppercase font-bold mb-1.5 tracking-widest">Status</span>
-                <span className="text-white font-mono text-sm">{status === 'success' ? 'Completed' : status.charAt(0).toUpperCase() + status.slice(1)}</span>
-            </div>
-            <div className="flex flex-col">
-                <span className="text-gray-500 text-[10px] uppercase font-bold mb-1.5 tracking-widest">Start Time</span>
-                <span className="text-white font-mono text-sm">{startTime || '--'}</span>
-            </div>
-             <div className="flex flex-col">
-                <span className="text-gray-500 text-[10px] uppercase font-bold mb-1.5 tracking-widest">End Time</span>
-                <span className="text-white font-mono text-sm">{endTime || '--'}</span>
-            </div>
-        </div>
-
-        {/* Logs Container */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-3 bg-[#050505] font-mono text-sm relative">
-            {/* Ambient Background Grid */}
-            <div className="absolute inset-0 bg-[radial-gradient(#333_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none"></div>
-
-            {logs.length === 0 ? (
-                <div className="text-gray-500 italic text-center py-20 flex flex-col items-center gap-4">
-                    <Terminal size={32} className="opacity-50" />
-                    <span className="text-xs uppercase tracking-widest">Waiting for logs...</span>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div 
+            className="w-full max-w-3xl bg-white dark:bg-[#121218] border border-gray-200 dark:border-white/10 rounded-lg shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+        >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#18181f]">
+                <div className="flex items-center gap-3">
+                     <div className="p-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-md">
+                        {getStatusIcon()}
+                     </div>
+                     <div>
+                         <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{nodeLabel}</h2>
+                         <div className="flex items-center gap-2 mt-0.5">
+                            <span className={`text-[10px] font-bold uppercase ${
+                                status === 'success' ? 'text-green-600 dark:text-green-500' : 
+                                status === 'failed' ? 'text-red-600 dark:text-red-500' : 
+                                status === 'running' ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-500'
+                            }`}>
+                                {status}
+                            </span>
+                            <span className="text-[10px] text-gray-400">•</span>
+                            <span className="text-[10px] text-gray-500 font-mono">Execution Logs</span>
+                         </div>
+                     </div>
                 </div>
-            ) : (
-                logs.map((log) => (
-                    <div key={log.id} className="border border-gray-800 rounded-lg p-4 bg-[#0a0a0f]/90 backdrop-blur flex gap-4 hover:border-gray-700 transition-colors group relative z-10">
-                        <div className="mt-0.5 shrink-0">
-                            {log.level === 'ERROR' ? (
-                                <AlertOctagon size={18} className="text-red-500" />
-                            ) : log.level === 'WARN' ? (
-                                <AlertTriangle size={18} className="text-yellow-500" />
-                            ) : (
-                                <Info size={18} className="text-blue-500" />
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-1.5">
-                                <span className={`text-[10px] font-bold ${log.level === 'ERROR' ? 'text-red-500' : log.level === 'WARN' ? 'text-yellow-500' : 'text-blue-400'}`}>
-                                    {log.level}
-                                </span>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-wider">{log.source}</span>
-                                <span className="text-[10px] text-gray-600">{log.timestamp}</span>
-                            </div>
-                            <div className="text-gray-300 break-words whitespace-pre-wrap leading-relaxed text-xs md:text-sm">
-                                {log.message}
-                            </div>
-                        </div>
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={handleCopy}
+                        className="p-2 text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+                        title="Copy Logs"
+                    >
+                        {copied ? <CheckCircle2 size={18} /> : <Copy size={18} />}
+                    </button>
+                    <button 
+                        onClick={onClose} 
+                        className="p-2 text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+                    >
+                        <X size={18} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#121218] px-4">
+                {['ALL', 'INFO', 'WARN', 'ERROR'].map((f) => (
+                    <button
+                        key={f}
+                        onClick={() => setFilter(f as any)}
+                        className={`px-4 py-3 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-all ${
+                            filter === f 
+                            ? 'border-purple-600 dark:border-cyber-neon text-purple-600 dark:text-cyber-neon bg-gray-50 dark:bg-white/5' 
+                            : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'
+                        }`}
+                    >
+                        {f}
+                    </button>
+                ))}
+            </div>
+
+            {/* Log Content */}
+            <div className="flex-1 overflow-y-auto p-0 bg-white dark:bg-[#0c0c10] font-mono text-xs">
+                 {filteredLogs.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                         <Terminal size={24} className="opacity-20 mb-2" />
+                         <span>No logs available</span>
                     </div>
-                ))
-            )}
+                 ) : (
+                    <div className="divide-y divide-gray-100 dark:divide-white/5">
+                        {filteredLogs.map((log) => (
+                            <div key={log.id} className="flex gap-4 p-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                                <div className="text-gray-400 dark:text-gray-600 w-20 shrink-0 select-none">
+                                    {log.timestamp.split(' ')[0]}
+                                </div>
+                                <div className={`w-12 shrink-0 font-bold ${
+                                    log.level === 'ERROR' ? 'text-red-500' :
+                                    log.level === 'WARN' ? 'text-yellow-500' :
+                                    'text-blue-500 dark:text-blue-400'
+                                }`}>
+                                    {log.level}
+                                </div>
+                                <div className="flex-1 text-gray-700 dark:text-gray-300 break-words">
+                                    <span className="text-gray-400 dark:text-gray-600 mr-2 text-[10px] uppercase tracking-wider">[{log.source}]</span>
+                                    {log.message}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                 )}
+            </div>
         </div>
-      </div>
     </div>
   );
 };

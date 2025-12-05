@@ -232,8 +232,15 @@ const initialNodes: Node[] = [
   },
 ];
 
+// Edges now use CSS variable for stroke color
 const initialEdges: Edge[] = [
-    { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: '#8b5cf6' } }
+    { 
+        id: 'e1-2', 
+        source: '1', 
+        target: '2', 
+        animated: true, 
+        markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-primary)' } 
+    }
 ];
 
 export const Studio: React.FC = () => {
@@ -359,7 +366,7 @@ const StudioContent: React.FC = () => {
     })));
   }, [handleNodeStatusClick, setNodes]);
 
-  const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: '#00f3ff' } }, eds)), [setEdges]);
+  const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-primary)' } }, eds)), [setEdges]);
 
   // DND Handlers
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -589,9 +596,9 @@ const StudioContent: React.FC = () => {
                                 <Activity size={14} /> Actions
                             </h4>
                             <div className="space-y-3 pl-1">
-                                 <DraggableNode type="cyber" label="Action: Swap" inputs={['Token In', 'Route']} description="DEX swap execution." />
-                                 <DraggableNode type="cyber" label="Action: Stake" inputs={['Token', 'Vault']} description="Deposit to yield vault." />
-                                 <DraggableNode type="cyber" label="Action: Flash Loan" inputs={['Amount']} description="Borrow capital." />
+                                <DraggableNode type="cyber" label="Action: Swap" inputs={['Token In', 'Route']} description="DEX swap execution." />
+                                <DraggableNode type="cyber" label="Action: Stake" inputs={['Token', 'Vault']} description="Deposit to yield vault." />
+                                <DraggableNode type="cyber" label="Action: Flash Loan" inputs={['Amount']} description="Borrow capital." />
                             </div>
                         </div>
                      </div>
@@ -886,8 +893,8 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                 const styledEdges = flowData.edges.map((e: Edge) => ({
                     ...e,
                     animated: true,
-                    style: { stroke: '#00f3ff', strokeWidth: 2 },
-                    markerEnd: { type: MarkerType.ArrowClosed, color: '#00f3ff' }
+                    // Use CSS variable for edge color
+                    markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-primary)' }
                 }));
                 setNodes(styledNodes);
                 setEdges(styledEdges);

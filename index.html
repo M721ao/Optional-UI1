@@ -70,6 +70,15 @@
       }
     </script>
     <style>
+      :root {
+        --edge-primary: #000000;
+        --edge-selected: #666666;
+      }
+      html.dark {
+        --edge-primary: #ffffff;
+        --edge-selected: #aaaaaa;
+      }
+
       body {
         background-color: #050505; /* Default dark base */
         color: #e5e7eb;
@@ -115,75 +124,23 @@
         color: #000;
       }
 
-      .cyber-input {
-        background: rgba(0, 0, 0, 0.5);
-        border: 1px solid #333;
-        color: #00f3ff;
-        font-family: 'JetBrains Mono', monospace;
-      }
-      .cyber-input:focus {
-        outline: none;
-        border-color: #00f3ff;
-        box-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
+      /* React Flow Edge Overrides for Simple Monochrome Style */
+      .react-flow__edge-path {
+        stroke: var(--edge-primary) !important;
+        stroke-width: 1.5px !important;
+        transition: stroke 0.3s ease;
       }
       
-      /* Gradient Border Utility */
-      .gradient-border-wrapper {
-        position: relative;
-        background: linear-gradient(to right, #00f3ff, #bc13fe);
-        padding: 1px;
-        border-radius: 8px;
-      }
-      .gradient-border-content {
-        background: #121218;
-        border-radius: 7px; /* 1px less than wrapper */
-        height: 100%;
-      }
-      html:not(.dark) .gradient-border-content {
-        background: #ffffff;
+      .react-flow__edge.selected .react-flow__edge-path {
+        stroke: var(--edge-selected) !important;
+        stroke-width: 2.5px !important;
+        stroke-dasharray: 5;
+        animation: dashdraw 1s linear infinite;
       }
       
-      /* Perspective Grid Animation */
-      .perspective-container {
-        perspective: 1000px;
-        overflow: hidden;
-      }
-      .moving-grid {
-        position: absolute;
-        width: 200%;
-        height: 200%;
-        background-image: 
-          linear-gradient(to right, rgba(188, 19, 254, 0.1) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
-        background-size: 40px 40px;
-        transform: rotateX(45deg) translateY(-50%);
-        animation: gridMove 20s linear infinite;
-        transform-origin: center top;
-        mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 80%, transparent 100%);
-        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 80%, transparent 100%);
-      }
-      @keyframes gridMove {
-        0% { transform: rotateX(45deg) translateY(0); }
-        100% { transform: rotateX(45deg) translateY(40px); }
-      }
-
-      /* Dot Pattern for Backgrounds */
-      .bg-dot-pattern {
-        background-image: radial-gradient(rgba(50, 50, 50, 0.5) 1px, transparent 1px);
-        background-size: 24px 24px;
-      }
-      html:not(.dark) .bg-dot-pattern {
-         background-image: radial-gradient(rgba(200, 200, 200, 0.8) 1px, transparent 1px);
-      }
-
-      /* Text Gradients */
-      .text-glow {
-        text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-      }
-      
-      /* Clip Path for Cyber Buttons */
-      .clip-path-polygon {
-        clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+      @keyframes dashdraw {
+        from { stroke-dashoffset: 10; }
+        to { stroke-dashoffset: 0; }
       }
 
       /* --- React Flow Overrides --- */
@@ -218,6 +175,25 @@
       .react-flow__attribution {
         background: rgba(0,0,0,0.5) !important;
         color: #666 !important;
+      }
+
+      /* Dot Pattern for Backgrounds */
+      .bg-dot-pattern {
+        background-image: radial-gradient(rgba(50, 50, 50, 0.5) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      html:not(.dark) .bg-dot-pattern {
+         background-image: radial-gradient(rgba(200, 200, 200, 0.8) 1px, transparent 1px);
+      }
+
+      /* Text Gradients */
+      .text-glow {
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+      }
+      
+      /* Clip Path for Cyber Buttons */
+      .clip-path-polygon {
+        clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
       }
     </style>
   <script type="importmap">
