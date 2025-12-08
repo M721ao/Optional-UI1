@@ -30,6 +30,7 @@ import {
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
 import { NotificationType } from '../components/Notifications';
+import { NodeField, NodeInput, NodeNumberInput, NodeSelect, NodeTextarea, NodeRadioGroup, NodeTokenSelect } from '../components/NodeComponents';
 
 // --- MOCK TOKEN DATA FOR SELECTORS ---
 const TOKENS = [
@@ -71,55 +72,41 @@ const AIPredictionForm = ({ isConnectable, initialParams = {} }: { isConnectable
              </div>
 
             {/* MODEL SELECTOR */}
-            <div className="space-y-1 relative group/field mt-1">
-                 {/* Input Handle */}
-                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
-                    <Handle 
-                        type="target" 
-                        position={Position.Left} 
-                        id="in-model"
-                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
-                        isConnectable={isConnectable} 
-                    />
-                </div>
-                <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Model <span className="text-red-400">*</span></label>
-                </div>
-                <div className="relative">
-                    <select 
-                        value={model}
-                        onChange={(e) => setModel(e.target.value)}
-                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-2 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none appearance-none hover:border-purple-400 transition-colors"
-                    >
-                        <option value="GPT-4">GPT-4</option>
-                        <option value="Gemini-2.5-Flash">Gemini 2.5 Flash</option>
-                        <option value="Claude-3-Opus">Claude 3 Opus</option>
-                    </select>
-                    <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
-            </div>
+            <NodeField 
+                label="Model" 
+                required 
+                handleId="in-model" 
+                handlePosition={Position.Left} 
+                isConnectable={isConnectable}
+                className="mt-1"
+            >
+                <NodeSelect 
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    options={[
+                        { value: "GPT-4", label: "GPT-4" },
+                        { value: "Gemini-2.5-Flash", label: "Gemini 2.5 Flash" },
+                        { value: "Claude-3-Opus", label: "Claude 3 Opus" }
+                    ]}
+                />
+            </NodeField>
 
             {/* PROMPT */}
-            <div className="space-y-1 relative group/field">
-                 <div className="absolute -left-4 top-4">
-                    <Handle 
-                        type="target" 
-                        position={Position.Left} 
-                        id="in-prompt"
-                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
-                        isConnectable={isConnectable} 
-                    />
-                </div>
-                <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Prompt <span className="text-red-400">*</span></label>
-                </div>
-                <textarea 
+            <NodeField 
+                label="Prompt" 
+                required 
+                handleId="in-prompt" 
+                handlePosition={Position.Left} 
+                isConnectable={isConnectable}
+            >
+                <NodeTextarea 
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter your prompt for market analysis, trading signals, or other tasks"
-                    className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-2 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none min-h-[80px] resize-y placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                    rows={3}
+                    className="min-h-[80px]"
                 />
-            </div>
+            </NodeField>
 
             {/* PARAMETERS */}
             <div className="space-y-2 pt-1">
@@ -130,19 +117,17 @@ const AIPredictionForm = ({ isConnectable, initialParams = {} }: { isConnectable
                 <div className="space-y-2">
                     {parameters.map((param) => (
                         <div key={param.id} className="flex items-center gap-2 group animate-in slide-in-from-left-2">
-                            <input 
-                                type="text" 
+                            <NodeInput 
                                 value={param.name}
                                 onChange={(e) => updateParameter(param.id, 'name', e.target.value)}
                                 placeholder="Parameter name"
-                                className="flex-1 min-w-0 bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
+                                className="flex-1 min-w-0"
                             />
-                            <input 
-                                type="text" 
+                            <NodeInput 
                                 value={param.value}
                                 onChange={(e) => updateParameter(param.id, 'value', e.target.value)}
                                 placeholder="Value"
-                                className="flex-1 min-w-0 bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
+                                className="flex-1 min-w-0"
                             />
                             <button 
                                 onClick={() => removeParameter(param.id)}
@@ -193,226 +178,69 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
     const [fromToken, setFromToken] = useState(initialParams.fromToken || '');
     const [toToken, setToToken] = useState(initialParams.toToken || '');
     // Updated state for 4 options
-    const [amountType, setAmountType] = useState<'from-fixed' | 'to-fixed' | 'from-%' | 'to-%'>(initialParams.amountType || 'from-fixed');
+    const [amountType, setAmountType] = useState<string>(initialParams.amountType || 'from-fixed');
     const [amount, setAmount] = useState(initialParams.amount || '');
     const [slippage, setSlippage] = useState(initialParams.slippage || '0.5');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [openDropdown, setOpenDropdown] = useState<'from' | 'to' | null>(null);
-
-    // Filter tokens based on search
-    const filteredTokens = TOKENS.filter(t => 
-        t.symbol.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        t.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const handleSelect = (type: 'from' | 'to', symbol: string) => {
-        if (type === 'from') setFromToken(symbol);
-        else setToToken(symbol);
-        setOpenDropdown(null);
-        setSearchTerm('');
-    };
 
     return (
         <div className="flex flex-col gap-3 p-1 animate-in fade-in slide-in-from-top-1">
             {/* FROM TOKEN */}
-            <div className="space-y-1 relative group/field">
-                <div className="absolute -left-4 top-1/2 -translate-y-1/2">
-                    <Handle 
-                        type="target" 
-                        position={Position.Left} 
-                        id="in-from-token"
-                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
-                        isConnectable={isConnectable} 
-                    />
-                </div>
-                <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">From Token <span className="text-red-400">*</span></label>
-                </div>
-                <div className="relative">
-                    <button 
-                        onClick={() => { setOpenDropdown(openDropdown === 'from' ? null : 'from'); setSearchTerm(''); }}
-                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 flex items-center justify-between hover:border-purple-400 dark:hover:border-cyber-neon transition-colors"
-                    >
-                         <span className={`text-[10px] font-mono flex items-center gap-2 ${fromToken ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400'}`}>
-                            {fromToken && <div className={`w-2 h-2 rounded-full ${TOKENS.find(t=>t.symbol===fromToken)?.icon}`}></div>}
-                            {fromToken || 'Select token...'}
-                        </span>
-                        <Search size={10} className="text-gray-400" />
-                    </button>
-                    {openDropdown === 'from' && (
-                        <div className="absolute top-full left-0 w-full z-20 mt-1 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded shadow-xl overflow-hidden">
-                            <input 
-                                autoFocus
-                                type="text"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                placeholder="Search..."
-                                className="w-full p-2 text-[9px] bg-gray-50 dark:bg-black/20 border-b border-gray-100 dark:border-white/5 outline-none text-gray-900 dark:text-white"
-                            />
-                            <div className="max-h-24 overflow-y-auto">
-                                {filteredTokens.map(t => (
-                                    <div key={t.id} onClick={() => handleSelect('from', t.symbol)} className="px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer flex items-center justify-between group">
-                                        <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{t.symbol}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+            <NodeField label="From Token" required handleId="in-from-token" isConnectable={isConnectable}>
+                <NodeTokenSelect 
+                    tokens={TOKENS} 
+                    value={fromToken} 
+                    onChange={setFromToken} 
+                />
+            </NodeField>
 
             {/* TO TOKEN */}
-            <div className="space-y-1 relative group/field">
-                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
-                    <Handle 
-                        type="target" 
-                        position={Position.Left} 
-                        id="in-to-token"
-                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
-                        isConnectable={isConnectable} 
-                    />
-                </div>
-                <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">To Token <span className="text-red-400">*</span></label>
-                </div>
-                <div className="relative">
-                    <button 
-                        onClick={() => { setOpenDropdown(openDropdown === 'to' ? null : 'to'); setSearchTerm(''); }}
-                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 flex items-center justify-between hover:border-purple-400 dark:hover:border-cyber-neon transition-colors"
-                    >
-                        <span className={`text-[10px] font-mono flex items-center gap-2 ${toToken ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400'}`}>
-                            {toToken && <div className={`w-2 h-2 rounded-full ${TOKENS.find(t=>t.symbol===toToken)?.icon}`}></div>}
-                            {toToken || 'Select token...'}
-                        </span>
-                        <Search size={10} className="text-gray-400" />
-                    </button>
-                    {openDropdown === 'to' && (
-                        <div className="absolute top-full left-0 w-full z-20 mt-1 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded shadow-xl overflow-hidden">
-                             <input 
-                                autoFocus
-                                type="text"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                placeholder="Search..."
-                                className="w-full p-2 text-[9px] bg-gray-50 dark:bg-black/20 border-b border-gray-100 dark:border-white/5 outline-none text-gray-900 dark:text-white"
-                            />
-                            <div className="max-h-24 overflow-y-auto">
-                                {filteredTokens.map(t => (
-                                    <div key={t.id} onClick={() => handleSelect('to', t.symbol)} className="px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-white/5 cursor-pointer flex items-center justify-between group">
-                                        <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{t.symbol}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+            <NodeField label="To Token" required handleId="in-to-token" isConnectable={isConnectable}>
+                <NodeTokenSelect 
+                    tokens={TOKENS} 
+                    value={toToken} 
+                    onChange={setToToken} 
+                />
+            </NodeField>
 
             {/* AMOUNT */}
-            <div className="space-y-2 relative group/field">
-                 <div className="absolute -left-4 top-8">
-                    <Handle 
-                        type="target" 
-                        position={Position.Left} 
-                        id="in-amount"
-                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
-                        isConnectable={isConnectable} 
-                    />
-                </div>
-                 <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Amount <span className="text-red-400">*</span></label>
-                </div>
-                
+            <NodeField label="Amount" required handleId="in-amount" isConnectable={isConnectable} handlePosition={Position.Left}>
                 {/* 4 Radio Buttons Grid */}
-                <div className="grid grid-cols-2 gap-y-1 gap-x-2">
-                    <label className="flex items-center gap-1.5 cursor-pointer group">
-                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'from-fixed' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                            {amountType === 'from-fixed' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
-                        </div>
-                        <span className={`text-[9px] ${amountType === 'from-fixed' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - Fixed</span>
-                         <input type="radio" className="hidden" name="amt" checked={amountType === 'from-fixed'} onChange={() => setAmountType('from-fixed')} />
-                    </label>
-                    
-                    <label className="flex items-center gap-1.5 cursor-pointer group">
-                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'to-fixed' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                            {amountType === 'to-fixed' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
-                        </div>
-                        <span className={`text-[9px] ${amountType === 'to-fixed' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>To - Fixed</span>
-                        <input type="radio" className="hidden" name="amt" checked={amountType === 'to-fixed'} onChange={() => setAmountType('to-fixed')} />
-                    </label>
-
-                    <label className="flex items-center gap-1.5 cursor-pointer group">
-                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'from-%' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                            {amountType === 'from-%' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
-                        </div>
-                        <span className={`text-[9px] ${amountType === 'from-%' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - %</span>
-                         <input type="radio" className="hidden" name="amt" checked={amountType === 'from-%'} onChange={() => setAmountType('from-%')} />
-                    </label>
-                    
-                    <label className="flex items-center gap-1.5 cursor-pointer group">
-                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'to-%' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                            {amountType === 'to-%' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
-                        </div>
-                        <span className={`text-[9px] ${amountType === 'to-%' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>To - %</span>
-                        <input type="radio" className="hidden" name="amt" checked={amountType === 'to-%'} onChange={() => setAmountType('to-%')} />
-                    </label>
-                </div>
+                <NodeRadioGroup 
+                    name="amt"
+                    value={amountType}
+                    onChange={setAmountType}
+                    variant="danger"
+                    options={[
+                        { value: 'from-fixed', label: 'From - Fixed' },
+                        { value: 'to-fixed', label: 'To - Fixed' },
+                        { value: 'from-%', label: 'From - %' },
+                        { value: 'to-%', label: 'To - %' },
+                    ]}
+                />
 
                 {/* Input */}
-                <input 
-                    type="text" 
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder={amountType.includes('fixed') ? "23" : "50"}
-                    className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
-                />
-            </div>
+                <div className="mt-2">
+                    <NodeInput 
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder={amountType.includes('fixed') ? "23" : "50"}
+                    />
+                </div>
+            </NodeField>
 
             {/* SLIPPAGE */}
-            <div className="space-y-1 relative group/field">
-                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
-                    <Handle 
-                        type="target" 
-                        position={Position.Left} 
-                        id="in-slippage"
-                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
-                        isConnectable={isConnectable} 
-                    />
-                </div>
-                 <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Slippage Tolerance (%) <span className="text-red-400">*</span></label>
-                </div>
-                <div className="relative">
-                    <input 
-                        type="number" 
-                        value={slippage}
-                        onChange={(e) => setSlippage(e.target.value)}
-                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none pr-6"
-                    />
-                    <div className="absolute right-1 top-0 h-full flex flex-col justify-center gap-0.5">
-                         <ChevronUp size={8} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
-                         <ChevronDown size={8} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
-                    </div>
-                </div>
-            </div>
+            <NodeField label="Slippage Tolerance (%)" required handleId="in-slippage" isConnectable={isConnectable}>
+                <NodeNumberInput 
+                    value={slippage}
+                    onChange={(e) => setSlippage(e.target.value)}
+                />
+            </NodeField>
 
             {/* VAULT (Read Only) */}
-             <div className="space-y-1 relative group/field">
-                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
-                    <Handle 
-                        type="target" 
-                        position={Position.Left} 
-                        id="in-vault"
-                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
-                        isConnectable={isConnectable} 
-                    />
-                </div>
-                 <div className="flex items-center justify-between">
-                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Vault <span className="text-red-400">*</span></label>
-                </div>
+             <NodeField label="Vault" required handleId="in-vault" isConnectable={isConnectable}>
                 {/* Empty Dashed Box for Vault */}
                 <div className="w-full h-[28px] border border-dashed border-gray-300 dark:border-white/20 rounded opacity-30"></div>
-            </div>
+            </NodeField>
             
             {/* RECEIPT MOCK (HIGH VISIBILITY) */}
              <div className="mt-2 bg-purple-600 dark:bg-cyber-neon text-white dark:text-black border border-purple-700 dark:border-cyber-neon rounded px-2 py-1.5 flex items-center justify-between shadow-lg shadow-purple-500/20 dark:shadow-[0_0_10px_rgba(0,243,255,0.4)]">
@@ -674,18 +502,6 @@ const initialEdges: Edge[] = [
     }
 ];
 
-interface StudioProps {
-  addNotification: (type: NotificationType, title: string, message?: string) => void;
-}
-
-export const Studio: React.FC<StudioProps> = ({ addNotification }) => {
-    return (
-        <ReactFlowProvider>
-            <StudioContent addNotification={addNotification} />
-        </ReactFlowProvider>
-    );
-};
-// ... rest of the file (StudioContent, DraggableNode, ChatInterface) remains same, just updated initialNodes to showcase the new node ...
 interface ExecutionRecord {
     id: number;
     timestamp: string;
@@ -1661,4 +1477,16 @@ const ChatInterface = ({
         </div>
     </div>
   );
+};
+
+interface StudioProps {
+  addNotification: (type: NotificationType, title: string, message?: string) => void;
+}
+
+export const Studio: React.FC<StudioProps> = ({ addNotification }) => {
+    return (
+        <ReactFlowProvider>
+            <StudioContent addNotification={addNotification} />
+        </ReactFlowProvider>
+    );
 };
