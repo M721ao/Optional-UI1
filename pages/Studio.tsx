@@ -24,7 +24,7 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow, Lock
+    Database, Network, Workflow, Lock, Cloud, Save
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -60,7 +60,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 handle: '#10b981',
                 icon: <Activity size={12} />
             };
-        } else if (label.includes('ai') || label.includes('gemini') || label.includes('model')) {
+        } else if (label.includes('ai') || label.includes('gemini')) {
              return {
                 border: 'border-violet-500/60 hover:border-violet-500',
                 bg: 'bg-violet-500/5',
@@ -277,6 +277,10 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [isCanvasLoading, setIsCanvasLoading] = useState(true);
   
+  // Auto-Save State
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving'>('saved');
+  const [lastSavedTime, setLastSavedTime] = useState<string>(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
   // UI State
   const [activeTab, setActiveTab] = useState<'build' | 'run'>('build');
   
@@ -319,6 +323,19 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
     }, 2500); // Slightly longer to show off the loader
     return () => clearTimeout(timer);
   }, []);
+
+  // Auto-Save Effect
+  useEffect(() => {
+    if (isCanvasLoading) return;
+    
+    setSaveStatus('saving');
+    const timer = setTimeout(() => {
+        setSaveStatus('saved');
+        setLastSavedTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    }, 2000); // Debounce save
+    
+    return () => clearTimeout(timer);
+  }, [nodes, edges, flowName, isCanvasLoading]);
 
   // LOG HANDLER
   const handleNodeStatusClick = useCallback((nodeId: string, label: string, status: string) => {
@@ -769,29 +786,52 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
             {/* Canvas Header Overlay */}
             <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between pointer-events-none">
                 {/* Title (Left) */}
-                <div className="bg-white/90 dark:bg-cyber-panel/90 backdrop-blur-md p-2 rounded border border-gray-200 dark:border-white/10 shadow-lg pointer-events-auto flex items-center gap-3">
-                    <div className="p-1.5 bg-purple-100 dark:bg-cyber-neon/20 rounded">
-                        <TerminalSquare size={16} className="text-purple-600 dark:text-cyber-neon" />
+                <div className="bg-white/90 dark:bg-cyber-panel/90 backdrop-blur-md p-3 rounded border border-gray-200 dark:border-white/10 shadow-lg pointer-events-auto flex items-center gap-3">
+                    
+                    {/* Icon */}
+                    <div className="p-2 bg-purple-100 dark:bg-cyber-neon/20 rounded flex items-center justify-center">
+                        <TerminalSquare size={20} className="text-purple-600 dark:text-cyber-neon" />
                     </div>
-                    {isEditingName ? (
-                        <input 
-                            type="text" 
-                            value={flowName} 
-                            onChange={(e) => setFlowName(e.target.value)}
-                            onBlur={() => setIsEditingName(false)}
-                            autoFocus
-                            className="bg-transparent border-b border-purple-500 dark:border-cyber-neon text-gray-900 dark:text-white px-2 py-0.5 text-sm font-bold outline-none w-48"
-                        />
-                    ) : (
-                        <h1 
-                            className="text-sm font-bold text-gray-900 dark:text-white tracking-wide cursor-pointer hover:text-purple-600 dark:hover:text-cyber-neon flex items-center gap-2"
-                            onClick={() => setIsEditingName(true)}
-                            title="Edit Flow Name"
-                        >
-                            {flowName}
-                            <Edit2 size={12} className="opacity-50" />
-                        </h1>
-                    )}
+
+                    {/* Vertical Stack: Title + Status */}
+                    <div className="flex flex-col justify-center gap-0.5">
+                        
+                        {/* Top: Title */}
+                        {isEditingName ? (
+                            <input 
+                                type="text" 
+                                value={flowName} 
+                                onChange={(e) => setFlowName(e.target.value)}
+                                onBlur={() => setIsEditingName(false)}
+                                autoFocus
+                                className="bg-transparent border-b border-purple-500 dark:border-cyber-neon text-gray-900 dark:text-white px-0 py-0 text-xs font-bold outline-none w-48"
+                            />
+                        ) : (
+                            <h1 
+                                className="text-xs font-bold text-gray-900 dark:text-white tracking-wide cursor-pointer hover:text-purple-600 dark:hover:text-cyber-neon flex items-center gap-2"
+                                onClick={() => setIsEditingName(true)}
+                                title="Edit Flow Name"
+                            >
+                                {flowName}
+                                <Edit2 size={10} className="opacity-50" />
+                            </h1>
+                        )}
+
+                        {/* Bottom: Save Status */}
+                        <div className="flex items-center gap-1.5 h-3">
+                            {saveStatus === 'saving' ? (
+                                 <>
+                                    <Loader2 size={8} className="text-gray-400 animate-spin" />
+                                    <span className="text-[9px] text-gray-400 font-mono uppercase tracking-wider">Saving to chain...</span>
+                                 </>
+                            ) : (
+                                 <>
+                                    <CheckCircle2 size={8} className="text-green-500" />
+                                    <span className="text-[9px] text-gray-400 font-mono uppercase tracking-wider">Saved {lastSavedTime}</span>
+                                 </>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Vault Widget (Right) */}
