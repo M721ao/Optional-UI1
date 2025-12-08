@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Page } from '../types';
 import { 
@@ -16,14 +14,19 @@ import {
   ArrowRightLeft, 
   Lock,
   Hexagon,
-  Workflow
+  Workflow,
+  Terminal,
+  AlertTriangle,
+  AlertOctagon
 } from 'lucide-react';
 
 interface LandingProps {
   onNavigate: (page: Page) => void;
+  onTestError?: () => void;
+  onTestCrash?: () => void;
 }
 
-export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
+export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTestCrash }) => {
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden relative bg-gray-50 dark:bg-[#030305] selection:bg-cyber-neon selection:text-black transition-colors duration-300">
         
@@ -243,6 +246,35 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
                     ENTER MASTER STUDIO <ArrowRight className="inline ml-2" />
                 </button>
             </div>
+            
+             {/* DEBUG TOOLS */}
+             {(onTestError || onTestCrash) && (
+                <div className="mt-20 pt-10 border-t border-gray-200 dark:border-white/5">
+                    <div className="flex flex-col items-center gap-4 opacity-50 hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
+                             <Terminal size={12} /> System Diagnostics
+                        </div>
+                        <div className="flex gap-4">
+                            {onTestError && (
+                                <button 
+                                    onClick={onTestError}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 hover:border-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
+                                >
+                                    <AlertTriangle size={12} /> Trigger Alert
+                                </button>
+                            )}
+                            {onTestCrash && (
+                                <button 
+                                    onClick={onTestCrash}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                                >
+                                    <AlertOctagon size={12} /> Trigger Crash
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+             )}
         </section>
     </div>
   );

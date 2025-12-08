@@ -5,6 +5,7 @@ import { Studio } from './pages/Studio';
 import { Dashboard } from './pages/Dashboard';
 import { Loader } from './components/Loader';
 import { Page } from './types';
+import { ToastContainer, PageErrorState, Notification, NotificationType } from './components/Notifications';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.LANDING);
@@ -12,6 +13,10 @@ const App: React.FC = () => {
   
   // Theme state: default to 'dark' as requested
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  // --- GLOBAL NOTIFICATION & ERROR STATE ---
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [criticalError, setCriticalError] = useState<{msg: string, code: string} | null>(null);
 
   // Apply theme to HTML element
   useEffect(() => {
@@ -34,6 +39,37 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // --- GLOBAL HANDLERS ---
+  const addNotification = (type: NotificationType, title: string, message?: string) => {
+    const id = Date.now().toString();
+    setNotifications(prev => [...prev, { id, type, title, message }]);
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 5000);
+  };
+
+  const dismissNotification = (id: string) => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  const triggerUserError = () => {
+      addNotification('error', 'Connection Refused', 'Failed to connect to RPC endpoint. Retrying...');
+  };
+
+  const triggerPageCrash = () => {
+      setCriticalError({ msg: 'Distributed Ledger Sync Failed: Node unreachable.', code: 'CRITICAL_RPC_TIMEOUT' });
+  };
+
+  const handlePageRetry = () => {
+      setCriticalError(null);
+      setIsLoading(true);
+      setTimeout(() => {
+          setIsLoading(false);
+          addNotification('success', 'System Recovered', 'Connection re-established successfully.');
+      }, 2000);
+  };
+
   const handleNavigate = (page: Page) => {
     if (page === currentPage) return;
     
@@ -48,11 +84,19 @@ const App: React.FC = () => {
   const renderPage = () => {
     switch (currentPage) {
       case Page.LANDING:
-        // Landing page handles its own dark styling, ignoring the theme context visually if desired,
-        // but here we pass it anyway.
-        return <Landing onNavigate={handleNavigate} />;
+        return (
+          <Landing 
+            onNavigate={handleNavigate} 
+            onTestError={triggerUserError} 
+            onTestCrash={triggerPageCrash}
+          />
+        );
       case Page.STUDIO:
-        return <Studio />;
+        return (
+          <Studio 
+            addNotification={addNotification}
+          />
+        );
       case Page.DASHBOARD:
         return <Dashboard />;
       default:
@@ -62,14 +106,27 @@ const App: React.FC = () => {
 
   return (
     <>
-      {isLoading && <Loader />}
+      {isLoading && !criticalError && <Loader />}
+      
+      {/* Global Notifications Layer */}
+      <ToastContainer notifications={notifications} onDismiss={dismissNotification} />
+      
+      {/* Global Critical Error Layer */}
+      {criticalError && (
+          <PageErrorState 
+              error={criticalError.msg} 
+              code={criticalError.code}
+              onRetry={handlePageRetry} 
+          />
+      )}
+
       <Layout 
         currentPage={currentPage} 
         onNavigate={handleNavigate}
         theme={theme}
         toggleTheme={toggleTheme}
       >
-        {renderPage()}
+        {!criticalError && renderPage()}
       </Layout>
     </>
   );

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -25,10 +24,11 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow
+    Database, Network, Workflow, Lock
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
+import { NotificationType } from '../components/Notifications';
 
 // --- CUSTOM NODE COMPONENT ---
 // Inputs on Left, Single Output on Right
@@ -244,10 +244,14 @@ const initialEdges: Edge[] = [
     }
 ];
 
-export const Studio: React.FC = () => {
+interface StudioProps {
+  addNotification: (type: NotificationType, title: string, message?: string) => void;
+}
+
+export const Studio: React.FC<StudioProps> = ({ addNotification }) => {
     return (
         <ReactFlowProvider>
-            <StudioContent />
+            <StudioContent addNotification={addNotification} />
         </ReactFlowProvider>
     );
 };
@@ -261,7 +265,11 @@ interface ExecutionRecord {
     gas?: number;
 }
 
-const StudioContent: React.FC = () => {
+interface StudioContentProps {
+    addNotification: (type: NotificationType, title: string, message?: string) => void;
+}
+
+const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
   const nodeTypes = useMemo(() => ({ cyber: CyberNode }), []);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -304,10 +312,11 @@ const StudioContent: React.FC = () => {
 
   // Initial Load Simulation
   useEffect(() => {
-    // Simulate fetching historical graph data
+    // Simulate fetching historical graph data with the fancy loader
     const timer = setTimeout(() => {
         setIsCanvasLoading(false);
-    }, 1500);
+        addNotification('success', 'Workspace Loaded', 'Historical flow data synced with chain.');
+    }, 2500); // Slightly longer to show off the loader
     return () => clearTimeout(timer);
   }, []);
 
@@ -415,8 +424,9 @@ const StudioContent: React.FC = () => {
       };
 
       setNodes((nds) => nds.concat(newNode));
+      addNotification('success', 'Component Added', `Added ${label} to the workflow.`);
     },
-    [reactFlowInstance, setNodes, handleNodeStatusClick]
+    [reactFlowInstance, setNodes, handleNodeStatusClick, addNotification]
   );
 
   // Helper to add history
@@ -510,6 +520,7 @@ const StudioContent: React.FC = () => {
         if (dangling.length > 0) {
              setCurrentLog(prev => [...prev, `[WARN] Found ${dangling.length} disconnected nodes. Flow may fail.`]);
              addHistory('error', `Audit Failed: ${dangling.length} disconnected nodes`);
+             addNotification('warning', 'Audit Warning', `${dangling.length} nodes are disconnected. Logic may be incomplete.`);
              // Mark dangling as failed
              setNodes((nds) => nds.map(n => {
                  if (!connectedNodes.has(n.id)) return {...n, data: {...n.data, status: 'failed'}};
@@ -518,6 +529,7 @@ const StudioContent: React.FC = () => {
         } else {
              setCurrentLog(prev => [...prev, `[PASS] Syntax Clean. All nodes connected. Gas Optimized.`]);
              addHistory('audit', `Security Audit Passed`, 0, 0);
+             addNotification('success', 'Audit Passed', 'Workflow is secure and ready for deployment.');
              setNodes((nds) => nds.map(n => ({...n, data: {...n.data, status: 'success'}})));
         }
     }, 1500);
@@ -525,6 +537,7 @@ const StudioContent: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col md:flex-row overflow-hidden bg-white dark:bg-[#080808]">
+        
         {/* Node Log Modal - Rendered conditionally */}
         <NodeLogsModal 
             isOpen={logModal.isOpen} 
@@ -789,19 +802,31 @@ const StudioContent: React.FC = () => {
 
             {/* --- LOADING OVERLAY --- */}
             {isCanvasLoading && (
-                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/50 dark:bg-[#080808]/80 backdrop-blur-sm transition-opacity duration-300">
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gray-50/80 dark:bg-[#080808]/90 backdrop-blur-md transition-opacity duration-300">
                     <div className="relative">
-                        <div className="w-16 h-16 border-4 border-gray-200 dark:border-white/10 rounded-full"></div>
-                        <div className="absolute top-0 left-0 w-16 h-16 border-4 border-purple-500 dark:border-cyber-neon rounded-full border-t-transparent animate-spin"></div>
-                         <div className="absolute inset-0 flex items-center justify-center">
-                            <Workflow size={24} className="text-purple-600 dark:text-cyber-neon animate-pulse" />
-                         </div>
+                        {/* Outer pulsing ring */}
+                        <div className="w-24 h-24 border-2 border-gray-200 dark:border-white/5 rounded-full animate-pulse"></div>
+                        
+                        {/* Spinning Segments */}
+                        <div className="absolute top-0 left-0 w-24 h-24 border-t-2 border-r-2 border-purple-500 dark:border-cyber-neon rounded-full animate-spin duration-700 ease-linear"></div>
+                        <div className="absolute top-2 left-2 w-20 h-20 border-b-2 border-l-2 border-pink-500 dark:border-cyber-purple rounded-full animate-spin-slow duration-1000"></div>
+
+                        {/* Center Logo */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Workflow size={28} className="text-gray-900 dark:text-white animate-pulse" />
+                        </div>
                     </div>
-                    <div className="mt-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-widest animate-pulse">
-                        Loading Workflow Data...
-                    </div>
-                    <div className="mt-1 text-[10px] text-gray-500 font-mono">
-                        Syncing Node States & Edges
+                    
+                    {/* Text Data Stream */}
+                    <div className="mt-8 flex flex-col items-center gap-2">
+                        <div className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-[0.3em] animate-pulse">
+                            Initializing
+                        </div>
+                        <div className="flex flex-col items-center text-[9px] text-gray-500 font-mono gap-1">
+                             <span className="animate-in fade-in slide-in-from-bottom-2 duration-500">Syncing node states...</span>
+                             <span className="animate-in fade-in slide-in-from-bottom-2 duration-700 delay-100 text-purple-600 dark:text-cyber-neon">Validating edge connections...</span>
+                             <span className="animate-in fade-in slide-in-from-bottom-2 duration-1000 delay-200">Retrieving historical logs...</span>
+                        </div>
                     </div>
                 </div>
             )}
@@ -834,7 +859,11 @@ const StudioContent: React.FC = () => {
         <div className="w-96 bg-white dark:bg-[#0a0a0f] border-l border-gray-200 dark:border-white/5 flex flex-col z-20 shadow-2xl shrink-0">
             {/* Chat Interface (Fills entire Right Sidebar now) */}
             <div className="flex-1 flex flex-col overflow-hidden relative">
-                 <ChatInterface setNodes={setNodes} setEdges={setEdges} setIsCanvasLoading={setIsCanvasLoading} />
+                 <ChatInterface 
+                    setNodes={setNodes} 
+                    setEdges={setEdges} 
+                    setIsCanvasLoading={setIsCanvasLoading} 
+                 />
             </div>
         </div>
     </div>
@@ -873,7 +902,13 @@ interface ChatSession {
     timestamp: number;
 }
 
-const ChatInterface = ({ setNodes, setEdges, setIsCanvasLoading }: { setNodes: any, setEdges: any, setIsCanvasLoading: (loading: boolean) => void }) => {
+const ChatInterface = ({ 
+    setNodes, setEdges, setIsCanvasLoading 
+}: { 
+    setNodes: any, 
+    setEdges: any, 
+    setIsCanvasLoading: (loading: boolean) => void,
+}) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
@@ -1014,28 +1049,6 @@ const ChatInterface = ({ setNodes, setEdges, setIsCanvasLoading }: { setNodes: a
                     </button>
                 </div>
             </div>
-
-             <div className="space-y-2">
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-left pl-1 flex items-center gap-1">
-                    <Command size={10} /> Quick Actions
-                </div>
-                 <div className="flex flex-wrap gap-2 justify-center">
-                    <button 
-                        onClick={() => handleSendMessage("Audit the current workflow for security vulnerabilities and logical errors")}
-                        className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-gray-600 dark:text-gray-400"
-                        title="Analyze current flow for risks"
-                    >
-                        <ShieldCheck size={10} /> Audit Security
-                    </button>
-                     <button 
-                        onClick={() => handleSendMessage("Analyze gas usage and suggest optimizations for this flow")}
-                        className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors text-gray-600 dark:text-gray-400"
-                        title="Optimize flow for lower fees"
-                    >
-                        <Search size={10} /> Optimize Gas
-                    </button>
-                 </div>
-             </div>
          </div>
       </div>
   );
