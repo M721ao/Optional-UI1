@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -25,7 +24,7 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow, Lock, Cloud, Save, Radio
+    Database, Network, Workflow, Lock, Cloud, Save
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -44,7 +43,7 @@ const TOKENS = [
 const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolean, initialParams: any }) => {
     const [fromToken, setFromToken] = useState(initialParams.fromToken || '');
     const [toToken, setToToken] = useState(initialParams.toToken || '');
-    const [amountType, setAmountType] = useState<'from-fixed' | 'to-fixed' | 'from-percent' | 'to-percent'>('from-fixed');
+    const [amountType, setAmountType] = useState<'fixed' | 'percent'>('fixed');
     const [amount, setAmount] = useState(initialParams.amount || '');
     const [slippage, setSlippage] = useState(initialParams.slippage || '0.5');
     const [searchTerm, setSearchTerm] = useState('');
@@ -64,41 +63,41 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
     };
 
     return (
-        <div className="flex flex-col gap-4 p-1 animate-in fade-in slide-in-from-top-1">
+        <div className="flex flex-col gap-3 p-1 animate-in fade-in slide-in-from-top-1">
             {/* FROM TOKEN */}
-            <div className="space-y-1.5 relative group/field">
-                <div className="absolute -left-[18px] top-1/2 -translate-y-1/2 z-50">
+            <div className="space-y-1 relative group/field">
+                <div className="absolute -left-4 top-1/2 -translate-y-1/2">
                     <Handle 
                         type="target" 
                         position={Position.Left} 
                         id="in-from-token"
-                        style={{ width: '10px', height: '10px', background: '#00f3ff', border: '2px solid #121218' }} 
+                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
                         isConnectable={isConnectable} 
                     />
                 </div>
                 <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">From Token <span className="text-red-400">*</span></label>
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">From Token <span className="text-red-400">*</span></label>
                 </div>
                 <div className="relative">
                     <button 
                         onClick={() => { setOpenDropdown(openDropdown === 'from' ? null : 'from'); setSearchTerm(''); }}
-                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2.5 py-2 flex items-center justify-between hover:border-purple-400 dark:hover:border-cyber-neon transition-colors"
+                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 flex items-center justify-between hover:border-purple-400 dark:hover:border-cyber-neon transition-colors"
                     >
-                         <span className={`text-xs font-mono flex items-center gap-2 ${fromToken ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400'}`}>
+                         <span className={`text-[10px] font-mono flex items-center gap-2 ${fromToken ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400'}`}>
                             {fromToken && <div className={`w-2 h-2 rounded-full ${TOKENS.find(t=>t.symbol===fromToken)?.icon}`}></div>}
                             {fromToken || 'Select token...'}
                         </span>
-                        <Search size={12} className="text-gray-400" />
+                        <Search size={10} className="text-gray-400" />
                     </button>
                     {openDropdown === 'from' && (
-                        <div className="absolute top-full left-0 w-full z-50 mt-1 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded shadow-xl overflow-hidden">
+                        <div className="absolute top-full left-0 w-full z-20 mt-1 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded shadow-xl overflow-hidden">
                             <input 
                                 autoFocus
                                 type="text"
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
                                 placeholder="Search..."
-                                className="w-full p-2 text-[10px] bg-gray-50 dark:bg-black/20 border-b border-gray-100 dark:border-white/5 outline-none text-gray-900 dark:text-white"
+                                className="w-full p-2 text-[9px] bg-gray-50 dark:bg-black/20 border-b border-gray-100 dark:border-white/5 outline-none text-gray-900 dark:text-white"
                             />
                             <div className="max-h-24 overflow-y-auto">
                                 {filteredTokens.map(t => (
@@ -113,39 +112,39 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
             </div>
 
             {/* TO TOKEN */}
-            <div className="space-y-1.5 relative group/field">
-                 <div className="absolute -left-[18px] top-1/2 -translate-y-1/2 z-50">
+            <div className="space-y-1 relative group/field">
+                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
                     <Handle 
                         type="target" 
                         position={Position.Left} 
                         id="in-to-token"
-                        style={{ width: '10px', height: '10px', background: '#00f3ff', border: '2px solid #121218' }} 
+                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
                         isConnectable={isConnectable} 
                     />
                 </div>
                 <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">To Token <span className="text-red-400">*</span></label>
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">To Token <span className="text-red-400">*</span></label>
                 </div>
                 <div className="relative">
                     <button 
                         onClick={() => { setOpenDropdown(openDropdown === 'to' ? null : 'to'); setSearchTerm(''); }}
-                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2.5 py-2 flex items-center justify-between hover:border-purple-400 dark:hover:border-cyber-neon transition-colors"
+                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 flex items-center justify-between hover:border-purple-400 dark:hover:border-cyber-neon transition-colors"
                     >
-                        <span className={`text-xs font-mono flex items-center gap-2 ${toToken ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400'}`}>
+                        <span className={`text-[10px] font-mono flex items-center gap-2 ${toToken ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-400'}`}>
                             {toToken && <div className={`w-2 h-2 rounded-full ${TOKENS.find(t=>t.symbol===toToken)?.icon}`}></div>}
                             {toToken || 'Select token...'}
                         </span>
-                        <Search size={12} className="text-gray-400" />
+                        <Search size={10} className="text-gray-400" />
                     </button>
                     {openDropdown === 'to' && (
-                        <div className="absolute top-full left-0 w-full z-50 mt-1 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded shadow-xl overflow-hidden">
+                        <div className="absolute top-full left-0 w-full z-20 mt-1 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 rounded shadow-xl overflow-hidden">
                              <input 
                                 autoFocus
                                 type="text"
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
                                 placeholder="Search..."
-                                className="w-full p-2 text-[10px] bg-gray-50 dark:bg-black/20 border-b border-gray-100 dark:border-white/5 outline-none text-gray-900 dark:text-white"
+                                className="w-full p-2 text-[9px] bg-gray-50 dark:bg-black/20 border-b border-gray-100 dark:border-white/5 outline-none text-gray-900 dark:text-white"
                             />
                             <div className="max-h-24 overflow-y-auto">
                                 {filteredTokens.map(t => (
@@ -161,35 +160,35 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
 
             {/* AMOUNT */}
             <div className="space-y-2 relative group/field">
-                 <div className="absolute -left-[18px] top-6 z-50">
+                 <div className="absolute -left-4 top-8">
                     <Handle 
                         type="target" 
                         position={Position.Left} 
                         id="in-amount"
-                        style={{ width: '10px', height: '10px', background: '#00f3ff', border: '2px solid #121218' }} 
+                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
                         isConnectable={isConnectable} 
                     />
                 </div>
                  <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount <span className="text-red-400">*</span></label>
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Amount <span className="text-red-400">*</span></label>
                 </div>
                 
-                {/* 4 Radio Options Grid */}
-                <div className="grid grid-cols-2 gap-2">
-                    {[
-                        { id: 'from-fixed', label: 'From - Fixed' },
-                        { id: 'from-percent', label: 'From - %' },
-                        { id: 'to-fixed', label: 'To - Fixed' },
-                        { id: 'to-percent', label: 'To - %' }
-                    ].map((opt) => (
-                        <label key={opt.id} className="flex items-center gap-2 cursor-pointer group p-1 rounded hover:bg-gray-50 dark:hover:bg-white/5">
-                            <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-colors ${amountType === opt.id ? 'border-purple-500 dark:border-cyber-neon bg-purple-500/20 dark:bg-cyber-neon/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                                {amountType === opt.id && <div className="w-1.5 h-1.5 rounded-full bg-purple-500 dark:bg-cyber-neon"></div>}
-                            </div>
-                            <span className={`text-[10px] font-medium ${amountType === opt.id ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>{opt.label}</span>
-                            <input type="radio" className="hidden" name="amt" checked={amountType === opt.id} onChange={() => setAmountType(opt.id as any)} />
-                        </label>
-                    ))}
+                {/* Radio Group */}
+                <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'fixed' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {amountType === 'fixed' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
+                        </div>
+                        <span className={`text-[9px] ${amountType === 'fixed' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - Fixed</span>
+                         <input type="radio" className="hidden" name="amt" checked={amountType === 'fixed'} onChange={() => setAmountType('fixed')} />
+                    </label>
+                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'percent' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {amountType === 'percent' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
+                        </div>
+                        <span className={`text-[9px] ${amountType === 'percent' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - %</span>
+                        <input type="radio" className="hidden" name="amt" checked={amountType === 'percent'} onChange={() => setAmountType('percent')} />
+                    </label>
                 </div>
 
                 {/* Input */}
@@ -197,65 +196,67 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
                     type="text" 
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    placeholder={amountType.includes('percent') ? "50" : "10.0"}
-                    className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2.5 py-2 text-xs font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
+                    placeholder={amountType === 'fixed' ? "23" : "50"}
+                    className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
                 />
             </div>
 
             {/* SLIPPAGE */}
-            <div className="space-y-1.5 relative group/field">
-                 <div className="absolute -left-[18px] top-1/2 -translate-y-1/2 z-50">
+            <div className="space-y-1 relative group/field">
+                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
                     <Handle 
                         type="target" 
                         position={Position.Left} 
                         id="in-slippage"
-                        style={{ width: '10px', height: '10px', background: '#00f3ff', border: '2px solid #121218' }} 
+                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
                         isConnectable={isConnectable} 
                     />
                 </div>
                  <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Slippage (%) <span className="text-red-400">*</span></label>
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Slippage Tolerance (%) <span className="text-red-400">*</span></label>
                 </div>
                 <div className="relative">
                     <input 
                         type="number" 
                         value={slippage}
                         onChange={(e) => setSlippage(e.target.value)}
-                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2.5 py-2 text-xs font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none pr-6"
+                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none pr-6"
                     />
                     <div className="absolute right-1 top-0 h-full flex flex-col justify-center gap-0.5">
-                         <ChevronUp size={10} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
-                         <ChevronDown size={10} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
+                         <ChevronUp size={8} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
+                         <ChevronDown size={8} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
                     </div>
                 </div>
             </div>
 
-            {/* VAULT (Blank as requested) */}
-             <div className="space-y-1.5 relative group/field">
-                 <div className="absolute -left-[18px] top-1/2 -translate-y-1/2 z-50">
+            {/* VAULT (Read Only) */}
+             <div className="space-y-1 relative group/field">
+                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
                     <Handle 
                         type="target" 
                         position={Position.Left} 
                         id="in-vault"
-                        style={{ width: '10px', height: '10px', background: '#00f3ff', border: '2px solid #121218' }} 
+                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
                         isConnectable={isConnectable} 
                     />
                 </div>
                  <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vault <span className="text-red-400">*</span></label>
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Vault <span className="text-red-400">*</span></label>
                 </div>
-                <div className="w-full h-8 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded"></div>
+                <div className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded px-2 py-1.5 text-[10px] font-mono text-gray-400 italic cursor-not-allowed">
+                    (Auto-assigned)
+                </div>
             </div>
             
-            {/* RECEIPT MOCK (Clearer visibility) */}
-             <div className="flex items-center justify-between mt-2 pt-3 border-t border-gray-200 dark:border-white/10">
+            {/* RECEIPT MOCK */}
+             <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-100 dark:border-white/5 opacity-60">
                 <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-500 flex items-center justify-center cursor-pointer bg-gray-100 dark:bg-white/5">
-                        <X size={8} className="text-gray-500 dark:text-gray-300" />
+                    <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer">
+                        <X size={6} className="text-gray-500" />
                     </div>
-                    <span className="text-[10px] font-bold uppercase text-gray-600 dark:text-gray-300 tracking-wider">Trade Receipt</span>
+                    <span className="text-[9px] text-gray-500">Trade Receipt</span>
                 </div>
-                 <div className="w-2.5 h-2.5 rounded-full border-2 border-pink-500 shadow-[0_0_8px_rgba(236,72,153,0.6)]"></div>
+                 <div className="w-2 h-2 rounded-full border border-pink-500"></div>
             </div>
         </div>
     )
@@ -279,7 +280,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 text: 'text-amber-600 dark:text-amber-400',
                 shadow: 'shadow-[0_0_10px_rgba(251,191,36,0.1)] hover:shadow-[0_0_15px_rgba(251,191,36,0.3)]',
                 handle: '#fbbf24',
-                icon: <Zap size={14} />
+                icon: <Zap size={12} />
             };
         } else if (label.includes('action') || label.includes('swap')) {
              return {
@@ -289,7 +290,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 text: 'text-emerald-600 dark:text-emerald-500',
                 shadow: 'shadow-[0_0_10px_rgba(16,185,129,0.1)] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]',
                 handle: '#10b981',
-                icon: <Activity size={14} />
+                icon: <Activity size={12} />
             };
         } else if (label.includes('ai') || label.includes('gemini')) {
              return {
@@ -299,7 +300,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 text: 'text-violet-600 dark:text-violet-400',
                 shadow: 'shadow-[0_0_10px_rgba(139,92,246,0.1)] hover:shadow-[0_0_15px_rgba(139,92,246,0.3)]',
                 handle: '#8b5cf6',
-                icon: <BrainCircuit size={14} />
+                icon: <BrainCircuit size={12} />
             };
         } else {
              // Logic / Default
@@ -310,7 +311,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 text: 'text-cyan-600 dark:text-cyan-400',
                 shadow: 'shadow-[0_0_10px_rgba(6,182,212,0.1)] hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]',
                 handle: '#06b6d4',
-                icon: <Network size={14} />
+                icon: <Network size={12} />
             };
         }
     };
@@ -336,13 +337,13 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
     };
 
     return (
-        <div className={`group relative min-w-[300px] rounded-lg transition-all duration-300 bg-white dark:bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
+        <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-white dark:bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
             
-            <div className="p-0 flex flex-col">
+            <div className="p-0 overflow-hidden flex flex-col">
                 {/* Header */}
-                <div className={`p-3 flex items-center justify-between border-b border-gray-100 dark:border-white/5 rounded-t-lg ${styles.header}`}>
+                <div className={`p-2.5 flex items-center justify-between border-b border-gray-100 dark:border-white/5 ${styles.header}`}>
                     <div className="flex items-center gap-2">
-                        <div className={`p-1.5 rounded bg-white dark:bg-black/20 ${styles.text}`}>
+                        <div className={`p-1 rounded bg-white dark:bg-black/20 ${styles.text}`}>
                            {styles.icon}
                         </div>
                         <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text}`}>
@@ -360,18 +361,18 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                         <span className="text-[9px] font-bold uppercase text-gray-500 dark:text-gray-400 group-hover/status:text-gray-900 dark:group-hover/status:text-white transition-colors">
                             {status === 'running' ? 'Running' : status}
                         </span>
-                        <TerminalSquare size={10} className="text-gray-400 dark:text-gray-600 group-hover/status:text-gray-600 dark:group-hover/status:text-gray-400 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
+                        <TerminalSquare size={8} className="text-gray-400 dark:text-gray-600 group-hover/status:text-gray-600 dark:group-hover/status:text-gray-400 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
                     </button>
                 </div>
                 
                 {/* Body */}
-                <div className={`relative p-3 ${styles.bg} rounded-b-lg`}>
+                <div className={`relative p-2.5 ${styles.bg}`}>
                     {/* Expand Toggle */}
                     <button 
                         onClick={() => setExpanded(!expanded)} 
-                        className="absolute top-3 right-3 text-gray-400 hover:text-black dark:hover:text-white transition-colors z-10" 
+                        className="absolute top-2 right-2 text-gray-400 hover:text-black dark:hover:text-white transition-colors z-10" 
                     >
-                        {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                        {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </button>
 
                     {/* INPUTS (Left Side) - Only show if NOT a swap node (swap handles own inputs) */}
@@ -384,16 +385,16 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                                         position={Position.Left} 
                                         id={`input-${index}`}
                                         style={{ 
-                                            left: -18, 
-                                            width: '10px', 
-                                            height: '10px', 
+                                            left: -14, 
+                                            width: '8px', 
+                                            height: '8px', 
                                             background: styles.handle,
-                                            border: '2px solid #121218',
+                                            border: '1px solid #999',
                                             borderColor: 'var(--edge-primary)'
                                         }} 
                                         isConnectable={isConnectable} 
                                     />
-                                    <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">{input}</span>
+                                    <span className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider ml-1">{input}</span>
                                 </div>
                             ))}
                         </div>
@@ -401,7 +402,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
 
                     {/* Params (Expandable) */}
                     {expanded && (
-                        <div className="mt-2 pt-2 border-t border-gray-200 dark:border-white/5 space-y-1.5 animate-in fade-in slide-in-from-top-1">
+                        <div className="mt-3 pt-2 border-t border-gray-200 dark:border-white/5 space-y-1.5 animate-in fade-in slide-in-from-top-1">
                             {/* SPECIAL RENDER FOR SWAP NODE */}
                             {isSwapNode ? (
                                 <SwapForm isConnectable={isConnectable} initialParams={data.params} />
@@ -430,13 +431,12 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                             type="source" 
                             position={Position.Right} 
                             style={{ 
-                                right: -10, 
-                                width: '12px', 
-                                height: '12px', 
+                                right: -8, 
+                                width: '10px', 
+                                height: '10px', 
                                 background: styles.handle,
                                 boxShadow: `0 0 8px ${styles.handle}`,
-                                border: '2px solid #121218',
-                                zIndex: 50
+                                border: '1px solid #121218'
                             }} 
                             isConnectable={isConnectable} 
                         />
