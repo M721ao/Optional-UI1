@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -24,7 +25,7 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network
+    Database, Network, Workflow
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -266,6 +267,7 @@ const StudioContent: React.FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [flowName, setFlowName] = useState('Alpha Arbitrage Strategy');
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isCanvasLoading, setIsCanvasLoading] = useState(true);
   
   // UI State
   const [activeTab, setActiveTab] = useState<'build' | 'run'>('build');
@@ -299,6 +301,15 @@ const StudioContent: React.FC = () => {
   // React Flow DND hooks
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+
+  // Initial Load Simulation
+  useEffect(() => {
+    // Simulate fetching historical graph data
+    const timer = setTimeout(() => {
+        setIsCanvasLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // LOG HANDLER
   const handleNodeStatusClick = useCallback((nodeId: string, label: string, status: string) => {
@@ -776,6 +787,25 @@ const StudioContent: React.FC = () => {
                 </div>
             </div>
 
+            {/* --- LOADING OVERLAY --- */}
+            {isCanvasLoading && (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/50 dark:bg-[#080808]/80 backdrop-blur-sm transition-opacity duration-300">
+                    <div className="relative">
+                        <div className="w-16 h-16 border-4 border-gray-200 dark:border-white/10 rounded-full"></div>
+                        <div className="absolute top-0 left-0 w-16 h-16 border-4 border-purple-500 dark:border-cyber-neon rounded-full border-t-transparent animate-spin"></div>
+                         <div className="absolute inset-0 flex items-center justify-center">
+                            <Workflow size={24} className="text-purple-600 dark:text-cyber-neon animate-pulse" />
+                         </div>
+                    </div>
+                    <div className="mt-4 text-xs font-bold text-gray-900 dark:text-white uppercase tracking-widest animate-pulse">
+                        Loading Workflow Data...
+                    </div>
+                    <div className="mt-1 text-[10px] text-gray-500 font-mono">
+                        Syncing Node States & Edges
+                    </div>
+                </div>
+            )}
+
             {/* React Flow */}
             <ReactFlow
                 nodes={nodes}
@@ -804,7 +834,7 @@ const StudioContent: React.FC = () => {
         <div className="w-96 bg-white dark:bg-[#0a0a0f] border-l border-gray-200 dark:border-white/5 flex flex-col z-20 shadow-2xl shrink-0">
             {/* Chat Interface (Fills entire Right Sidebar now) */}
             <div className="flex-1 flex flex-col overflow-hidden relative">
-                 <ChatInterface setNodes={setNodes} setEdges={setEdges} />
+                 <ChatInterface setNodes={setNodes} setEdges={setEdges} setIsCanvasLoading={setIsCanvasLoading} />
             </div>
         </div>
     </div>
@@ -843,7 +873,7 @@ interface ChatSession {
     timestamp: number;
 }
 
-const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any }) => {
+const ChatInterface = ({ setNodes, setEdges, setIsCanvasLoading }: { setNodes: any, setEdges: any, setIsCanvasLoading: (loading: boolean) => void }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
@@ -888,6 +918,9 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
         try {
             const flowData = JSON.parse(jsonMatch[1]);
             if (flowData.nodes && flowData.edges) {
+                // Trigger Canvas Loader
+                setIsCanvasLoading(true);
+                
                 const styledNodes = flowData.nodes.map((n: Node) => ({
                     ...n,
                     type: 'cyber',
@@ -899,8 +932,14 @@ const ChatInterface = ({ setNodes, setEdges }: { setNodes: any, setEdges: any })
                     // Use CSS variable for edge color
                     markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-primary)' }
                 }));
-                setNodes(styledNodes);
-                setEdges(styledEdges);
+                
+                // Artificial Delay for effect
+                setTimeout(() => {
+                    setNodes(styledNodes);
+                    setEdges(styledEdges);
+                    setIsCanvasLoading(false);
+                }, 1200);
+
                 finalText = "Workflow generated based on your parameters. Check the canvas.";
             }
         } catch (e) { console.error(e); }
