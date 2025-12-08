@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -39,11 +40,160 @@ const TOKENS = [
     { id: 'usdt', symbol: 'USDT', name: 'Tether', icon: 'bg-green-500' },
 ];
 
+// --- AI PREDICTION FORM COMPONENT ---
+const AIPredictionForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolean, initialParams: any }) => {
+    const [model, setModel] = useState(initialParams.model || 'GPT-4');
+    const [prompt, setPrompt] = useState(initialParams.prompt || '');
+    const [parameters, setParameters] = useState<{id: string, name: string, value: string}[]>(
+        initialParams.parameters || [
+            { id: '1', name: '', value: '' },
+            { id: '2', name: '', value: '' }
+        ]
+    );
+
+    const addParameter = () => {
+        setParameters([...parameters, { id: Date.now().toString(), name: '', value: '' }]);
+    };
+
+    const updateParameter = (id: string, field: 'name' | 'value', val: string) => {
+        setParameters(parameters.map(p => p.id === id ? { ...p, [field]: val } : p));
+    };
+
+    const removeParameter = (id: string) => {
+        setParameters(parameters.filter(p => p.id !== id));
+    };
+
+    return (
+        <div className="flex flex-col gap-3 p-1 animate-in fade-in slide-in-from-top-1 min-w-[260px]">
+             {/* Header Description */}
+             <div className="text-[9px] text-gray-500 dark:text-gray-400 leading-tight px-0.5">
+                Leverage GPT-4 to analyze market data and generate trading insights automatically.
+             </div>
+
+            {/* MODEL SELECTOR */}
+            <div className="space-y-1 relative group/field mt-1">
+                 {/* Input Handle */}
+                 <div className="absolute -left-4 top-1/2 -translate-y-1/2">
+                    <Handle 
+                        type="target" 
+                        position={Position.Left} 
+                        id="in-model"
+                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
+                        isConnectable={isConnectable} 
+                    />
+                </div>
+                <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Model <span className="text-red-400">*</span></label>
+                </div>
+                <div className="relative">
+                    <select 
+                        value={model}
+                        onChange={(e) => setModel(e.target.value)}
+                        className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-2 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none appearance-none hover:border-purple-400 transition-colors"
+                    >
+                        <option value="GPT-4">GPT-4</option>
+                        <option value="Gemini-2.5-Flash">Gemini 2.5 Flash</option>
+                        <option value="Claude-3-Opus">Claude 3 Opus</option>
+                    </select>
+                    <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
+            </div>
+
+            {/* PROMPT */}
+            <div className="space-y-1 relative group/field">
+                 <div className="absolute -left-4 top-4">
+                    <Handle 
+                        type="target" 
+                        position={Position.Left} 
+                        id="in-prompt"
+                        style={{ width: '8px', height: '8px', background: '#00f3ff', border: '1px solid #121218' }} 
+                        isConnectable={isConnectable} 
+                    />
+                </div>
+                <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Prompt <span className="text-red-400">*</span></label>
+                </div>
+                <textarea 
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Enter your prompt for market analysis, trading signals, or other tasks"
+                    className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-2 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none min-h-[80px] resize-y placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                />
+            </div>
+
+            {/* PARAMETERS */}
+            <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                    <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Parameters</label>
+                </div>
+                
+                <div className="space-y-2">
+                    {parameters.map((param) => (
+                        <div key={param.id} className="flex items-center gap-2 group animate-in slide-in-from-left-2">
+                            <input 
+                                type="text" 
+                                value={param.name}
+                                onChange={(e) => updateParameter(param.id, 'name', e.target.value)}
+                                placeholder="Parameter name"
+                                className="flex-1 min-w-0 bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
+                            />
+                            <input 
+                                type="text" 
+                                value={param.value}
+                                onChange={(e) => updateParameter(param.id, 'value', e.target.value)}
+                                placeholder="Value"
+                                className="flex-1 min-w-0 bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
+                            />
+                            <button 
+                                onClick={() => removeParameter(param.id)}
+                                className="text-gray-400 hover:text-black dark:hover:text-white transition-colors p-1"
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+
+                <button 
+                    onClick={addParameter}
+                    className="w-full py-2 border border-dashed border-gray-300 dark:border-white/20 rounded text-[10px] font-bold text-gray-500 hover:text-purple-600 dark:hover:text-cyber-neon hover:border-purple-400 dark:hover:border-cyber-neon/50 transition-colors flex items-center justify-center gap-1 bg-gray-50 dark:bg-transparent"
+                >
+                    <Plus size={12} /> Add Parameter
+                </button>
+            </div>
+
+            {/* AI RESPONSE OUTPUT */}
+             <div className="mt-2 bg-gray-50 dark:bg-white/5 rounded px-2 py-2 flex items-center justify-between relative group/output">
+                 {/* Output Handle */}
+                <div className="absolute -right-3 top-1/2 -translate-y-1/2">
+                    <Handle 
+                        type="source" 
+                        position={Position.Right} 
+                        id="out-response"
+                        style={{ width: '8px', height: '8px', background: '#ff00ff', border: '1px solid #121218' }} 
+                        isConnectable={isConnectable} 
+                    />
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <div className="text-gray-400 dark:text-gray-500">
+                        <X size={12} className="rounded-full border border-current p-[1px]" /> 
+                    </div>
+                     <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400">AI Response</span>
+                </div>
+                
+                 <div className="w-2 h-2 rounded-full border border-pink-500 shadow-[0_0_5px_rgba(236,72,153,0.5)]"></div>
+            </div>
+        </div>
+    );
+};
+
 // --- SWAP FORM COMPONENT ---
 const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolean, initialParams: any }) => {
     const [fromToken, setFromToken] = useState(initialParams.fromToken || '');
     const [toToken, setToToken] = useState(initialParams.toToken || '');
-    const [amountType, setAmountType] = useState<'fixed' | 'percent'>('fixed');
+    // Updated state for 4 options
+    const [amountType, setAmountType] = useState<'from-fixed' | 'to-fixed' | 'from-%' | 'to-%'>(initialParams.amountType || 'from-fixed');
     const [amount, setAmount] = useState(initialParams.amount || '');
     const [slippage, setSlippage] = useState(initialParams.slippage || '0.5');
     const [searchTerm, setSearchTerm] = useState('');
@@ -173,21 +323,38 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
                     <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Amount <span className="text-red-400">*</span></label>
                 </div>
                 
-                {/* Radio Group */}
-                <div className="flex items-center gap-3">
+                {/* 4 Radio Buttons Grid */}
+                <div className="grid grid-cols-2 gap-y-1 gap-x-2">
                     <label className="flex items-center gap-1.5 cursor-pointer group">
-                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'fixed' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                            {amountType === 'fixed' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
+                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'from-fixed' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {amountType === 'from-fixed' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
                         </div>
-                        <span className={`text-[9px] ${amountType === 'fixed' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - Fixed</span>
-                         <input type="radio" className="hidden" name="amt" checked={amountType === 'fixed'} onChange={() => setAmountType('fixed')} />
+                        <span className={`text-[9px] ${amountType === 'from-fixed' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - Fixed</span>
+                         <input type="radio" className="hidden" name="amt" checked={amountType === 'from-fixed'} onChange={() => setAmountType('from-fixed')} />
                     </label>
+                    
                     <label className="flex items-center gap-1.5 cursor-pointer group">
-                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'percent' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
-                            {amountType === 'percent' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
+                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'to-fixed' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {amountType === 'to-fixed' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
                         </div>
-                        <span className={`text-[9px] ${amountType === 'percent' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - %</span>
-                        <input type="radio" className="hidden" name="amt" checked={amountType === 'percent'} onChange={() => setAmountType('percent')} />
+                        <span className={`text-[9px] ${amountType === 'to-fixed' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>To - Fixed</span>
+                        <input type="radio" className="hidden" name="amt" checked={amountType === 'to-fixed'} onChange={() => setAmountType('to-fixed')} />
+                    </label>
+
+                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'from-%' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {amountType === 'from-%' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
+                        </div>
+                        <span className={`text-[9px] ${amountType === 'from-%' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>From - %</span>
+                         <input type="radio" className="hidden" name="amt" checked={amountType === 'from-%'} onChange={() => setAmountType('from-%')} />
+                    </label>
+                    
+                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-colors ${amountType === 'to-%' ? 'border-red-400 bg-red-400/20' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {amountType === 'to-%' && <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>}
+                        </div>
+                        <span className={`text-[9px] ${amountType === 'to-%' ? 'text-red-400 font-bold' : 'text-gray-500'}`}>To - %</span>
+                        <input type="radio" className="hidden" name="amt" checked={amountType === 'to-%'} onChange={() => setAmountType('to-%')} />
                     </label>
                 </div>
 
@@ -196,7 +363,7 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
                     type="text" 
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    placeholder={amountType === 'fixed' ? "23" : "50"}
+                    placeholder={amountType.includes('fixed') ? "23" : "50"}
                     className="w-full bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-gray-900 dark:text-white focus:border-purple-500 dark:focus:border-cyber-neon outline-none"
                 />
             </div>
@@ -243,20 +410,17 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
                  <div className="flex items-center justify-between">
                     <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Vault <span className="text-red-400">*</span></label>
                 </div>
-                <div className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded px-2 py-1.5 text-[10px] font-mono text-gray-400 italic cursor-not-allowed">
-                    (Auto-assigned)
-                </div>
+                {/* Empty Dashed Box for Vault */}
+                <div className="w-full h-[28px] border border-dashed border-gray-300 dark:border-white/20 rounded opacity-30"></div>
             </div>
             
-            {/* RECEIPT MOCK */}
-             <div className="flex items-center justify-between mt-1 pt-2 border-t border-gray-100 dark:border-white/5 opacity-60">
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center cursor-pointer">
-                        <X size={6} className="text-gray-500" />
-                    </div>
-                    <span className="text-[9px] text-gray-500">Trade Receipt</span>
+            {/* RECEIPT MOCK (HIGH VISIBILITY) */}
+             <div className="mt-2 bg-purple-600 dark:bg-cyber-neon text-white dark:text-black border border-purple-700 dark:border-cyber-neon rounded px-2 py-1.5 flex items-center justify-between shadow-lg shadow-purple-500/20 dark:shadow-[0_0_10px_rgba(0,243,255,0.4)]">
+                <span className="text-[10px] font-bold uppercase tracking-tight">Trade Receipt</span>
+                <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-mono font-bold">STRUCT</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-black shadow-[0_0_5px_currentColor] animate-pulse"></div>
                 </div>
-                 <div className="w-2 h-2 rounded-full border border-pink-500"></div>
             </div>
         </div>
     )
@@ -292,7 +456,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 handle: '#10b981',
                 icon: <Activity size={12} />
             };
-        } else if (label.includes('ai') || label.includes('gemini')) {
+        } else if (label.includes('ai') || label.includes('gemini') || label.includes('prediction')) {
              return {
                 border: 'border-violet-500/60 hover:border-violet-500',
                 bg: 'bg-violet-500/5',
@@ -319,6 +483,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
     const styles = getCategoryStyles();
     const status = data.status || 'idle'; // idle, running, success, failed
     const isSwapNode = data.label?.toLowerCase().includes('swap');
+    const isAINode = data.label?.toLowerCase().includes('ai') || data.label?.toLowerCase().includes('prediction');
 
     const handleStatusClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -349,6 +514,8 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                         <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text}`}>
                             {data.label}
                         </span>
+                        {/* Edit Icon for AI Nodes mostly, or just decoration */}
+                        {(isAINode) && <Edit2 size={10} className="text-gray-400 opacity-50" />}
                     </div>
                     
                     {/* Status Pill - Clickable for Logs */}
@@ -375,8 +542,8 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </button>
 
-                    {/* INPUTS (Left Side) - Only show if NOT a swap node (swap handles own inputs) */}
-                    {!isSwapNode && (
+                    {/* INPUTS (Left Side) - Only show if NOT a swap/AI node (they handle own inputs) */}
+                    {!isSwapNode && !isAINode && (
                         <div className="space-y-4 mb-2">
                             {data.inputs && data.inputs.map((input: string, index: number) => (
                                 <div key={index} className="relative flex items-center h-4">
@@ -403,18 +570,20 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     {/* Params (Expandable) */}
                     {expanded && (
                         <div className="mt-3 pt-2 border-t border-gray-200 dark:border-white/5 space-y-1.5 animate-in fade-in slide-in-from-top-1">
-                            {/* SPECIAL RENDER FOR SWAP NODE */}
+                            {/* SPECIAL RENDER FOR SPECIFIC NODES */}
                             {isSwapNode ? (
                                 <SwapForm isConnectable={isConnectable} initialParams={data.params} />
+                            ) : isAINode ? (
+                                <AIPredictionForm isConnectable={isConnectable} initialParams={data.params} />
                             ) : (
                                 // GENERIC RENDER
                                 data.params ? (
                                     Object.entries(data.params).map(([key, value]: [string, any]) => {
                                         if (key === 'status') return null; // Don't show status in params list
                                         return (
-                                            <div key={key} className="flex justify-between items-center bg-gray-50 dark:bg-black/20 px-2 py-1.5 rounded border border-gray-100 dark:border-white/5">
-                                                <span className="text-[9px] text-gray-500 font-mono uppercase">{key}</span>
-                                                <span className={`text-[9px] font-bold font-mono ${styles.text} truncate max-w-[120px]`}>{value}</span>
+                                            <div key={key} className="flex justify-between items-center bg-white dark:bg-white/10 px-2 py-1.5 rounded border border-gray-200 dark:border-white/20 shadow-sm">
+                                                <span className="text-[10px] text-gray-700 dark:text-gray-200 font-bold font-mono uppercase">{key}</span>
+                                                <span className={`text-[10px] font-bold font-mono ${styles.text} truncate max-w-[120px]`}>{value}</span>
                                             </div>
                                         );
                                     })
@@ -426,21 +595,23 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     )}
 
                     {/* OUTPUT (Right Side - Single Flow Handler) */}
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2">
-                         <Handle 
-                            type="source" 
-                            position={Position.Right} 
-                            style={{ 
-                                right: -8, 
-                                width: '10px', 
-                                height: '10px', 
-                                background: styles.handle,
-                                boxShadow: `0 0 8px ${styles.handle}`,
-                                border: '1px solid #121218'
-                            }} 
-                            isConnectable={isConnectable} 
-                        />
-                    </div>
+                    {!isAINode && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                            <Handle 
+                                type="source" 
+                                position={Position.Right} 
+                                style={{ 
+                                    right: -8, 
+                                    width: '10px', 
+                                    height: '10px', 
+                                    background: styles.handle,
+                                    boxShadow: `0 0 8px ${styles.handle}`,
+                                    border: '1px solid #121218'
+                                }} 
+                                isConnectable={isConnectable} 
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -465,12 +636,23 @@ const initialNodes: Node[] = [
     id: '2', 
     type: 'cyber', 
     data: { 
+        label: 'AI PREDICTION', 
+        inputs: [], 
+        status: 'idle',
+        params: { model: 'GPT-4', prompt: 'Analyze ETH trend', parameters: [{id:'1',name:'Timeframe',value:'4h'}] } 
+    }, 
+    position: { x: 400, y: 50 },
+  },
+  { 
+    id: '3', 
+    type: 'cyber', 
+    data: { 
         label: 'ACTION: SWAP', 
         inputs: [], // Swap node handles inputs internally
         status: 'idle',
-        params: { fromToken: 'ETH', toToken: 'USDC', amount: '23', amountType: 'fixed' } 
+        params: { fromToken: 'ETH', toToken: 'USDC', amount: '23', amountType: 'from-fixed' } 
     }, 
-    position: { x: 450, y: 120 },
+    position: { x: 750, y: 150 },
   },
 ];
 
@@ -480,6 +662,13 @@ const initialEdges: Edge[] = [
         id: 'e1-2', 
         source: '1', 
         target: '2', 
+        animated: true, 
+        markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-primary)' } 
+    },
+     { 
+        id: 'e2-3', 
+        source: '2', 
+        target: '3', 
         animated: true, 
         markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-primary)' } 
     }
@@ -496,7 +685,7 @@ export const Studio: React.FC<StudioProps> = ({ addNotification }) => {
         </ReactFlowProvider>
     );
 };
-
+// ... rest of the file (StudioContent, DraggableNode, ChatInterface) remains same, just updated initialNodes to showcase the new node ...
 interface ExecutionRecord {
     id: number;
     timestamp: string;
@@ -598,7 +787,7 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
          mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'oracle', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Connecting to Chainlink Aggregator (0x5f4...243) for ETH/USD` });
          mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'logic', timestamp: new Date(now.getTime() - 1200).toLocaleTimeString(), message: `Received price: $2845.20. Comparison: 2845.20 < 2800.00 = FALSE.` });
          mockLogs.push({ id: `l5-${nodeId}`, level: 'WARN', source: 'logic', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Threshold not met. Execution might skip downstream nodes.` });
-    } else if (label.toLowerCase().includes('ai') || label.toLowerCase().includes('gemini')) {
+    } else if (label.toLowerCase().includes('ai') || label.toLowerCase().includes('gemini') || label.toLowerCase().includes('prediction')) {
          mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 1800).toLocaleTimeString(), message: `Preparing prompt context window (4096 tokens)...` });
          mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 800).toLocaleTimeString(), message: `Sending request to Gemini 2.5 Flash API...` });
          mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 200).toLocaleTimeString(), message: `Response received. Sentiment Analysis: Bullish (0.89 confidence).` });
@@ -869,9 +1058,9 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
                                 <BrainCircuit size={14} /> AI Models
                             </h4>
                             <div className="space-y-3 pl-1">
-                                <DraggableNode type="cyber" label="AI: Gemini Flash" inputs={['Prompt', 'Context']} description="High-speed reasoning." />
+                                <DraggableNode type="cyber" label="AI Prediction" inputs={['Prompt', 'Context']} description="High-speed reasoning." />
                                 <DraggableNode type="cyber" label="AI: Sentiment" inputs={['Text']} description="Analyze market mood." />
-                                <DraggableNode type="cyber" label="AI: Prediction" inputs={['History']} description="Price trend forecast." />
+                                <DraggableNode type="cyber" label="AI: Strategy" inputs={['History']} description="Generative Alpha." />
                             </div>
                         </div>
 
