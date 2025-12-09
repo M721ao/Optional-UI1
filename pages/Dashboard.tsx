@@ -11,6 +11,7 @@ import {
 import { NeonChart } from '../components/NeonChart';
 import { VaultModal } from '../components/VaultModal';
 import { AIConnectionLoader } from '../components/AIConnectionLoader';
+import { CyberButton } from '../components/CyberButton';
 
 // --- REALISTIC CANVAS THUMBNAIL GENERATOR ---
 const FlowThumbnail: React.FC<{ type: 'linear' | 'branching' | 'complex' }> = ({ type }) => {
@@ -557,12 +558,14 @@ export const Dashboard: React.FC = () => {
 
                         {/* Load More Flows */}
                         {visibleFlowsCount < allFlows.length && (
-                            <button 
+                             <CyberButton 
+                                variant="secondary" 
+                                size="sm" 
                                 onClick={handleLoadMoreFlows}
-                                className="w-full py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-xs hover:bg-gray-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition-all rounded"
+                                className="w-full"
                             >
                                 Load More Flows
-                            </button>
+                            </CyberButton>
                         )}
                     </div>
                 </div>
@@ -581,18 +584,16 @@ export const Dashboard: React.FC = () => {
                          {/* 1. Chain Selector */}
                          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide border-b border-gray-100 dark:border-white/5 pb-2">
                             {['Aptos', 'Flow EVM', 'BSC', 'Solana', 'Sui'].map((chain) => (
-                                <button
+                                <CyberButton
                                     key={chain}
+                                    variant={selectedChain === chain ? "ghost" : "ghost"}
+                                    size="xs"
                                     onClick={() => handleChainSwitch(chain)}
-                                    className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all border ${
-                                        selectedChain === chain 
-                                        ? 'bg-gray-100 dark:bg-white/10 border-gray-300 dark:border-white text-gray-900 dark:text-white' 
-                                        : 'bg-transparent border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                    }`}
-                                    title={`Switch to ${chain} network`}
+                                    active={selectedChain === chain}
+                                    className="whitespace-nowrap rounded-md"
                                 >
                                     {chain}
-                                </button>
+                                </CyberButton>
                             ))}
                         </div>
 
@@ -642,12 +643,14 @@ export const Dashboard: React.FC = () => {
                                     )}
                                 </div>
                             ) : (
-                                <button 
+                                <CyberButton 
+                                    variant="neon"
+                                    size="xs"
+                                    icon={<Wallet size={10} />}
                                     onClick={handleConnectWallet}
-                                    className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-white/5 hover:bg-purple-100 dark:hover:bg-cyber-purple/20 text-[10px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-cyber-neon rounded transition-colors"
                                 >
-                                    <Wallet size={10} /> Connect Wallet
-                                </button>
+                                    Connect Wallet
+                                </CyberButton>
                             )}
 
                             <div className="flex items-center gap-2">
@@ -674,9 +677,13 @@ export const Dashboard: React.FC = () => {
                                 <div className="text-xs text-gray-500 mb-6 max-w-xs leading-relaxed">
                                     Deploy a non-custodial Smart Vault on <span className="text-purple-600 dark:text-cyber-purple">{selectedChain}</span> to manage assets and run automated flows.
                                 </div>
-                                <button className="px-6 py-2.5 bg-purple-600 dark:bg-cyber-purple text-white text-xs font-bold uppercase tracking-widest rounded hover:bg-purple-700 dark:hover:bg-cyber-purple/80 transition-all shadow-lg dark:shadow-[0_0_20px_rgba(188,19,254,0.3)] hover:shadow-xl" title="Deploy new smart contract vault">
+                                <CyberButton 
+                                    variant="neon" 
+                                    size="sm"
+                                    icon={<Shield size={14} />}
+                                >
                                     Deploy New Vault
-                                </button>
+                                </CyberButton>
                             </div>
                         ) : (
                             <div className="bg-white dark:bg-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden flex flex-col">
@@ -696,22 +703,24 @@ export const Dashboard: React.FC = () => {
                                     
                                     {/* Actions Bar */}
                                     <div className="grid grid-cols-2 gap-3 mt-6">
-                                        <button 
+                                        <CyberButton 
+                                            variant="primary" 
+                                            size="sm"
                                             onClick={() => setModalConfig({isOpen: true, type: 'deposit'})}
                                             disabled={!connectedWallet}
-                                            className="flex items-center justify-center gap-2 py-2.5 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 text-xs font-bold uppercase rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            title={!connectedWallet ? "Connect Wallet first" : "Deposit assets into vault"}
+                                            icon={<ArrowUpRight size={14} className="rotate-180" />}
                                         >
-                                            <ArrowUpRight size={14} className="rotate-180" /> Deposit
-                                        </button>
-                                        <button 
+                                            Deposit
+                                        </CyberButton>
+                                        <CyberButton 
+                                            variant="secondary" 
+                                            size="sm"
                                             onClick={() => setModalConfig({isOpen: true, type: 'withdraw'})}
                                             disabled={!connectedWallet}
-                                            className="flex items-center justify-center gap-2 py-2.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-900 dark:text-white text-xs font-bold uppercase rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            title={!connectedWallet ? "Connect Wallet first" : "Withdraw assets from vault"}
+                                            icon={<ArrowUpRight size={14} />}
                                         >
-                                            <ArrowUpRight size={14} /> Withdraw
-                                        </button>
+                                            Withdraw
+                                        </CyberButton>
                                     </div>
                                 </div>
 
@@ -802,14 +811,15 @@ export const Dashboard: React.FC = () => {
                                                         
                                                         {/* Pagination Load More */}
                                                         {hasMoreHistory && (
-                                                            <button 
+                                                            <CyberButton 
+                                                                variant="secondary" 
+                                                                size="sm" 
                                                                 onClick={handleLoadMoreHistory}
-                                                                disabled={isHistoryLoading}
-                                                                className="w-full py-3 text-[10px] text-gray-500 hover:text-black dark:hover:text-white uppercase font-bold tracking-widest border border-dashed border-gray-300 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30 rounded mt-2 transition-all disabled:opacity-50" 
-                                                                title="View older transactions"
+                                                                isLoading={isHistoryLoading}
+                                                                className="w-full mt-2"
                                                             >
-                                                                {isHistoryLoading ? 'Loading Activity...' : 'Load Previous Activity'}
-                                                            </button>
+                                                                Load Previous Activity
+                                                            </CyberButton>
                                                         )}
                                                     </>
                                                 )}
