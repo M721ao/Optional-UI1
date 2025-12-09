@@ -26,7 +26,7 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow, Lock, Cloud, Save, Code
+    Database, Network, Workflow, Lock, Cloud, Save, Code, Coins
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -41,6 +41,34 @@ const TOKENS = [
     { id: 'dai', symbol: 'DAI', name: 'Dai Stablecoin', icon: 'bg-yellow-500' },
     { id: 'usdt', symbol: 'USDT', name: 'Tether', icon: 'bg-green-500' },
 ];
+
+// --- MOCK VAULT DATA ---
+const VAULT_NETWORKS = [
+    { value: 'ethereum', label: 'Ethereum Mainnet' },
+    { value: 'arbitrum', label: 'Arbitrum One' },
+    { value: 'optimism', label: 'Optimism' },
+    { value: 'polygon', label: 'Polygon' }
+];
+
+const VAULT_STRATEGIES: Record<string, {value: string, label: string, apy: string}[]> = {
+    'ethereum': [
+        { value: 'yearn_eth', label: 'Yearn ETH Vault (v2)', apy: '4.5%' },
+        { value: 'lido_steth', label: 'Lido stETH Strategy', apy: '3.8%' },
+        { value: 'morpho_usdc', label: 'Morpho Blue USDC', apy: '8.5%' }
+    ],
+    'arbitrum': [
+        { value: 'gmx_glp', label: 'GMX GLP Auto-Compound', apy: '14.2%' },
+        { value: 'radiant', label: 'Radiant Capital USDC', apy: '8.1%' },
+        { value: 'pendle_arb', label: 'Pendle ARB Pool', apy: '22.1%' }
+    ],
+    'optimism': [
+        { value: 'velodrome_stable', label: 'Velodrome Stable LP', apy: '6.2%' }
+    ],
+    'polygon': [
+        { value: 'quickswap', label: 'Quickswap Dual Reward', apy: '9.2%' },
+        { value: 'aave_matic', label: 'Aave V3 MATIC', apy: '5.1%' }
+    ]
+};
 
 // --- CODE EDITOR MODAL ---
 interface CodeEditorModalProps {
@@ -106,6 +134,93 @@ const CodeEditorModal: React.FC<CodeEditorModalProps> = ({ isOpen, onClose, code
                     <span>Python 3.10 Runtime Environment</span>
                     <span>Ready</span>
                 </div>
+            </div>
+        </div>
+    );
+};
+
+// --- VAULT NODE FORM ---
+const VaultNodeForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolean, initialParams: any }) => {
+    const [chain, setChain] = useState(initialParams.chain || '');
+    const [vault, setVault] = useState(initialParams.vault || '');
+    const [isLoading, setIsLoading] = useState(false);
+    const [availableVaults, setAvailableVaults] = useState<any[]>(
+        initialParams.chain && VAULT_STRATEGIES[initialParams.chain] 
+            ? VAULT_STRATEGIES[initialParams.chain] 
+            : []
+    );
+
+    const handleChainChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newChain = e.target.value;
+        setChain(newChain);
+        setVault(''); // Reset vault
+        
+        if (newChain) {
+            setIsLoading(true);
+            // Simulate dynamic loading from chain
+            setTimeout(() => {
+                setAvailableVaults(VAULT_STRATEGIES[newChain] || []);
+                setIsLoading(false);
+            }, 800);
+        } else {
+            setAvailableVaults([]);
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-3 p-1 animate-in fade-in slide-in-from-top-1 min-w-[260px]">
+            <NodeField label="Network" required handleId="in-chain" isConnectable={isConnectable} handlePosition={Position.Left}>
+                 <NodeSelect 
+                    value={chain}
+                    onChange={handleChainChange}
+                    options={[{value: '', label: 'Select Chain...'}, ...VAULT_NETWORKS]}
+                />
+            </NodeField>
+
+            <NodeField label="Select Vault" required handleId="in-vault-select" isConnectable={isConnectable}>
+                 <div className="relative">
+                    {isLoading ? (
+                        <div className="w-full py-2 px-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded flex items-center gap-2 text-xs text-gray-500">
+                             <Loader2 size={12} className="animate-spin" /> Fetching Vaults...
+                        </div>
+                    ) : (
+                         <NodeSelect 
+                            value={vault}
+                            onChange={(e) => setVault(e.target.value)}
+                            options={[{value: '', label: 'Select Strategy...'}, ...availableVaults]}
+                            disabled={!chain}
+                            className={!chain ? 'opacity-50 cursor-not-allowed' : ''}
+                        />
+                    )}
+                 </div>
+            </NodeField>
+            
+            {/* Info Box if Vault Selected */}
+            {vault && !isLoading && (
+                 <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-500/20 p-2 rounded flex justify-between items-center animate-in fade-in">
+                      <span className="text-[9px] font-bold text-blue-600 dark:text-blue-400">PROJECTED APY</span>
+                      <span className="text-xs font-mono font-bold text-blue-700 dark:text-blue-300">
+                          {availableVaults.find(v => v.value === vault)?.apy || '0%'}
+                      </span>
+                 </div>
+            )}
+
+             {/* Output Handle */}
+             <div className="mt-1 bg-gray-50 dark:bg-white/5 rounded px-2 py-2 flex items-center justify-between relative border border-gray-200 dark:border-white/10">
+                <div className="flex items-center gap-2">
+                     <Shield size={12} className="text-gray-400" />
+                     <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400">Vault Entity</span>
+                </div>
+                <div className="absolute -right-3 top-1/2 -translate-y-1/2">
+                    <Handle 
+                        type="source" 
+                        position={Position.Right} 
+                        id="out-vault"
+                        style={{ width: '8px', height: '8px', background: '#3b82f6', border: '1px solid #121218' }} 
+                        isConnectable={isConnectable} 
+                    />
+                </div>
+                 <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.5)]"></div>
             </div>
         </div>
     );
@@ -431,6 +546,16 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 handle: '#94a3b8',
                 icon: <Code size={12} />
             };
+        } else if (label.includes('vault')) {
+             return {
+                border: 'border-blue-500/60 hover:border-blue-500',
+                bg: 'bg-blue-500/5',
+                header: 'bg-blue-500/10',
+                text: 'text-blue-600 dark:text-blue-400',
+                shadow: 'shadow-[0_0_10px_rgba(59,130,246,0.1)] hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]',
+                handle: '#3b82f6',
+                icon: <Shield size={12} />
+            };
         } else {
              // Logic / Default
              return {
@@ -450,6 +575,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
     const isSwapNode = data.label?.toLowerCase().includes('swap');
     const isAINode = data.label?.toLowerCase().includes('ai') || data.label?.toLowerCase().includes('prediction');
     const isCodeNode = data.label?.toLowerCase().includes('code');
+    const isVaultNode = data.label?.toLowerCase().includes('vault');
 
     const handleStatusClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -508,8 +634,8 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </button>
 
-                    {/* INPUTS (Left Side) - Only show if NOT a swap/AI/Code node (they handle own inputs) */}
-                    {!isSwapNode && !isAINode && !isCodeNode && (
+                    {/* INPUTS (Left Side) - Only show if NOT a swap/AI/Code/Vault node (they handle own inputs) */}
+                    {!isSwapNode && !isAINode && !isCodeNode && !isVaultNode && (
                         <div className="space-y-4 mb-2">
                             {data.inputs && data.inputs.map((input: string, index: number) => (
                                 <div key={index} className="relative flex items-center h-4">
@@ -543,6 +669,8 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                                 <AIPredictionForm isConnectable={isConnectable} initialParams={data.params} />
                             ) : isCodeNode ? (
                                 <CodeNodeForm isConnectable={isConnectable} initialParams={data.params} onEdit={() => data.onEditCode ? data.onEditCode(id, data.params?.code) : null} />
+                            ) : isVaultNode ? (
+                                <VaultNodeForm isConnectable={isConnectable} initialParams={data.params} />
                             ) : (
                                 // GENERIC RENDER
                                 data.params ? (
@@ -563,7 +691,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     )}
 
                     {/* OUTPUT (Right Side - Single Flow Handler) */}
-                    {!isAINode && !isCodeNode && (
+                    {!isAINode && !isCodeNode && !isVaultNode && (
                         <div className="absolute right-0 top-1/2 -translate-y-1/2">
                             <Handle 
                                 type="source" 
@@ -762,6 +890,10 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'python_runtime', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Initializing isolated Python environment...` });
         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'python_runtime', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Executing script...` });
         mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'python_runtime', timestamp: new Date(now.getTime() - 500).toLocaleTimeString(), message: `Output generated: { "signal": "BUY", "confidence": 0.95 }` });
+    } else if (label.toLowerCase().includes('vault')) {
+        mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'vault_registry', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Querying Vault Registry for selected strategy...` });
+        mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'chain', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Fetching current APY and TVL stats...` });
+        mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'vault', timestamp: new Date(now.getTime() - 500).toLocaleTimeString(), message: `Vault connection established. Ready for interaction.` });
     }
 
     if (status === 'failed') {
@@ -1056,6 +1188,16 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
                                 <DraggableNode type="cyber" label="Action: Swap" inputs={['Token In', 'Route']} description="DEX swap execution." />
                                 <DraggableNode type="cyber" label="Action: Stake" inputs={['Token', 'Vault']} description="Deposit to yield vault." />
                                 <DraggableNode type="cyber" label="Action: Flash Loan" inputs={['Amount']} description="Borrow capital." />
+                            </div>
+                        </div>
+
+                        {/* Category 5: Resources (Blue) */}
+                        <div>
+                            <h4 className="text-xs font-bold text-blue-500 uppercase mb-4 flex items-center gap-2 bg-blue-500/10 p-2 rounded border border-blue-500/20">
+                                <Shield size={14} /> Resources
+                            </h4>
+                            <div className="space-y-3 pl-1">
+                                <DraggableNode type="cyber" label="Vault: Selector" inputs={[]} description="Select chain & strategy." />
                             </div>
                         </div>
                      </div>
