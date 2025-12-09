@@ -16,6 +16,7 @@ import ReactFlow, {
   ReactFlowProvider,
   useReactFlow
 } from 'reactflow';
+import Editor from '@monaco-editor/react';
 import { geminiService } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { 
@@ -25,7 +26,7 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow, Lock, Cloud, Save
+    Database, Network, Workflow, Lock, Cloud, Save, Code
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -40,6 +41,132 @@ const TOKENS = [
     { id: 'dai', symbol: 'DAI', name: 'Dai Stablecoin', icon: 'bg-yellow-500' },
     { id: 'usdt', symbol: 'USDT', name: 'Tether', icon: 'bg-green-500' },
 ];
+
+// --- CODE EDITOR MODAL ---
+interface CodeEditorModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    code: string;
+    onSave: (code: string) => void;
+}
+
+const CodeEditorModal: React.FC<CodeEditorModalProps> = ({ isOpen, onClose, code, onSave }) => {
+    const [currentCode, setCurrentCode] = useState(code);
+
+    useEffect(() => {
+        setCurrentCode(code);
+    }, [code]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="w-full max-w-4xl bg-[#1e1e1e] border border-gray-700 rounded-lg shadow-2xl flex flex-col h-[80vh] overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-gray-700">
+                    <div className="flex items-center gap-2">
+                        <Code size={16} className="text-blue-400" />
+                        <span className="text-sm font-bold text-gray-200 uppercase tracking-wider">Python Script Editor</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                         <button 
+                            onClick={onClose}
+                            className="px-4 py-1.5 text-xs font-bold uppercase text-gray-400 hover:text-white transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={() => onSave(currentCode)}
+                            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold uppercase rounded flex items-center gap-2 transition-colors"
+                        >
+                            <Save size={14} /> Save & Close
+                        </button>
+                    </div>
+                </div>
+
+                {/* Editor */}
+                <div className="flex-1 relative">
+                    <Editor
+                        height="100%"
+                        defaultLanguage="python"
+                        theme="vs-dark"
+                        value={currentCode}
+                        onChange={(value) => setCurrentCode(value || '')}
+                        options={{
+                            minimap: { enabled: false },
+                            fontSize: 14,
+                            scrollBeyondLastLine: false,
+                            automaticLayout: true,
+                        }}
+                    />
+                </div>
+                
+                {/* Footer */}
+                <div className="px-4 py-2 bg-[#007acc] text-white text-[10px] font-mono flex justify-between items-center">
+                    <span>Python 3.10 Runtime Environment</span>
+                    <span>Ready</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- CODE NODE FORM ---
+const CodeNodeForm = ({ isConnectable, initialParams = {}, onEdit }: { isConnectable: boolean, initialParams: any, onEdit: () => void }) => {
+    const previewCode = initialParams.code ? initialParams.code.split('\n').slice(0, 3).join('\n') + '...' : '# No code';
+
+    return (
+        <div className="flex flex-col gap-3 p-1 animate-in fade-in slide-in-from-top-1 min-w-[260px]">
+            <NodeField 
+                label="Input Data" 
+                handleId="in-data" 
+                handlePosition={Position.Left} 
+                isConnectable={isConnectable}
+                handleColor="#94a3b8"
+            >
+                {/* Visual placeholder for input data connection */}
+                <div className="text-[10px] text-gray-400 italic bg-gray-100 dark:bg-white/5 p-2 rounded border border-dashed border-gray-300 dark:border-white/10">
+                    Connect data stream...
+                </div>
+            </NodeField>
+
+            <div className="space-y-1">
+                <label className="text-[9px] font-bold text-gray-500 dark:text-gray-400 uppercase">Script Logic</label>
+                <div className="relative group">
+                    <div className="w-full bg-[#1e1e1e] text-gray-300 font-mono text-[10px] p-2 rounded border border-gray-700 h-16 overflow-hidden opacity-80 group-hover:opacity-100 transition-opacity">
+                        <pre>{previewCode}</pre>
+                    </div>
+                    <button 
+                        onClick={onEdit}
+                        className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded backdrop-blur-[1px]"
+                    >
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-xs font-bold uppercase rounded shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                            <Edit2 size={12} /> Edit Code
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+             {/* Custom Output Handle */}
+             <div className="mt-2 bg-slate-100 dark:bg-slate-900 rounded px-2 py-2 flex items-center justify-between relative border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                     <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">Output Data</span>
+                </div>
+                {/* Output Handle */}
+                <div className="absolute -right-3 top-1/2 -translate-y-1/2">
+                    <Handle 
+                        type="source" 
+                        position={Position.Right} 
+                        id="out-data"
+                        style={{ width: '8px', height: '8px', background: '#94a3b8', border: '1px solid #121218' }} 
+                        isConnectable={isConnectable} 
+                    />
+                </div>
+                 <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+            </div>
+        </div>
+    );
+};
 
 // --- AI PREDICTION FORM COMPONENT ---
 const AIPredictionForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolean, initialParams: any }) => {
@@ -294,6 +421,16 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 handle: '#8b5cf6',
                 icon: <BrainCircuit size={12} />
             };
+        } else if (label.includes('code') || label.includes('script') || label.includes('python')) {
+             return {
+                border: 'border-slate-500/60 hover:border-slate-500',
+                bg: 'bg-slate-500/5',
+                header: 'bg-slate-500/10',
+                text: 'text-slate-600 dark:text-slate-300',
+                shadow: 'shadow-[0_0_10px_rgba(148,163,184,0.1)] hover:shadow-[0_0_15px_rgba(148,163,184,0.3)]',
+                handle: '#94a3b8',
+                icon: <Code size={12} />
+            };
         } else {
              // Logic / Default
              return {
@@ -312,6 +449,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
     const status = data.status || 'idle'; // idle, running, success, failed
     const isSwapNode = data.label?.toLowerCase().includes('swap');
     const isAINode = data.label?.toLowerCase().includes('ai') || data.label?.toLowerCase().includes('prediction');
+    const isCodeNode = data.label?.toLowerCase().includes('code');
 
     const handleStatusClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -343,7 +481,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                             {data.label}
                         </span>
                         {/* Edit Icon for AI Nodes mostly, or just decoration */}
-                        {(isAINode) && <Edit2 size={10} className="text-gray-400 opacity-50" />}
+                        {(isAINode || isCodeNode) && <Edit2 size={10} className="text-gray-400 opacity-50" />}
                     </div>
                     
                     {/* Status Pill - Clickable for Logs */}
@@ -370,8 +508,8 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                         {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                     </button>
 
-                    {/* INPUTS (Left Side) - Only show if NOT a swap/AI node (they handle own inputs) */}
-                    {!isSwapNode && !isAINode && (
+                    {/* INPUTS (Left Side) - Only show if NOT a swap/AI/Code node (they handle own inputs) */}
+                    {!isSwapNode && !isAINode && !isCodeNode && (
                         <div className="space-y-4 mb-2">
                             {data.inputs && data.inputs.map((input: string, index: number) => (
                                 <div key={index} className="relative flex items-center h-4">
@@ -403,6 +541,8 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                                 <SwapForm isConnectable={isConnectable} initialParams={data.params} />
                             ) : isAINode ? (
                                 <AIPredictionForm isConnectable={isConnectable} initialParams={data.params} />
+                            ) : isCodeNode ? (
+                                <CodeNodeForm isConnectable={isConnectable} initialParams={data.params} onEdit={() => data.onEditCode ? data.onEditCode(id, data.params?.code) : null} />
                             ) : (
                                 // GENERIC RENDER
                                 data.params ? (
@@ -423,7 +563,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     )}
 
                     {/* OUTPUT (Right Side - Single Flow Handler) */}
-                    {!isAINode && (
+                    {!isAINode && !isCodeNode && (
                         <div className="absolute right-0 top-1/2 -translate-y-1/2">
                             <Handle 
                                 type="source" 
@@ -538,6 +678,9 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
   const [stats, setStats] = useState({ yield: 12.42, loops: 1420, gas: 14 });
   const logsEndRef = useRef<HTMLDivElement>(null);
   const historyEndRef = useRef<HTMLDivElement>(null);
+
+  // Code Modal State
+  const [codeModal, setCodeModal] = useState({ isOpen: false, nodeId: '', code: '' });
   
   // Modal State for Node Logs
   const [logModal, setLogModal] = useState<{
@@ -603,7 +746,7 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
          mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'oracle', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Connecting to Chainlink Aggregator (0x5f4...243) for ETH/USD` });
          mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'logic', timestamp: new Date(now.getTime() - 1200).toLocaleTimeString(), message: `Received price: $2845.20. Comparison: 2845.20 < 2800.00 = FALSE.` });
          mockLogs.push({ id: `l5-${nodeId}`, level: 'WARN', source: 'logic', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Threshold not met. Execution might skip downstream nodes.` });
-    } else if (label.toLowerCase().includes('ai') || label.toLowerCase().includes('gemini') || label.toLowerCase().includes('prediction')) {
+    } else if (label.toLowerCase().includes('ai') || label.includes('gemini') || label.includes('prediction')) {
          mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 1800).toLocaleTimeString(), message: `Preparing prompt context window (4096 tokens)...` });
          mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 800).toLocaleTimeString(), message: `Sending request to Gemini 2.5 Flash API...` });
          mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'gemini', timestamp: new Date(now.getTime() - 200).toLocaleTimeString(), message: `Response received. Sentiment Analysis: Bullish (0.89 confidence).` });
@@ -615,6 +758,10 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
             mockLogs.push({ id: `l6-${nodeId}`, level: 'INFO', source: 'chain', timestamp: new Date(now.getTime() - 100).toLocaleTimeString(), message: `Transaction submitted: 0x8a...32f (Gas: 15 gwei)` });
             mockLogs.push({ id: `l7-${nodeId}`, level: 'INFO', source: 'chain', timestamp: now.toLocaleTimeString(), message: `Transaction confirmed in block 18239402.` });
          }
+    } else if (label.toLowerCase().includes('code')) {
+        mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'python_runtime', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Initializing isolated Python environment...` });
+        mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'python_runtime', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Executing script...` });
+        mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'python_runtime', timestamp: new Date(now.getTime() - 500).toLocaleTimeString(), message: `Output generated: { "signal": "BUY", "confidence": 0.95 }` });
     }
 
     if (status === 'failed') {
@@ -644,13 +791,23 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
     ]);
   }, []);
 
-  // Update nodes with the log handler on mount
+  const handleEditCode = useCallback((nodeId: string, currentCode: string) => {
+      setCodeModal({ isOpen: true, nodeId, code: currentCode || '# Write your Python code here\n\ndef main(input_data):\n    # Process input data and return result\n    return input_data\n' });
+  }, []);
+
+  const saveCode = (newCode: string) => {
+    setNodes(nds => nds.map(n => n.id === codeModal.nodeId ? { ...n, data: { ...n.data, params: { ...n.data.params, code: newCode } } } : n));
+    setCodeModal(prev => ({ ...prev, isOpen: false }));
+    addNotification('success', 'Code Saved', 'Python script updated successfully.');
+  };
+
+  // Update nodes with handlers on mount
   useEffect(() => {
     setNodes((nds) => nds.map(n => ({
         ...n,
-        data: { ...n.data, onStatusClick: handleNodeStatusClick }
+        data: { ...n.data, onStatusClick: handleNodeStatusClick, onEditCode: handleEditCode }
     })));
-  }, [handleNodeStatusClick, setNodes]);
+  }, [handleNodeStatusClick, handleEditCode, setNodes]);
 
   const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--edge-primary)' } }, eds)), [setEdges]);
 
@@ -681,15 +838,16 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
             label: label, 
             inputs: inputs, 
             status: 'idle', // Initialize status
-            params: { status: 'New' },
-            onStatusClick: handleNodeStatusClick
+            params: { status: 'New', code: '' },
+            onStatusClick: handleNodeStatusClick,
+            onEditCode: handleEditCode
         },
       };
 
       setNodes((nds) => nds.concat(newNode));
       addNotification('success', 'Component Added', `Added ${label} to the workflow.`);
     },
-    [reactFlowInstance, setNodes, handleNodeStatusClick, addNotification]
+    [reactFlowInstance, setNodes, handleNodeStatusClick, handleEditCode, addNotification]
   );
 
   // Helper to add history
@@ -812,6 +970,14 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
             endTime={logModal.endTime}
         />
 
+        {/* Code Editor Modal */}
+        <CodeEditorModal 
+            isOpen={codeModal.isOpen}
+            onClose={() => setCodeModal(prev => ({ ...prev, isOpen: false }))}
+            code={codeModal.code}
+            onSave={saveCode}
+        />
+
         {/* 1. LEFT SIDEBAR: DUAL MODE COMMAND CENTER (w-80) */}
         <div className="flex w-80 z-20 shadow-xl bg-white dark:bg-[#0a0a0f] border-r border-gray-200 dark:border-white/5 shrink-0">
              
@@ -862,6 +1028,7 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
                                 <Network size={14} /> Logic & Flow
                             </h4>
                             <div className="space-y-3 pl-1">
+                                <DraggableNode type="cyber" label="Logic: Code" inputs={['Input Data']} description="Python script block." />
                                 <DraggableNode type="cyber" label="Logic: Condition" inputs={['Value A', 'Value B']} description="If/Else logic block." />
                                 <DraggableNode type="cyber" label="Logic: Filter" inputs={['List']} description="Filter dataset." />
                                 <DraggableNode type="cyber" label="Logic: Loop" inputs={['Array']} description="Iterate over items." />
