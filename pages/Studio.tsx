@@ -26,12 +26,13 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow, Lock, Cloud, Save, Code, Coins
+    Database, Network, Workflow, Lock, Cloud, Save, Code, Coins, MessageCircle, Globe
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
 import { NotificationType } from '../components/Notifications';
 import { NodeField, NodeInput, NodeNumberInput, NodeSelect, NodeTextarea, NodeRadioGroup, NodeTokenSelect } from '../components/NodeComponents';
+import { AIConnectionLoader } from '../components/AIConnectionLoader';
 
 // --- MOCK TOKEN DATA FOR SELECTORS ---
 const TOKENS = [
@@ -135,6 +136,113 @@ const CodeEditorModal: React.FC<CodeEditorModalProps> = ({ isOpen, onClose, code
                     <span>Ready</span>
                 </div>
             </div>
+        </div>
+    );
+};
+
+// --- TELEGRAM NODE FORM ---
+const TelegramNodeForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolean, initialParams: any }) => {
+    const [status, setStatus] = useState<'idle' | 'waiting' | 'authorized' | 'failed'>(initialParams.username ? 'authorized' : 'idle');
+    const [username, setUsername] = useState(initialParams.username || '');
+    const [message, setMessage] = useState(initialParams.message || '');
+    const [errorMsg, setErrorMsg] = useState('');
+
+    const handleConnect = () => {
+        setStatus('waiting');
+        setErrorMsg('');
+        // Simulate checking external auth or waiting for user to click link
+        const authWindow = window.open('https://t.me/NeonFlowBot?start=auth_simulation', '_blank');
+        
+        // Simulate polling for auth success
+        setTimeout(() => {
+            // For demo purposes: 50% chance of failure to allow testing retry logic
+            const isSuccess = Math.random() > 0.5;
+            
+            if (isSuccess) {
+                setStatus('authorized');
+                setUsername('@NeonUser_Alpha');
+            } else {
+                setStatus('failed');
+                setErrorMsg('Validation timed out. Please try again.');
+            }
+            // authWindow?.close(); 
+        }, 3000);
+    };
+
+    return (
+        <div className="flex flex-col gap-3 p-1 animate-in fade-in slide-in-from-top-1 min-w-[260px]">
+            {status === 'idle' || status === 'waiting' || status === 'failed' ? (
+                <div className={`flex flex-col gap-3 p-2 rounded border ${status === 'failed' ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-500/20' : 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-500/20'}`}>
+                    
+                    {status === 'failed' ? (
+                        <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                             <AlertCircle size={16} />
+                             <span className="text-xs font-bold uppercase">Verification Failed</span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                             <MessageCircle size={16} />
+                             <span className="text-xs font-bold uppercase">Bot Authorization</span>
+                        </div>
+                    )}
+                    
+                    <p className={`text-[10px] leading-relaxed ${status === 'failed' ? 'text-red-500/80 font-mono' : 'text-gray-500 dark:text-gray-400'}`}>
+                        {status === 'failed' ? errorMsg : "Link your Telegram account to receive automated alerts and reports."}
+                    </p>
+                    
+                    {status === 'waiting' ? (
+                        <div className="flex items-center justify-center gap-2 py-2 bg-white dark:bg-black/20 rounded border border-gray-200 dark:border-white/10">
+                            <Loader2 size={12} className="animate-spin text-blue-500" />
+                            <span className="text-[10px] font-bold text-gray-500">Waiting for verify...</span>
+                        </div>
+                    ) : (
+                        <button 
+                            onClick={handleConnect}
+                            className={`flex items-center justify-center gap-2 py-2 text-white rounded text-[10px] font-bold uppercase transition-colors shadow-lg ${status === 'failed' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' : 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/20'}`}
+                        >
+                            {status === 'failed' ? <RefreshCw size={12} /> : <Send size={12} />} 
+                            {status === 'failed' ? 'Retry Connection' : 'Connect Telegram'}
+                        </button>
+                    )}
+                    
+                    {status !== 'failed' && (
+                        <div className="text-[9px] text-center text-gray-400">
+                            Opens tg://resolve?domain=NeonFlowBot
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="space-y-3 animate-in fade-in">
+                    {/* Auth Banner */}
+                     <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-500/20 rounded">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-500/20 flex items-center justify-center text-green-600 dark:text-green-500">
+                                <CheckCircle2 size={12} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-bold text-gray-500 uppercase">Connected</span>
+                                <span className="text-xs font-bold text-green-700 dark:text-green-400">{username}</span>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => { setStatus('idle'); setUsername(''); }}
+                            className="text-[9px] text-gray-400 underline hover:text-red-500"
+                        >
+                            Unlink
+                        </button>
+                    </div>
+
+                    {/* Message Input */}
+                    <NodeField label="Message Template" required handleId="in-msg" isConnectable={isConnectable} handlePosition={Position.Left}>
+                        <NodeTextarea 
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="Enter alert message... (Supports variables like {{price}})"
+                            rows={3}
+                        />
+                    </NodeField>
+                </div>
+            )}
         </div>
     );
 };
@@ -556,6 +664,16 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                 handle: '#3b82f6',
                 icon: <Shield size={12} />
             };
+        } else if (label.includes('telegram')) {
+             return {
+                border: 'border-sky-500/60 hover:border-sky-500',
+                bg: 'bg-sky-500/5',
+                header: 'bg-sky-500/10',
+                text: 'text-sky-600 dark:text-sky-400',
+                shadow: 'shadow-[0_0_10px_rgba(14,165,233,0.1)] hover:shadow-[0_0_15px_rgba(14,165,233,0.3)]',
+                handle: '#0ea5e9',
+                icon: <Send size={12} />
+            };
         } else {
              // Logic / Default
              return {
@@ -576,6 +694,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
     const isAINode = data.label?.toLowerCase().includes('ai') || data.label?.toLowerCase().includes('prediction');
     const isCodeNode = data.label?.toLowerCase().includes('code');
     const isVaultNode = data.label?.toLowerCase().includes('vault');
+    const isTelegramNode = data.label?.toLowerCase().includes('telegram');
 
     const handleStatusClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -635,7 +754,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     </button>
 
                     {/* INPUTS (Left Side) - Only show if NOT a swap/AI/Code/Vault node (they handle own inputs) */}
-                    {!isSwapNode && !isAINode && !isCodeNode && !isVaultNode && (
+                    {!isSwapNode && !isAINode && !isCodeNode && !isVaultNode && !isTelegramNode && (
                         <div className="space-y-4 mb-2">
                             {data.inputs && data.inputs.map((input: string, index: number) => (
                                 <div key={index} className="relative flex items-center h-4">
@@ -671,6 +790,8 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                                 <CodeNodeForm isConnectable={isConnectable} initialParams={data.params} onEdit={() => data.onEditCode ? data.onEditCode(id, data.params?.code) : null} />
                             ) : isVaultNode ? (
                                 <VaultNodeForm isConnectable={isConnectable} initialParams={data.params} />
+                            ) : isTelegramNode ? (
+                                <TelegramNodeForm isConnectable={isConnectable} initialParams={data.params} />
                             ) : (
                                 // GENERIC RENDER
                                 data.params ? (
@@ -691,7 +812,7 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
                     )}
 
                     {/* OUTPUT (Right Side - Single Flow Handler) */}
-                    {!isAINode && !isCodeNode && !isVaultNode && (
+                    {!isAINode && !isCodeNode && !isVaultNode && !isTelegramNode && (
                         <div className="absolute right-0 top-1/2 -translate-y-1/2">
                             <Handle 
                                 type="source" 
@@ -894,6 +1015,10 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
         mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'vault_registry', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Querying Vault Registry for selected strategy...` });
         mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'chain', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Fetching current APY and TVL stats...` });
         mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'vault', timestamp: new Date(now.getTime() - 500).toLocaleTimeString(), message: `Vault connection established. Ready for interaction.` });
+    } else if (label.toLowerCase().includes('telegram')) {
+        mockLogs.push({ id: `l3-${nodeId}`, level: 'INFO', source: 'telegram_api', timestamp: new Date(now.getTime() - 1500).toLocaleTimeString(), message: `Authenticating with Bot API...` });
+        mockLogs.push({ id: `l4-${nodeId}`, level: 'INFO', source: 'telegram_api', timestamp: new Date(now.getTime() - 1000).toLocaleTimeString(), message: `Formatting message template with context variables...` });
+        mockLogs.push({ id: `l5-${nodeId}`, level: 'INFO', source: 'telegram_api', timestamp: new Date(now.getTime() - 500).toLocaleTimeString(), message: `Message sent to user @NeonUser_Alpha. ID: 482910` });
     }
 
     if (status === 'failed') {
@@ -1198,6 +1323,16 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
                             </h4>
                             <div className="space-y-3 pl-1">
                                 <DraggableNode type="cyber" label="Vault: Selector" inputs={[]} description="Select chain & strategy." />
+                            </div>
+                        </div>
+
+                        {/* Category 6: Integrations (Sky) */}
+                        <div>
+                            <h4 className="text-xs font-bold text-sky-500 uppercase mb-4 flex items-center gap-2 bg-sky-500/10 p-2 rounded border border-sky-500/20">
+                                <MessageCircle size={14} /> Integrations
+                            </h4>
+                            <div className="space-y-3 pl-1">
+                                <DraggableNode type="cyber" label="Telegram: Alert" inputs={['Message']} description="Send bot notification." />
                             </div>
                         </div>
                      </div>
@@ -1508,6 +1643,7 @@ const ChatInterface = ({
   const [input, setInput] = useState('');
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSocketConnecting, setIsSocketConnecting] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Chat History State
@@ -1517,6 +1653,14 @@ const ChatInterface = ({
       { id: 's2', title: 'Yield Farm Optimization', timestamp: Date.now() - 86400000, messages: [] }
   ]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+
+  // Simulate WebSocket Connection
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        setIsSocketConnecting(false);
+    }, 2500); // 2.5s connection simulation
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -1595,6 +1739,9 @@ const ChatInterface = ({
       setMessages([]);
       setCurrentSessionId(null);
       setShowHistory(false);
+      // Re-trigger connection simulation for effect
+      setIsSocketConnecting(true);
+      setTimeout(() => setIsSocketConnecting(false), 1500);
   }
 
   // --- WELCOME LAUNCHPAD ---
@@ -1649,7 +1796,12 @@ const ChatInterface = ({
   );
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#0c0c10]">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-[#0c0c10] relative">
+        {/* Connection Loader Overlay */}
+        {isSocketConnecting && (
+            <AIConnectionLoader overlay message="Linking to Neural Net..." />
+        )}
+
         {/* Header */}
         <div className="p-3 border-b border-gray-200 dark:border-white/5 bg-white dark:bg-[#121218] flex justify-between items-center shrink-0 relative z-20">
              <div className="flex items-center gap-2">
@@ -1706,8 +1858,8 @@ const ChatInterface = ({
              </div>
 
              <div className="flex items-center gap-1">
-                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                 <span className="text-[9px] text-gray-500 font-mono">ONLINE</span>
+                 <div className={`w-1.5 h-1.5 rounded-full ${isSocketConnecting ? 'bg-yellow-500 animate-ping' : 'bg-green-500 animate-pulse'}`}></div>
+                 <span className="text-[9px] text-gray-500 font-mono">{isSocketConnecting ? 'CONNECTING...' : 'ONLINE'}</span>
              </div>
         </div>
 

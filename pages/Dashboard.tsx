@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Flow, Vault, VaultAsset, VaultTransaction } from '../types';
 import { 
@@ -9,6 +10,7 @@ import {
 } from 'lucide-react';
 import { NeonChart } from '../components/NeonChart';
 import { VaultModal } from '../components/VaultModal';
+import { AIConnectionLoader } from '../components/AIConnectionLoader';
 
 // --- REALISTIC CANVAS THUMBNAIL GENERATOR ---
 const FlowThumbnail: React.FC<{ type: 'linear' | 'branching' | 'complex' }> = ({ type }) => {
@@ -191,6 +193,9 @@ export const Dashboard: React.FC = () => {
     const [historyLimit, setHistoryLimit] = useState(6);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
     
+    // Added vault loading state for chain switching
+    const [isVaultLoading, setIsVaultLoading] = useState(false);
+    
     // Wallet State
     const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
     const [isWalletRefreshing, setIsWalletRefreshing] = useState(false);
@@ -211,6 +216,19 @@ export const Dashboard: React.FC = () => {
         setVaultTab('allocation');
         setHistoryLimit(6); // Reset history pagination
     }, [selectedChain]);
+
+    // Handle Chain Switching with Loading Simulation
+    const handleChainSwitch = (chain: any) => {
+        if (chain === selectedChain) return;
+        
+        setIsVaultLoading(true);
+        setSelectedChain(chain);
+        
+        // Simulate data fetch delay
+        setTimeout(() => {
+            setIsVaultLoading(false);
+        }, 800);
+    };
 
     // --- DATA ---
     const [radarItems] = useState([
@@ -565,7 +583,7 @@ export const Dashboard: React.FC = () => {
                             {['Aptos', 'Flow EVM', 'BSC', 'Solana', 'Sui'].map((chain) => (
                                 <button
                                     key={chain}
-                                    onClick={() => setSelectedChain(chain as any)}
+                                    onClick={() => handleChainSwitch(chain)}
                                     className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all border ${
                                         selectedChain === chain 
                                         ? 'bg-gray-100 dark:bg-white/10 border-gray-300 dark:border-white text-gray-900 dark:text-white' 
@@ -579,7 +597,7 @@ export const Dashboard: React.FC = () => {
                         </div>
 
                         {/* 2. Vault Selector (Multi-Vault Support) */}
-                        {currentChainVaults.length > 0 && (
+                        {currentChainVaults.length > 0 && !isVaultLoading && (
                             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
                                 {currentChainVaults.map((vault, index) => (
                                     <button
@@ -634,13 +652,19 @@ export const Dashboard: React.FC = () => {
 
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Status</span>
-                                <div className={`w-2 h-2 rounded-full ${activeVault?.isDeployed ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,1)]' : 'bg-gray-400 dark:bg-gray-600'}`} title={activeVault?.isDeployed ? 'Vault Active' : 'Vault Inactive'}></div>
+                                <div className={`w-2 h-2 rounded-full ${activeVault?.isDeployed && !isVaultLoading ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,1)]' : 'bg-gray-400 dark:bg-gray-600'}`} title={activeVault?.isDeployed ? 'Vault Active' : 'Vault Inactive'}></div>
                             </div>
                         </div>
                     </div>
 
                     {/* Vault Content Card */}
-                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300" key={`${selectedChain}-${selectedVaultIndex}`}>
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 relative" key={`${selectedChain}-${selectedVaultIndex}`}>
+                        
+                        {/* Loading Overlay for Vault Switching */}
+                        {isVaultLoading && (
+                             <AIConnectionLoader overlay message={`Connecting to ${selectedChain}...`} size="md" />
+                        )}
+
                         {!activeVault || !activeVault.isDeployed ? (
                             <div className="bg-gradient-to-br from-gray-50 to-white dark:from-[#151520] dark:to-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl p-8 flex flex-col items-center text-center h-[300px] justify-center">
                                 <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-800/50 flex items-center justify-center mb-4">
