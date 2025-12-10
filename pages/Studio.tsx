@@ -14,7 +14,8 @@ import ReactFlow, {
   Handle, 
   Position,
   ReactFlowProvider,
-  useReactFlow
+  useReactFlow,
+  NodeToolbar
 } from 'reactflow';
 import Editor from '@monaco-editor/react';
 import { geminiService } from '../services/geminiService';
@@ -26,7 +27,7 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow, Lock, Cloud, Save, Code, Coins, MessageCircle, Globe
+    Database, Network, Workflow, Lock, Cloud, Save, Code, Coins, MessageCircle, Globe, MoreHorizontal
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -606,8 +607,34 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
 
 // --- CUSTOM NODE COMPONENT ---
 // Inputs on Left, Single Output on Right
-const CyberNode = ({ id, data, isConnectable }: any) => {
+const CyberNode = ({ id, data, isConnectable, selected }: any) => {
     const [expanded, setExpanded] = useState(true);
+    const { setNodes } = useReactFlow();
+
+    // Node Action Handlers
+    const onDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setNodes((nodes) => nodes.filter((n) => n.id !== id));
+    };
+
+    const onRun = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        // Trigger status update to running then success
+        data.onStatusClick && data.onStatusClick(id, data.label, 'running');
+        setTimeout(() => {
+             data.onStatusClick && data.onStatusClick(id, data.label, 'success');
+        }, 1500);
+    };
+
+    const onOptimize = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        // Just visual simulation for now
+        data.onStatusClick && data.onStatusClick(id, data.label, 'running');
+        setTimeout(() => {
+             alert(`AI Optimization complete for ${data.label}. Parameters auto-tuned for efficiency.`);
+             data.onStatusClick && data.onStatusClick(id, data.label, 'success');
+        }, 1000);
+    };
     
     // 1. Determine Category & Colors based on Label
     // 4 Categories: Trigger (Yellow/Gold), Logic (Cyan/Blue), AI (Violet/Purple), Action (Emerald/Green)
@@ -715,24 +742,62 @@ const CyberNode = ({ id, data, isConnectable }: any) => {
     return (
         <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-white dark:bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
             
+            <NodeToolbar isVisible={selected} position={Position.Top} offset={10}>
+                 <div className="flex items-center gap-0.5 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 shadow-xl rounded-full px-1.5 py-1 backdrop-blur-md min-w-max">
+                     {/* Run */}
+                     <button onClick={onRun} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-green-50 dark:hover:bg-green-500/10 text-green-600 dark:text-green-400 transition-colors group/btn">
+                         <Play size={10} className="fill-current" />
+                         <span className="text-[9px] font-bold uppercase tracking-wider">Run</span>
+                     </button>
+                     
+                     <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
+
+                     {/* AI Optimize */}
+                     <button onClick={onOptimize} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-purple-50 dark:hover:bg-purple-500/10 text-purple-600 dark:text-cyber-neon transition-colors group/btn">
+                         <Sparkles size={10} />
+                         <span className="text-[9px] font-bold uppercase tracking-wider">AI Fix</span>
+                     </button>
+
+                     <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
+
+                     {/* Delete */}
+                     <button onClick={onDelete} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 transition-colors group/btn">
+                         <Trash2 size={10} />
+                         <span className="text-[9px] font-bold uppercase tracking-wider">Delete</span>
+                     </button>
+                     
+                     {/* More */}
+                     <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
+                     <button className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 transition-colors">
+                        <MoreHorizontal size={10} />
+                     </button>
+                 </div>
+            </NodeToolbar>
+
             <div className="p-0 overflow-hidden flex flex-col">
                 {/* Header */}
                 <div className={`p-2.5 flex items-center justify-between border-b border-gray-100 dark:border-white/5 ${styles.header}`}>
-                    <div className="flex items-center gap-2">
-                        <div className={`p-1 rounded bg-white dark:bg-black/20 ${styles.text}`}>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        <div className={`p-1 rounded bg-white dark:bg-black/20 ${styles.text} shrink-0`}>
                            {styles.icon}
                         </div>
-                        <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text}`}>
-                            {data.label}
-                        </span>
-                        {/* Edit Icon for AI Nodes mostly, or just decoration */}
-                        {(isAINode || isCodeNode) && <Edit2 size={10} className="text-gray-400 opacity-50" />}
+                        <div className="flex flex-col min-w-0">
+                            <div className="flex items-center gap-2">
+                                <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text} truncate`}>
+                                    {data.label}
+                                </span>
+                                {(isAINode || isCodeNode) && <Edit2 size={10} className="text-gray-400 opacity-50" />}
+                            </div>
+                            <span className="text-[9px] text-gray-500 dark:text-gray-400 font-medium leading-none mt-0.5 truncate max-w-[140px]">
+                                {data.description || 'Custom Logic Node'}
+                            </span>
+                        </div>
                     </div>
                     
                     {/* Status Pill - Clickable for Logs */}
                     <button 
                         onClick={handleStatusClick}
-                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/30 transition-all cursor-pointer group/status"
+                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/30 transition-all cursor-pointer group/status shrink-0"
                         title="View Node Logs"
                     >
                         {getStatusIcon()}
@@ -843,6 +908,7 @@ const initialNodes: Node[] = [
     type: 'cyber', 
     data: { 
         label: 'TRIGGER: PRICE', 
+        description: 'Oracle Feed Monitor',
         inputs: ['Oracle Feed'],
         status: 'success',
         params: { asset: 'ETH/USDC', condition: 'Price < $2800' } 
@@ -854,6 +920,7 @@ const initialNodes: Node[] = [
     type: 'cyber', 
     data: { 
         label: 'AI PREDICTION', 
+        description: 'GPT-4 Market Analysis',
         inputs: [], 
         status: 'idle',
         params: { model: 'GPT-4', prompt: 'Analyze ETH trend', parameters: [{id:'1',name:'Timeframe',value:'4h'}] } 
@@ -865,6 +932,7 @@ const initialNodes: Node[] = [
     type: 'cyber', 
     data: { 
         label: 'ACTION: SWAP', 
+        description: 'Uniswap V3 Execution',
         inputs: [], // Swap node handles inputs internally
         status: 'idle',
         params: { fromToken: 'ETH', toToken: 'USDC', amount: '23', amountType: 'from-fixed' } 
@@ -1079,6 +1147,7 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
       event.preventDefault();
       const type = event.dataTransfer.getData('application/reactflow');
       const label = event.dataTransfer.getData('application/label');
+      const description = event.dataTransfer.getData('application/description');
       const inputs = JSON.parse(event.dataTransfer.getData('application/inputs') || '[]');
       if (typeof type === 'undefined' || !type) return;
 
@@ -1093,6 +1162,7 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
         position,
         data: { 
             label: label, 
+            description: description,
             inputs: inputs, 
             status: 'idle', // Initialize status
             params: { status: 'New', code: '' },
@@ -1607,6 +1677,7 @@ const DraggableNode = ({ type, label, inputs, description }: { type: string, lab
       event.dataTransfer.setData('application/reactflow', nodeType);
       event.dataTransfer.setData('application/label', label);
       event.dataTransfer.setData('application/inputs', JSON.stringify(inputs));
+      event.dataTransfer.setData('application/description', description);
       event.dataTransfer.effectAllowed = 'move';
     };
   
