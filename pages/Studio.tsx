@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -27,7 +26,8 @@ import {
     Layers, Command, AlertCircle, ChevronUp, StopCircle, RefreshCw, BarChart3,
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
-    Database, Network, Workflow, Lock, Cloud, Save, Code, Coins, MessageCircle, Globe, MoreHorizontal
+    Database, Network, Workflow, Lock, Cloud, Save, Code, Coins, MessageCircle, Globe, MoreHorizontal,
+    PanelRightClose, Power, Minimize2, Maximize2
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -730,14 +730,31 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
         }
     };
 
-    const getStatusIcon = () => {
-        switch(status) {
-            case 'running': return <Loader2 size={10} className="animate-spin text-yellow-500" />;
-            case 'success': return <CheckCircle2 size={10} className="text-green-500" />;
-            case 'failed': return <AlertOctagon size={10} className="text-red-500" />;
-            default: return <div className="w-2 h-2 rounded-full bg-gray-400"></div>;
+    // Advanced Status Configuration
+    const getStatusConfig = (s: string) => {
+        switch(s?.toLowerCase()) {
+            case 'pending': 
+                return { icon: Clock, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-100 dark:bg-yellow-500/10', border: 'border-yellow-200 dark:border-yellow-500/20', label: 'PENDING', animate: 'animate-pulse' };
+            case 'running': 
+                return { icon: Loader2, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-500/10', border: 'border-blue-200 dark:border-blue-500/20', label: 'RUNNING', animate: 'animate-spin' };
+            case 'syncing': 
+                return { icon: RefreshCw, color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-100 dark:bg-cyan-500/10', border: 'border-cyan-200 dark:border-cyan-500/20', label: 'SYNCING', animate: 'animate-spin' };
+            case 'completed': 
+            case 'success':
+                return { icon: CheckCircle2, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-500/10', border: 'border-green-200 dark:border-green-500/20', label: 'COMPLETED', animate: '' };
+            case 'error': 
+                return { icon: AlertTriangle, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-500/10', border: 'border-orange-200 dark:border-orange-500/20', label: 'ERROR', animate: '' };
+            case 'failed': 
+                return { icon: AlertOctagon, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-500/10', border: 'border-red-200 dark:border-red-500/20', label: 'FAILED', animate: '' };
+            case 'cancelled': 
+                return { icon: X, color: 'text-gray-500 dark:text-gray-400', bg: 'bg-gray-100 dark:bg-gray-500/10', border: 'border-gray-200 dark:border-gray-500/20', label: 'CANCELLED', animate: '' };
+            default: 
+                return { icon: Activity, color: 'text-gray-500 dark:text-gray-400', bg: 'bg-gray-100 dark:bg-gray-500/10', border: 'border-gray-200 dark:border-gray-500/20', label: 'IDLE', animate: '' };
         }
     };
+
+    const statusConfig = getStatusConfig(status);
+    const StatusIcon = statusConfig.icon;
 
     return (
         <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-white dark:bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
@@ -797,14 +814,14 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
                     {/* Status Pill - Clickable for Logs */}
                     <button 
                         onClick={handleStatusClick}
-                        className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-black/40 border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/30 transition-all cursor-pointer group/status shrink-0"
+                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border transition-all cursor-pointer group/status shrink-0 ${statusConfig.bg} ${statusConfig.border}`}
                         title="View Node Logs"
                     >
-                        {getStatusIcon()}
-                        <span className="text-[9px] font-bold uppercase text-gray-500 dark:text-gray-400 group-hover/status:text-gray-900 dark:group-hover/status:text-white transition-colors">
-                            {status === 'running' ? 'Running' : status}
+                        <StatusIcon size={10} className={`${statusConfig.color} ${statusConfig.animate}`} />
+                        <span className={`text-[9px] font-bold uppercase ${statusConfig.color}`}>
+                            {statusConfig.label}
                         </span>
-                        <TerminalSquare size={8} className="text-gray-400 dark:text-gray-600 group-hover/status:text-gray-600 dark:group-hover/status:text-gray-400 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
+                        <TerminalSquare size={8} className="text-gray-400 dark:text-gray-600 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
                     </button>
                 </div>
                 
@@ -922,7 +939,7 @@ const initialNodes: Node[] = [
         label: 'AI PREDICTION', 
         description: 'GPT-4 Market Analysis',
         inputs: [], 
-        status: 'idle',
+        status: 'pending',
         params: { model: 'GPT-4', prompt: 'Analyze ETH trend', parameters: [{id:'1',name:'Timeframe',value:'4h'}] } 
     }, 
     position: { x: 400, y: 50 },
@@ -986,7 +1003,8 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
 
   // UI State
   const [activeTab, setActiveTab] = useState<'build' | 'run'>('build');
-  
+  const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true);
+
   // Execution State
   const [isRunning, setIsRunning] = useState(false);
   const [executionInterval, setExecutionInterval] = useState(2000); // ms
@@ -1594,9 +1612,9 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
                     </div>
                 </div>
 
-                {/* Vault Widget (Right) */}
-                <div className="pointer-events-auto">
-                    <VaultWidget />
+                {/* Right Controls */}
+                <div className="pointer-events-auto flex items-start gap-3">
+                     <VaultWidget />
                 </div>
             </div>
 
@@ -1653,19 +1671,47 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
                     className="bg-white dark:bg-cyber-panel border border-gray-200 dark:border-white/10" 
                 />
             </ReactFlow>
+
+            {/* Floating AI Trigger (Bottom Right) */}
+            {!isAiSidebarOpen && (
+                <div className="absolute bottom-8 right-8 z-50 pointer-events-auto animate-in fade-in slide-in-from-bottom-10 duration-500">
+                    <button
+                        onClick={() => setIsAiSidebarOpen(true)}
+                        className="group relative flex items-center gap-3 pl-1 pr-4 py-1 bg-white/10 dark:bg-black/40 backdrop-blur-md border border-purple-500/30 dark:border-cyber-neon/30 rounded-full shadow-2xl hover:bg-white/20 dark:hover:bg-black/60 transition-all hover:border-purple-500 dark:hover:border-cyber-neon hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] dark:hover:shadow-[0_0_20px_rgba(0,243,255,0.4)]"
+                    >
+                        {/* Icon Circle */}
+                        <div className="w-10 h-10 rounded-full bg-purple-600 dark:bg-cyber-neon flex items-center justify-center shadow-lg relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent opacity-50"></div>
+                            <Sparkles size={18} className="text-white dark:text-black animate-pulse" />
+                        </div>
+                        
+                        {/* Text */}
+                        <div className="flex flex-col items-start">
+                            <span className="text-[9px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest leading-none mb-0.5">AI Copilot</span>
+                            <span className="text-xs font-bold text-gray-800 dark:text-white leading-none">Initialize</span>
+                        </div>
+
+                        {/* Status Dot */}
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-black animate-bounce"></div>
+                    </button>
+                </div>
+            )}
         </div>
 
         {/* 3. RIGHT SIDEBAR: CHAT ONLY (w-96) */}
-        <div className="w-96 bg-white dark:bg-[#0a0a0f] border-l border-gray-200 dark:border-white/5 flex flex-col z-20 shadow-2xl shrink-0">
-            {/* Chat Interface (Fills entire Right Sidebar now) */}
-            <div className="flex-1 flex flex-col overflow-hidden relative">
-                 <ChatInterface 
-                    setNodes={setNodes} 
-                    setEdges={setEdges} 
-                    setIsCanvasLoading={setIsCanvasLoading} 
-                 />
+        {isAiSidebarOpen && (
+            <div className="w-96 bg-white dark:bg-[#0a0a0f] border-l border-gray-200 dark:border-white/5 flex flex-col z-20 shadow-2xl shrink-0 animate-in slide-in-from-right-10 duration-300">
+                {/* Chat Interface (Fills entire Right Sidebar now) */}
+                <div className="flex-1 flex flex-col overflow-hidden relative">
+                    <ChatInterface 
+                        setNodes={setNodes} 
+                        setEdges={setEdges} 
+                        setIsCanvasLoading={setIsCanvasLoading} 
+                        onClose={() => setIsAiSidebarOpen(false)}
+                    />
+                </div>
             </div>
-        </div>
+        )}
     </div>
   );
 };
@@ -1704,11 +1750,12 @@ interface ChatSession {
 }
 
 const ChatInterface = ({ 
-    setNodes, setEdges, setIsCanvasLoading 
+    setNodes, setEdges, setIsCanvasLoading, onClose
 }: { 
     setNodes: any, 
     setEdges: any, 
     setIsCanvasLoading: (loading: boolean) => void,
+    onClose: () => void
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -1928,9 +1975,19 @@ const ChatInterface = ({
                 </div>
              </div>
 
-             <div className="flex items-center gap-1">
-                 <div className={`w-1.5 h-1.5 rounded-full ${isSocketConnecting ? 'bg-yellow-500 animate-ping' : 'bg-green-500 animate-pulse'}`}></div>
-                 <span className="text-[9px] text-gray-500 font-mono">{isSocketConnecting ? 'CONNECTING...' : 'ONLINE'}</span>
+             <div className="flex items-center gap-3">
+                 <div className="flex items-center gap-1">
+                     <div className={`w-1.5 h-1.5 rounded-full ${isSocketConnecting ? 'bg-yellow-500 animate-ping' : 'bg-green-500 animate-pulse'}`}></div>
+                     <span className="text-[9px] text-gray-500 font-mono">{isSocketConnecting ? 'CONNECTING...' : 'ONLINE'}</span>
+                 </div>
+                 {/* Close Button */}
+                 <button 
+                    onClick={onClose} 
+                    className="text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                    title="Close Assistant"
+                >
+                     <PanelRightClose size={16} />
+                 </button>
              </div>
         </div>
 
