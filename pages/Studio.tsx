@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import ReactFlow, { 
   Background, 
@@ -32,7 +33,7 @@ import {
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
 import { NotificationType } from '../components/Notifications';
-import { NodeField, NodeInput, NodeNumberInput, NodeSelect, NodeTextarea, NodeRadioGroup, NodeTokenSelect } from '../components/NodeComponents';
+import { NodeField, NodeInput, NodeNumberInput, NodeSelect, NodeTextarea, NodeRadioGroup, NodeTokenSelect, NodeSlider } from '../components/NodeComponents';
 import { AIConnectionLoader } from '../components/AIConnectionLoader';
 
 // --- MOCK TOKEN DATA FOR SELECTORS ---
@@ -533,6 +534,8 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
     const [amount, setAmount] = useState(initialParams.amount || '');
     const [slippage, setSlippage] = useState(initialParams.slippage || '0.5');
 
+    const isPercentage = amountType.includes('%');
+
     return (
         <div className="flex flex-col gap-3 p-1 animate-in fade-in slide-in-from-top-1">
             {/* FROM TOKEN */}
@@ -569,13 +572,39 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
                     ]}
                 />
 
-                {/* Input */}
-                <div className="mt-2">
-                    <NodeInput 
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder={amountType.includes('fixed') ? "23" : "50"}
-                    />
+                {/* Input / Slider */}
+                <div className="mt-3 space-y-2">
+                    {isPercentage ? (
+                        <div className="animate-in fade-in slide-in-from-top-1">
+                             <div className="flex items-center justify-between px-1 mb-1">
+                                 <NodeSlider 
+                                    value={Number(amount) || 0}
+                                    onChange={(val) => setAmount(val.toString())}
+                                    className="flex-1 mr-3"
+                                 />
+                                 <span className="text-[10px] text-red-500 font-bold w-6 text-right">{amount}%</span>
+                             </div>
+                             <div className="flex justify-between text-[9px] text-gray-400 font-mono px-0.5">
+                                 <span>0%</span>
+                                 <span>100%</span>
+                             </div>
+                             <div className="mt-2">
+                                 <NodeInput 
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    type="number"
+                                    rightElement={<span className="text-[10px] text-gray-400 font-bold pr-2">%</span>}
+                                />
+                             </div>
+                        </div>
+                    ) : (
+                        <NodeInput 
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder={amountType.includes('fixed') ? "23" : "50"}
+                            type="number"
+                        />
+                    )}
                 </div>
             </NodeField>
 
@@ -610,6 +639,11 @@ const SwapForm = ({ isConnectable, initialParams = {} }: { isConnectable: boolea
 const CyberNode = ({ id, data, isConnectable, selected }: any) => {
     const [expanded, setExpanded] = useState(true);
     const { setNodes } = useReactFlow();
+
+    // --- NEW EDITING STATE ---
+    const [isEditing, setIsEditing] = useState(false);
+    const [editLabel, setEditLabel] = useState(data.label);
+    const [editDesc, setEditDesc] = useState(data.description);
 
     // Node Action Handlers
     const onDelete = (e: React.MouseEvent) => {
@@ -756,6 +790,49 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
     const statusConfig = getStatusConfig(status);
     const StatusIcon = statusConfig.icon;
 
+    // --- EDIT HANDLERS ---
+    const startEditing = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsEditing(true);
+        setEditLabel(data.label);
+        setEditDesc(data.description || '');
+    };
+
+    const saveEdit = (e?: React.MouseEvent | React.KeyboardEvent) => {
+        e?.stopPropagation();
+        setIsEditing(false);
+        setNodes((nds) => nds.map((n) => {
+            if (n.id === id) {
+                return {
+                    ...n,
+                    data: {
+                        ...n.data,
+                        label: editLabel,
+                        description: editDesc
+                    }
+                };
+            }
+            return n;
+        }));
+    };
+
+    const cancelEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsEditing(false);
+        setEditLabel(data.label);
+        setEditDesc(data.description);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            saveEdit(e);
+        } else if (e.key === 'Escape') {
+            setIsEditing(false);
+            setEditLabel(data.label);
+            setEditDesc(data.description);
+        }
+    };
+
     return (
         <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-white dark:bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
             
@@ -793,36 +870,83 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
 
             <div className="p-0 overflow-hidden flex flex-col">
                 {/* Header */}
-                <div className={`p-2.5 flex items-center justify-between border-b border-gray-100 dark:border-white/5 ${styles.header}`}>
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        <div className={`p-1 rounded bg-white dark:bg-black/20 ${styles.text} shrink-0`}>
+                <div className={`p-2.5 flex items-start justify-between border-b border-gray-100 dark:border-white/5 ${styles.header} min-h-[50px]`}>
+                    <div className="flex items-start gap-2 overflow-hidden flex-1">
+                        <div className={`p-1 rounded bg-white dark:bg-black/20 ${styles.text} shrink-0 mt-0.5`}>
                            {styles.icon}
                         </div>
-                        <div className="flex flex-col min-w-0">
-                            <div className="flex items-center gap-2">
-                                <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text} truncate`}>
-                                    {data.label}
-                                </span>
-                                {(isAINode || isCodeNode) && <Edit2 size={10} className="text-gray-400 opacity-50" />}
-                            </div>
-                            <span className="text-[9px] text-gray-500 dark:text-gray-400 font-medium leading-none mt-0.5 truncate max-w-[140px]">
-                                {data.description || 'Custom Logic Node'}
-                            </span>
+                        
+                        <div className="flex flex-col min-w-0 flex-1 mr-2">
+                            {isEditing ? (
+                                <div className="flex flex-col gap-1.5 w-full animate-in fade-in duration-200 pr-1">
+                                    <input 
+                                        autoFocus
+                                        value={editLabel}
+                                        onChange={(e) => setEditLabel(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        className="w-full bg-white dark:bg-black/40 border-b border-purple-500 dark:border-cyber-neon text-xs font-bold text-gray-900 dark:text-white uppercase p-1 outline-none rounded-t-sm"
+                                        placeholder="LABEL"
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <input 
+                                        value={editDesc}
+                                        onChange={(e) => setEditDesc(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        className="w-full bg-white dark:bg-black/40 border-b border-gray-300 dark:border-gray-600 text-[10px] text-gray-600 dark:text-gray-300 p-1 outline-none rounded-t-sm"
+                                        placeholder="Description..."
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <button 
+                                            onClick={saveEdit}
+                                            className="px-2 py-0.5 bg-green-500 text-white rounded-[2px] text-[9px] font-bold uppercase hover:bg-green-600 transition-colors"
+                                        >
+                                            Save
+                                        </button>
+                                        <button 
+                                            onClick={cancelEdit}
+                                            className="px-2 py-0.5 text-gray-500 hover:text-red-500 text-[9px] font-bold uppercase transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="group/text cursor-text" onDoubleClick={startEditing}>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text} truncate`}>
+                                            {data.label}
+                                        </span>
+                                        <button 
+                                            onClick={startEditing}
+                                            className="opacity-0 group-hover/text:opacity-100 transition-opacity text-gray-400 hover:text-black dark:hover:text-white"
+                                            title="Edit Title"
+                                        >
+                                            <Edit2 size={10} />
+                                        </button>
+                                    </div>
+                                    <span className="text-[9px] text-gray-500 dark:text-gray-400 font-medium leading-tight mt-0.5 block break-words line-clamp-2">
+                                        {data.description || 'No description'}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                     
-                    {/* Status Pill - Clickable for Logs */}
-                    <button 
-                        onClick={handleStatusClick}
-                        className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border transition-all cursor-pointer group/status shrink-0 ${statusConfig.bg} ${statusConfig.border}`}
-                        title="View Node Logs"
-                    >
-                        <StatusIcon size={10} className={`${statusConfig.color} ${statusConfig.animate}`} />
-                        <span className={`text-[9px] font-bold uppercase ${statusConfig.color}`}>
-                            {statusConfig.label}
-                        </span>
-                        <TerminalSquare size={8} className="text-gray-400 dark:text-gray-600 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
-                    </button>
+                    {/* Status Pill - Hide during edit to prevent clutter */}
+                    {!isEditing && (
+                        <button 
+                            onClick={handleStatusClick}
+                            className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border transition-all cursor-pointer group/status shrink-0 ${statusConfig.bg} ${statusConfig.border}`}
+                            title="View Node Logs"
+                        >
+                            <StatusIcon size={10} className={`${statusConfig.color} ${statusConfig.animate}`} />
+                            <span className={`text-[9px] font-bold uppercase ${statusConfig.color}`}>
+                                {statusConfig.label}
+                            </span>
+                            <TerminalSquare size={8} className="text-gray-400 dark:text-gray-600 ml-1 opacity-0 group-hover/status:opacity-100 transition-opacity" />
+                        </button>
+                    )}
                 </div>
                 
                 {/* Body */}
@@ -952,7 +1076,7 @@ const initialNodes: Node[] = [
         description: 'Uniswap V3 Execution',
         inputs: [], // Swap node handles inputs internally
         status: 'idle',
-        params: { fromToken: 'ETH', toToken: 'USDC', amount: '23', amountType: 'from-fixed' } 
+        params: { fromToken: 'ETH', toToken: 'USDC', amount: '23', amountType: 'from-%' } 
     }, 
     position: { x: 750, y: 150 },
   },

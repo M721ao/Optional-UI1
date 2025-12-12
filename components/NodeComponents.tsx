@@ -169,30 +169,37 @@ interface NodeRadioGroupProps {
 }
 
 export const NodeRadioGroup: React.FC<NodeRadioGroupProps> = ({ name, options, value, onChange, variant = 'primary' }) => (
-  <div className="grid grid-cols-2 gap-y-1 gap-x-2">
+  <div className="grid grid-cols-2 gap-2">
     {options.map((opt) => {
       const isSelected = value === opt.value;
       
       const colors = variant === 'danger' 
         ? {
+            wrapper: isSelected ? 'bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20' : 'bg-transparent border-transparent hover:bg-gray-50 dark:hover:bg-white/5',
             activeText: 'text-red-500 dark:text-red-400',
             activeBorder: 'border-red-500 dark:border-red-400',
-            activeBg: 'bg-red-50 dark:bg-red-900/20',
-            dotBg: 'bg-red-500 dark:bg-red-400'
+            activeBg: 'bg-red-500 dark:bg-red-400', // Dot center
+            ringColor: 'border-red-400 dark:border-red-400', // Ring
           }
         : {
+            wrapper: isSelected ? 'bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20' : 'bg-transparent border-transparent hover:bg-gray-50 dark:hover:bg-white/5',
             activeText: 'text-purple-600 dark:text-cyber-neon',
             activeBorder: 'border-purple-600 dark:border-cyber-neon',
-            activeBg: 'bg-purple-50 dark:bg-cyber-neon/20',
-            dotBg: 'bg-purple-600 dark:bg-cyber-neon'
+            activeBg: 'bg-purple-600 dark:bg-cyber-neon',
+            ringColor: 'border-purple-600 dark:border-cyber-neon',
           };
 
       return (
-        <label key={opt.value} className="flex items-center gap-1.5 cursor-pointer group select-none">
-          <div className={`w-3 h-3 rounded-full border flex items-center justify-center transition-all ${isSelected ? `${colors.activeBorder} ${colors.activeBg}` : 'border-gray-300 dark:border-gray-600 group-hover:border-gray-400'}`}>
-            {isSelected && <div className={`w-1.5 h-1.5 rounded-full ${colors.dotBg}`}></div>}
+        <label 
+            key={opt.value} 
+            className={`flex items-center gap-2 cursor-pointer group select-none p-1.5 rounded-md border transition-all ${colors.wrapper}`}
+        >
+          <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all shrink-0 ${isSelected ? colors.ringColor : 'border-gray-300 dark:border-gray-600 group-hover:border-gray-400'}`}>
+            {isSelected && <div className={`w-2 h-2 rounded-full ${colors.activeBg}`}></div>}
           </div>
-          <span className={`text-[9px] transition-colors ${isSelected ? `${colors.activeText} font-bold` : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>{opt.label}</span>
+          <span className={`text-[10px] transition-colors leading-none ${isSelected ? `${colors.activeText} font-bold` : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>
+            {opt.label}
+          </span>
           <input
             type="radio"
             className="hidden"
@@ -205,6 +212,33 @@ export const NodeRadioGroup: React.FC<NodeRadioGroupProps> = ({ name, options, v
     })}
   </div>
 );
+
+interface NodeSliderProps {
+    value: number;
+    min?: number;
+    max?: number;
+    step?: number;
+    onChange: (val: number) => void;
+    className?: string;
+    disabled?: boolean;
+}
+
+export const NodeSlider: React.FC<NodeSliderProps> = ({ value, min = 0, max = 100, step = 1, onChange, className = "", disabled }) => {
+    return (
+        <div className={`flex items-center w-full ${className}`}>
+             <input 
+                type="range"
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                onChange={(e) => onChange(Number(e.target.value))}
+                disabled={disabled}
+                className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-400 focus:outline-none focus:ring-0"
+             />
+        </div>
+    )
+}
 
 interface NodeTokenSelectProps {
     tokens: TokenData[];
