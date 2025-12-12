@@ -120,16 +120,52 @@ export const NodeInput: React.FC<NodeInputProps> = ({ className = "", rightEleme
 interface NodeNumberInputProps extends NodeInputProps {}
 
 export const NodeNumberInput: React.FC<NodeNumberInputProps> = (props) => {
+    const handleStep = (direction: 1 | -1) => {
+        if (!props.onChange) return;
+        
+        // Default to step 1 if not specified, but for slippage typical UX allows small increments
+        const step = Number(props.step) || 1; 
+        const currentVal = Number(props.value || 0);
+        let newVal = currentVal + (step * direction);
+        
+        // Fix floating point precision issues (e.g. 0.1 + 0.2 = 0.300000004)
+        if (String(step).includes('.')) {
+            const precision = String(step).split('.')[1].length;
+            newVal = Number(newVal.toFixed(precision));
+        }
+
+        // Mock a change event compatible with standard input handlers
+        const event = {
+            target: { value: String(newVal), name: props.name },
+            currentTarget: { value: String(newVal), name: props.name }
+        } as React.ChangeEvent<HTMLInputElement>;
+        
+        props.onChange(event);
+    };
+
     return (
         <NodeInput 
             {...props} 
             type="number" 
-            className={`pr-5 ${props.className || ''}`}
+            // Tailwind classes to hide native browser spinners (Chrome/Safari/Edge/Firefox)
+            className={`pr-6 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${props.className || ''}`}
             rightElement={
-                <>
-                    <ChevronUp size={8} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
-                    <ChevronDown size={8} className="text-gray-400 cursor-pointer hover:text-black dark:hover:text-white" />
-                </>
+                <div className="flex flex-col gap-[1px] mr-0.5">
+                    <button 
+                        type="button"
+                        onClick={() => handleStep(1)}
+                        className="text-gray-400 hover:text-purple-600 dark:hover:text-cyber-neon hover:bg-gray-100 dark:hover:bg-white/10 rounded-[1px] px-0.5 transition-colors h-2.5 flex items-center justify-center"
+                    >
+                        <ChevronUp size={8} strokeWidth={3} />
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => handleStep(-1)}
+                        className="text-gray-400 hover:text-purple-600 dark:hover:text-cyber-neon hover:bg-gray-100 dark:hover:bg-white/10 rounded-[1px] px-0.5 transition-colors h-2.5 flex items-center justify-center"
+                    >
+                        <ChevronDown size={8} strokeWidth={3} />
+                    </button>
+                </div>
             }
         />
     )

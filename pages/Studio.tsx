@@ -640,10 +640,16 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
     const [expanded, setExpanded] = useState(true);
     const { setNodes } = useReactFlow();
 
-    // --- NEW EDITING STATE ---
-    const [isEditing, setIsEditing] = useState(false);
+    // --- SEPARATE EDITING STATE ---
+    const [editingField, setEditingField] = useState<'label' | 'description' | null>(null);
     const [editLabel, setEditLabel] = useState(data.label);
     const [editDesc, setEditDesc] = useState(data.description);
+
+    // Sync state with props if they change externally (e.g. via AI)
+    useEffect(() => {
+        if (editingField !== 'label') setEditLabel(data.label);
+        if (editingField !== 'description') setEditDesc(data.description);
+    }, [data.label, data.description, editingField]);
 
     // Node Action Handlers
     const onDelete = (e: React.MouseEvent) => {
@@ -790,46 +796,35 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
     const statusConfig = getStatusConfig(status);
     const StatusIcon = statusConfig.icon;
 
-    // --- EDIT HANDLERS ---
-    const startEditing = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsEditing(true);
-        setEditLabel(data.label);
-        setEditDesc(data.description || '');
-    };
-
-    const saveEdit = (e?: React.MouseEvent | React.KeyboardEvent) => {
-        e?.stopPropagation();
-        setIsEditing(false);
+    // --- SAVE / CANCEL HANDLERS ---
+    const handleSave = (field: 'label' | 'description') => {
         setNodes((nds) => nds.map((n) => {
             if (n.id === id) {
                 return {
                     ...n,
                     data: {
                         ...n.data,
-                        label: editLabel,
-                        description: editDesc
+                        label: field === 'label' ? editLabel : n.data.label,
+                        description: field === 'description' ? editDesc : n.data.description
                     }
                 };
             }
             return n;
         }));
+        setEditingField(null);
     };
 
-    const cancelEdit = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsEditing(false);
+    const handleCancel = () => {
+        setEditingField(null);
         setEditLabel(data.label);
         setEditDesc(data.description);
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    const onKeyDown = (e: React.KeyboardEvent, field: 'label' | 'description') => {
         if (e.key === 'Enter') {
-            saveEdit(e);
+            handleSave(field);
         } else if (e.key === 'Escape') {
-            setIsEditing(false);
-            setEditLabel(data.label);
-            setEditDesc(data.description);
+            handleCancel();
         }
     };
 
@@ -876,65 +871,71 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
                            {styles.icon}
                         </div>
                         
-                        <div className="flex flex-col min-w-0 flex-1 mr-2">
-                            {isEditing ? (
-                                <div className="flex flex-col gap-1.5 w-full animate-in fade-in duration-200 pr-1">
+                        <div className="flex flex-col min-w-0 flex-1 mr-2 gap-0.5">
+                            {/* LABEL AREA */}
+                            {editingField === 'label' ? (
+                                <div className="flex items-center gap-1 animate-in fade-in duration-200">
                                     <input 
                                         autoFocus
                                         value={editLabel}
                                         onChange={(e) => setEditLabel(e.target.value)}
-                                        onKeyDown={handleKeyDown}
-                                        className="w-full bg-white dark:bg-black/40 border-b border-purple-500 dark:border-cyber-neon text-xs font-bold text-gray-900 dark:text-white uppercase p-1 outline-none rounded-t-sm"
+                                        onKeyDown={(e) => onKeyDown(e, 'label')}
+                                        onBlur={() => handleSave('label')}
+                                        className="w-full bg-white dark:bg-black/40 border-b border-purple-500 dark:border-cyber-neon text-xs font-bold text-gray-900 dark:text-white uppercase p-0.5 outline-none rounded-t-sm"
                                         placeholder="LABEL"
                                         onClick={(e) => e.stopPropagation()}
                                     />
+                                </div>
+                            ) : (
+                                <div 
+                                    className="group/label flex items-center gap-2 cursor-pointer"
+                                    onDoubleClick={(e) => { e.stopPropagation(); setEditingField('label'); }}
+                                >
+                                    <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text} truncate`}>
+                                        {data.label}
+                                    </span>
+                                    <Edit2 
+                                        size={10} 
+                                        className="opacity-0 group-hover/label:opacity-100 transition-opacity text-gray-400 hover:text-black dark:hover:text-white"
+                                        onClick={(e) => { e.stopPropagation(); setEditingField('label'); }} 
+                                    />
+                                </div>
+                            )}
+
+                            {/* DESCRIPTION AREA */}
+                            {editingField === 'description' ? (
+                                <div className="flex items-center gap-1 animate-in fade-in duration-200 mt-0.5">
                                     <input 
+                                        autoFocus
                                         value={editDesc}
                                         onChange={(e) => setEditDesc(e.target.value)}
-                                        onKeyDown={handleKeyDown}
-                                        className="w-full bg-white dark:bg-black/40 border-b border-gray-300 dark:border-gray-600 text-[10px] text-gray-600 dark:text-gray-300 p-1 outline-none rounded-t-sm"
+                                        onKeyDown={(e) => onKeyDown(e, 'description')}
+                                        onBlur={() => handleSave('description')}
+                                        className="w-full bg-white dark:bg-black/40 border-b border-gray-300 dark:border-gray-600 text-[10px] text-gray-600 dark:text-gray-300 p-0.5 outline-none rounded-t-sm"
                                         placeholder="Description..."
                                         onClick={(e) => e.stopPropagation()}
                                     />
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <button 
-                                            onClick={saveEdit}
-                                            className="px-2 py-0.5 bg-green-500 text-white rounded-[2px] text-[9px] font-bold uppercase hover:bg-green-600 transition-colors"
-                                        >
-                                            Save
-                                        </button>
-                                        <button 
-                                            onClick={cancelEdit}
-                                            className="px-2 py-0.5 text-gray-500 hover:text-red-500 text-[9px] font-bold uppercase transition-colors"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
                                 </div>
                             ) : (
-                                <div className="group/text cursor-text" onDoubleClick={startEditing}>
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-xs font-bold font-sans uppercase tracking-wider ${styles.text} truncate`}>
-                                            {data.label}
-                                        </span>
-                                        <button 
-                                            onClick={startEditing}
-                                            className="opacity-0 group-hover/text:opacity-100 transition-opacity text-gray-400 hover:text-black dark:hover:text-white"
-                                            title="Edit Title"
-                                        >
-                                            <Edit2 size={10} />
-                                        </button>
-                                    </div>
-                                    <span className="text-[9px] text-gray-500 dark:text-gray-400 font-medium leading-tight mt-0.5 block break-words line-clamp-2">
-                                        {data.description || 'No description'}
+                                <div 
+                                    className="group/desc flex items-center gap-1 cursor-pointer min-h-[16px]"
+                                    onDoubleClick={(e) => { e.stopPropagation(); setEditingField('description'); }}
+                                >
+                                    <span className="text-[9px] text-gray-500 dark:text-gray-400 font-medium leading-tight block break-words line-clamp-2">
+                                        {data.description || <span className="italic opacity-50">Add description...</span>}
                                     </span>
+                                    <Edit2 
+                                        size={8} 
+                                        className="opacity-0 group-hover/desc:opacity-100 transition-opacity text-gray-400 hover:text-black dark:hover:text-white shrink-0"
+                                        onClick={(e) => { e.stopPropagation(); setEditingField('description'); }}
+                                    />
                                 </div>
                             )}
                         </div>
                     </div>
                     
                     {/* Status Pill - Hide during edit to prevent clutter */}
-                    {!isEditing && (
+                    {!editingField && (
                         <button 
                             onClick={handleStatusClick}
                             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border transition-all cursor-pointer group/status shrink-0 ${statusConfig.bg} ${statusConfig.border}`}
