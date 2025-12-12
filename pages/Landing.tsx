@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Page } from '../types';
 import { 
@@ -8,16 +9,15 @@ import {
   Copy, 
   Activity, 
   Zap, 
-  TrendingUp, 
   Cpu, 
   Code2, 
   ArrowRightLeft, 
   Lock,
-  Hexagon,
   Workflow,
-  Terminal,
-  AlertTriangle,
-  AlertOctagon
+  Twitter,
+  Github,
+  Linkedin,
+  Disc
 } from 'lucide-react';
 
 interface LandingProps {
@@ -26,27 +26,23 @@ interface LandingProps {
   onTestCrash?: () => void;
 }
 
-export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTestCrash }) => {
+export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
   return (
-    <div className="h-full overflow-y-auto overflow-x-hidden relative bg-gray-50 dark:bg-[#030305] selection:bg-cyber-neon selection:text-black transition-colors duration-300">
+    <div className="h-full overflow-y-auto overflow-x-hidden relative bg-gray-50 dark:bg-[#030305] selection:bg-cyber-neon selection:text-black transition-colors duration-300 scroll-smooth">
         
         {/* === GLOBAL AMBIENT LAYER === */}
-        {/* Large colored orbs to create depth and break the black monotony */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-             {/* Top Left - Purple Glow - Reduced opacity in light mode */}
+             {/* Top Left - Purple Glow */}
             <div className="absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-purple-500/20 dark:bg-cyber-purple/10 rounded-full blur-[120px] opacity-20 dark:opacity-40 mix-blend-multiply dark:mix-blend-screen"></div>
             {/* Top Right - Cyan Glow */}
             <div className="absolute top-[10%] right-[-20%] w-[1000px] h-[1000px] bg-cyan-400/20 dark:bg-cyber-neon/5 rounded-full blur-[100px] opacity-20 dark:opacity-30 mix-blend-multiply dark:mix-blend-screen"></div>
-            {/* Bottom Center - Pink Glow */}
-            <div className="absolute bottom-[-10%] left-[20%] w-[800px] h-[800px] bg-pink-500/20 dark:bg-cyber-pink/5 rounded-full blur-[150px] opacity-20 dark:opacity-30 mix-blend-multiply dark:mix-blend-screen"></div>
         </div>
 
-        {/* I. HERO SECTION (The Master's Call) */}
-        <section className="relative z-10 flex flex-col items-center justify-center pt-24 pb-20 px-4 md:px-0 text-center min-h-[90vh]">
+        {/* I. HERO SECTION */}
+        <section className="relative z-10 flex flex-col items-center justify-center pt-24 pb-32 px-4 md:px-0 text-center min-h-[90vh] border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#030305]">
             {/* Perspective Grid Background specific to Hero */}
             <div className="absolute inset-0 pointer-events-none perspective-container z-[-1] opacity-30 dark:opacity-60">
                 <div className="moving-grid"></div>
-                {/* Fade out grid at bottom */}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-50 dark:to-[#030305]"></div>
             </div>
 
@@ -108,7 +104,6 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTes
                     <span className="flex items-center gap-3 relative z-10">
                         Enter Master Studio <ArrowRight className="group-hover:translate-x-1 transition-transform" />
                     </span>
-                    {/* Button Glitch Effect Overlay */}
                     <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
                 </button>
                 
@@ -121,16 +116,64 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTes
             </div>
         </section>
 
+        {/* NEW: BACKED BY SECTION */}
+        <section className="relative z-20 py-16 bg-white dark:bg-black border-b border-gray-200 dark:border-white/10">
+            <div className="max-w-7xl mx-auto px-6 text-center">
+                <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.25em] mb-12">Backed By Industry Leaders</h3>
+                
+                <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20">
+                     {/* Logo 1: Binance Labs Style */}
+                     <div className="group flex flex-col items-center gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer grayscale hover:grayscale-0 duration-500">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-[#FCD535]/50 transition-colors shadow-lg">
+                            <svg viewBox="0 0 32 32" className="w-8 h-8 text-[#FCD535] fill-current"><path d="M16 4l-6 6 6 6 6-6-6-6zm-9 9l-6 6 6 6 6-6-6-6zm9 9l-6 6 6 6 6-6-6-6zm9-9l-6 6 6 6 6-6-6-6z" /></svg>
+                        </div>
+                     </div>
+
+                     {/* Logo 2: Flow / Green Style */}
+                     <div className="group flex flex-col items-center gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer grayscale hover:grayscale-0 duration-500">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-[#00EF8B]/50 transition-colors shadow-lg">
+                            <svg viewBox="0 0 32 32" className="w-8 h-8 text-[#00EF8B] fill-current"><path d="M8 8h16v4h-16zM8 16h10v4h-10zM8 24h6v4h-6z" /></svg>
+                        </div>
+                     </div>
+
+                     {/* Logo 3: Multicoin Style */}
+                     <div className="group flex flex-col items-center gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer grayscale hover:grayscale-0 duration-500">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-white/50 transition-colors shadow-lg">
+                             <svg viewBox="0 0 32 32" className="w-8 h-8 text-black dark:text-white fill-none stroke-current stroke-2"><circle cx="16" cy="16" r="10" /><path d="M10 20l6-8 6 8" /></svg>
+                        </div>
+                     </div>
+
+                     {/* Logo 4: Solana Style */}
+                     <div className="group flex flex-col items-center gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer grayscale hover:grayscale-0 duration-500">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-purple-400/50 transition-colors shadow-lg">
+                            <svg viewBox="0 0 32 32" className="w-8 h-8"><path d="M4 8h24l-4 4H4z" fill="#9945FF"/><path d="M8 16h24l-4 4H8z" fill="#14F195"/><path d="M4 24h24l-4 4H4z" fill="#9945FF"/></svg>
+                        </div>
+                     </div>
+
+                     {/* Logo 5: Blue Chip Style */}
+                     <div className="group flex flex-col items-center gap-3 opacity-50 hover:opacity-100 transition-opacity cursor-pointer grayscale hover:grayscale-0 duration-500">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-blue-500/50 transition-colors shadow-lg">
+                            <div className="w-8 h-8 rounded-full border-4 border-blue-600 dark:border-blue-500"></div>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </section>
+
         {/* II. THREE PILLARS (The Pillars of Mastery) */}
-        <section className="relative z-10 py-32 border-t border-gray-200 dark:border-white/5 bg-white/50 dark:bg-[#030305]/80 backdrop-blur-sm transition-colors">
-             {/* Background Texture: Dot Pattern + Vignette */}
-             <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-10 pointer-events-none"></div>
-             <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-transparent to-gray-50/50 dark:from-[#030305] dark:via-transparent dark:to-[#030305] pointer-events-none"></div>
+        <section className="relative z-10 py-32 border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#08080a] backdrop-blur-sm transition-colors">
+             {/* Background Texture: Dot Pattern */}
+             <div className="absolute inset-0 bg-dot-pattern opacity-30 dark:opacity-5 pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto px-6 relative">
+                <div className="text-center mb-20">
+                    <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-tight">The Trinity of Automation</h2>
+                    <div className="w-24 h-1 bg-purple-600 dark:bg-cyber-neon mx-auto"></div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Pillar 1: AI Brain */}
-                    <div className="glass-panel p-10 rounded-lg border border-purple-100 dark:border-cyber-neon/10 hover:border-purple-300 dark:hover:border-cyber-neon/60 transition-colors group relative overflow-hidden bg-white/60 dark:bg-transparent">
+                    <div className="glass-panel p-10 rounded-lg border border-purple-100 dark:border-cyber-neon/10 hover:border-purple-300 dark:hover:border-cyber-neon/60 transition-colors group relative overflow-hidden bg-white dark:bg-[#0c0c10]">
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
                             <Brain size={120} className="text-purple-600 dark:text-cyber-neon -rotate-12" />
                         </div>
@@ -144,7 +187,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTes
                     </div>
 
                     {/* Pillar 2: Visual Canvas */}
-                    <div className="glass-panel p-10 rounded-lg border border-purple-100 dark:border-cyber-purple/10 hover:border-purple-300 dark:hover:border-cyber-purple/60 transition-colors group relative overflow-hidden bg-white/60 dark:bg-transparent">
+                    <div className="glass-panel p-10 rounded-lg border border-purple-100 dark:border-cyber-purple/10 hover:border-purple-300 dark:hover:border-cyber-purple/60 transition-colors group relative overflow-hidden bg-white dark:bg-[#0c0c10]">
                          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
                             <Workflow size={120} className="text-purple-600 dark:text-cyber-purple -rotate-12" />
                         </div>
@@ -158,7 +201,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTes
                     </div>
 
                     {/* Pillar 3: Execution */}
-                    <div className="glass-panel p-10 rounded-lg border border-pink-100 dark:border-cyber-pink/10 hover:border-pink-300 dark:hover:border-cyber-pink/60 transition-colors group relative overflow-hidden bg-white/60 dark:bg-transparent">
+                    <div className="glass-panel p-10 rounded-lg border border-pink-100 dark:border-cyber-pink/10 hover:border-pink-300 dark:hover:border-cyber-pink/60 transition-colors group relative overflow-hidden bg-white dark:bg-[#0c0c10]">
                          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
                             <Shield size={120} className="text-pink-600 dark:text-cyber-pink -rotate-12" />
                         </div>
@@ -175,11 +218,10 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTes
         </section>
 
         {/* III. GALLERY (TradingFlow Gallery Nof1) */}
-        <section className="relative z-10 py-32 px-6 overflow-hidden bg-gray-50 dark:bg-[#030305] transition-colors">
+        <section className="relative z-10 py-32 px-6 overflow-hidden bg-white dark:bg-[#030305] border-b border-gray-200 dark:border-white/5 transition-colors">
             {/* Background Scanner Effect */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-gradient-to-b from-transparent via-purple-500/20 dark:via-cyber-neon/20 to-transparent z-0"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-200 via-gray-50 to-gray-50 dark:from-cyber-dark dark:via-[#030305] dark:to-[#030305] opacity-50 dark:opacity-80 -z-10"></div>
-
+            
             <div className="max-w-7xl mx-auto w-full relative">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-gray-200 dark:border-white/10 pb-6 relative z-10">
                     <div>
@@ -225,9 +267,9 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTes
         </section>
 
         {/* IV. FINAL CTA */}
-        <section className="relative z-10 py-32 px-6 text-center border-t border-gray-200 dark:border-white/5 bg-gray-100 dark:bg-[#030305]">
+        <section className="relative z-10 py-32 px-6 text-center bg-gray-100 dark:bg-[#0a0a0f]">
              {/* Dynamic Background for CTA */}
-            <div className="absolute inset-0 bg-gradient-to-t from-purple-100 via-white to-gray-50 dark:from-cyber-neon/10 dark:via-cyber-purple/5 dark:to-[#030305] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-purple-100 via-white to-gray-50 dark:from-cyber-neon/5 dark:via-cyber-purple/5 dark:to-[#0a0a0f] pointer-events-none"></div>
             {/* Animated Horizontal Beam */}
             <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500 dark:via-cyber-neon to-transparent opacity-50 animate-flow-beam"></div>
 
@@ -246,36 +288,55 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate, onTestError, onTes
                     ENTER MASTER STUDIO <ArrowRight className="inline ml-2" />
                 </button>
             </div>
-            
-             {/* DEBUG TOOLS */}
-             {(onTestError || onTestCrash) && (
-                <div className="mt-20 pt-10 border-t border-gray-200 dark:border-white/5">
-                    <div className="flex flex-col items-center gap-4 opacity-50 hover:opacity-100 transition-opacity">
-                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
-                             <Terminal size={12} /> System Diagnostics
-                        </div>
-                        <div className="flex gap-4">
-                            {onTestError && (
-                                <button 
-                                    onClick={onTestError}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 hover:border-yellow-500 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
-                                >
-                                    <AlertTriangle size={12} /> Trigger Alert
-                                </button>
-                            )}
-                            {onTestCrash && (
-                                <button 
-                                    onClick={onTestCrash}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded text-[10px] font-bold uppercase text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                                >
-                                    <AlertOctagon size={12} /> Trigger Crash
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-             )}
         </section>
+
+        {/* V. FOOTER */}
+        <footer className="py-16 px-6 bg-white dark:bg-black border-t border-gray-200 dark:border-white/10 z-20 relative">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div className="col-span-1 md:col-span-2">
+                     <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white mb-6 block">
+                        Trading<span className="text-purple-600 dark:text-cyber-neon">Flow</span>
+                     </span>
+                     <p className="text-gray-500 dark:text-gray-400 max-w-sm mb-6 leading-relaxed">
+                        The world's first generative AI platform for automated DeFi strategies. Build, backtest, and deploy non-custodial trading bots without writing code.
+                     </p>
+                     <div className="flex gap-4">
+                         <a href="#" className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Twitter size={18} /></a>
+                         <a href="#" className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Github size={18} /></a>
+                         <a href="#" className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Disc size={18} /></a>
+                         <a href="#" className="p-2 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Linkedin size={18} /></a>
+                     </div>
+                </div>
+
+                <div>
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-6">Product</h4>
+                    <ul className="space-y-4 text-gray-500 dark:text-gray-400 text-sm">
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">Strategy Studio</a></li>
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">Vault Dashboard</a></li>
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">Market Radar</a></li>
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">Pricing</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-widest mb-6">Resources</h4>
+                    <ul className="space-y-4 text-gray-500 dark:text-gray-400 text-sm">
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">Documentation</a></li>
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">API Reference</a></li>
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">Community Gallery</a></li>
+                        <li><a href="#" className="hover:text-purple-600 dark:hover:text-cyber-neon transition-colors">Help Center</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div className="border-t border-gray-200 dark:border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 dark:text-gray-500">
+                <p>&copy; 2024 TradingFlow Protocol. All rights reserved.</p>
+                <div className="flex gap-6 mt-4 md:mt-0">
+                    <a href="#" className="hover:text-gray-900 dark:hover:text-gray-300">Privacy Policy</a>
+                    <a href="#" className="hover:text-gray-900 dark:hover:text-gray-300">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
     </div>
   );
 };

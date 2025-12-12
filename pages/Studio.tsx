@@ -28,7 +28,7 @@ import {
     Shield, Clock, Timer, AlertTriangle, Hammer, History, Play, Gauge,
     TrendingUp, ShieldCheck, Search, MessageSquare, Plus, Trash2, X, AlertOctagon, Loader2,
     Database, Network, Workflow, Lock, Cloud, Save, Code, Coins, MessageCircle, Globe, MoreHorizontal,
-    PanelRightClose, Power, Minimize2, Maximize2
+    PanelRightClose, Power, Minimize2, Maximize2, Wand2
 } from 'lucide-react';
 import { VaultWidget } from '../components/VaultWidget';
 import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
@@ -644,6 +644,10 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
     const [editingField, setEditingField] = useState<'label' | 'description' | null>(null);
     const [editLabel, setEditLabel] = useState(data.label);
     const [editDesc, setEditDesc] = useState(data.description);
+    
+    // --- AI FIX STATE ---
+    const [showAiInput, setShowAiInput] = useState(false);
+    const [aiPrompt, setAiPrompt] = useState('');
 
     // Sync state with props if they change externally (e.g. via AI)
     useEffect(() => {
@@ -668,12 +672,25 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
 
     const onOptimize = (e: React.MouseEvent) => {
         e.stopPropagation();
-        // Just visual simulation for now
-        data.onStatusClick && data.onStatusClick(id, data.label, 'running');
-        setTimeout(() => {
-             alert(`AI Optimization complete for ${data.label}. Parameters auto-tuned for efficiency.`);
-             data.onStatusClick && data.onStatusClick(id, data.label, 'success');
-        }, 1000);
+        setShowAiInput(!showAiInput);
+    };
+
+    const onAiFixSubmit = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+             e.stopPropagation();
+             setShowAiInput(false);
+             
+             // Trigger AI simulation
+             data.onStatusClick && data.onStatusClick(id, data.label, 'running');
+             
+             // In a real app, this would send `aiPrompt` to the AI service
+             console.log(`[AI FIX] Node ${id} prompt: ${aiPrompt}`);
+             setAiPrompt('');
+
+             setTimeout(() => {
+                 data.onStatusClick && data.onStatusClick(id, data.label, 'success');
+             }, 2000);
+        }
     };
     
     // 1. Determine Category & Colors based on Label
@@ -832,34 +849,57 @@ const CyberNode = ({ id, data, isConnectable, selected }: any) => {
         <div className={`group relative min-w-[240px] rounded-lg transition-all duration-300 bg-white dark:bg-[#0c0c10] border-2 ${styles.border} ${styles.shadow}`}>
             
             <NodeToolbar isVisible={selected} position={Position.Top} offset={10}>
-                 <div className="flex items-center gap-0.5 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 shadow-xl rounded-full px-1.5 py-1 backdrop-blur-md min-w-max">
-                     {/* Run */}
-                     <button onClick={onRun} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-green-50 dark:hover:bg-green-500/10 text-green-600 dark:text-green-400 transition-colors group/btn">
-                         <Play size={10} className="fill-current" />
-                         <span className="text-[9px] font-bold uppercase tracking-wider">Run</span>
-                     </button>
-                     
-                     <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
+                 <div className="flex flex-col items-center gap-2">
+                     {/* Toolbar Buttons */}
+                     <div className="flex items-center gap-0.5 bg-white dark:bg-[#1a1a20] border border-gray-200 dark:border-white/10 shadow-xl rounded-full px-1.5 py-1 backdrop-blur-md min-w-max z-20">
+                         {/* Run */}
+                         <button onClick={onRun} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-green-50 dark:hover:bg-green-500/10 text-green-600 dark:text-green-400 transition-colors group/btn">
+                             <Play size={10} className="fill-current" />
+                             <span className="text-[9px] font-bold uppercase tracking-wider">Run</span>
+                         </button>
+                         
+                         <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
 
-                     {/* AI Optimize */}
-                     <button onClick={onOptimize} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-purple-50 dark:hover:bg-purple-500/10 text-purple-600 dark:text-cyber-neon transition-colors group/btn">
-                         <Sparkles size={10} />
-                         <span className="text-[9px] font-bold uppercase tracking-wider">AI Fix</span>
-                     </button>
+                         {/* AI Optimize */}
+                         <button onClick={onOptimize} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-full transition-colors group/btn ${showAiInput ? 'bg-purple-100 dark:bg-cyber-neon/20 text-purple-600 dark:text-cyber-neon' : 'hover:bg-purple-50 dark:hover:bg-purple-500/10 text-purple-600 dark:text-cyber-neon'}`}>
+                             <Sparkles size={10} className={showAiInput ? 'animate-pulse' : ''} />
+                             <span className="text-[9px] font-bold uppercase tracking-wider">AI Fix</span>
+                         </button>
 
-                     <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
+                         <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
 
-                     {/* Delete */}
-                     <button onClick={onDelete} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 transition-colors group/btn">
-                         <Trash2 size={10} />
-                         <span className="text-[9px] font-bold uppercase tracking-wider">Delete</span>
-                     </button>
-                     
-                     {/* More */}
-                     <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
-                     <button className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 transition-colors">
-                        <MoreHorizontal size={10} />
-                     </button>
+                         {/* Delete */}
+                         <button onClick={onDelete} className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 transition-colors group/btn">
+                             <Trash2 size={10} />
+                             <span className="text-[9px] font-bold uppercase tracking-wider">Delete</span>
+                         </button>
+                         
+                         {/* More */}
+                         <div className="w-[1px] h-3 bg-gray-200 dark:bg-white/10 mx-0.5"></div>
+                         <button className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 transition-colors">
+                            <MoreHorizontal size={10} />
+                         </button>
+                     </div>
+
+                     {/* AI Input Field (Toggled) */}
+                     {showAiInput && (
+                         <div className="w-[280px] bg-[#1a1a20] p-1 rounded-md border border-gray-700 shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-1 z-10">
+                             <input 
+                                autoFocus
+                                className="flex-1 bg-transparent border-none outline-none text-[10px] text-white font-mono placeholder:text-gray-500 px-2 py-1.5"
+                                placeholder="Enter your prompt..."
+                                value={aiPrompt}
+                                onChange={e => setAiPrompt(e.target.value)}
+                                onKeyDown={onAiFixSubmit}
+                             />
+                             <button 
+                                onClick={() => setShowAiInput(false)}
+                                className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors"
+                             >
+                                 <X size={10} />
+                             </button>
+                         </div>
+                     )}
                  </div>
             </NodeToolbar>
 
