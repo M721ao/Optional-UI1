@@ -35,6 +35,7 @@ import { NodeLogsModal, LogEntry } from '../components/NodeLogsModal';
 import { NotificationType } from '../components/Notifications';
 import { NodeField, NodeInput, NodeNumberInput, NodeSelect, NodeTextarea, NodeRadioGroup, NodeTokenSelect, NodeSlider } from '../components/NodeComponents';
 import { AIConnectionLoader } from '../components/AIConnectionLoader';
+import { Tooltip } from '../components/Tooltip';
 
 // --- MOCK TOKEN DATA FOR SELECTORS ---
 const TOKENS = [
@@ -1493,20 +1494,23 @@ const StudioContent: React.FC<StudioContentProps> = ({ addNotification }) => {
              
              {/* A. NAV STRIP (Icons) */}
              <div className="w-12 bg-gray-100 dark:bg-black/40 border-r border-gray-200 dark:border-white/5 flex flex-col items-center py-4 gap-4 shrink-0">
-                 <button 
-                    onClick={() => setActiveTab('build')}
-                    className={`p-2 rounded transition-all ${activeTab === 'build' ? 'bg-white dark:bg-white/10 text-purple-600 dark:text-cyber-neon shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                    title="Build Mode"
-                 >
-                     <Hammer size={20} />
-                 </button>
-                 <button 
-                    onClick={() => setActiveTab('run')}
-                    className={`p-2 rounded transition-all ${activeTab === 'run' ? 'bg-white dark:bg-white/10 text-green-500 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                    title="Run & Monitor"
-                 >
-                     <Play size={20} />
-                 </button>
+                 <Tooltip content="Build Mode" position="right">
+                    <button 
+                        onClick={() => setActiveTab('build')}
+                        className={`p-2 rounded transition-all ${activeTab === 'build' ? 'bg-white dark:bg-white/10 text-purple-600 dark:text-cyber-neon shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
+                    >
+                        <Hammer size={20} />
+                    </button>
+                 </Tooltip>
+                 
+                 <Tooltip content="Run & Monitor" position="right">
+                    <button 
+                        onClick={() => setActiveTab('run')}
+                        className={`p-2 rounded transition-all ${activeTab === 'run' ? 'bg-white dark:bg-white/10 text-green-500 shadow-md' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
+                    >
+                        <Play size={20} />
+                    </button>
+                 </Tooltip>
              </div>
 
              {/* B. CONTENT PANEL (Build or Run) */}
