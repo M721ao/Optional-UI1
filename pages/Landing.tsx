@@ -37,7 +37,7 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
         </div>
 
         {/* I. HERO SECTION */}
-        <section className="relative z-10 flex flex-col items-center justify-center pt-32 pb-32 px-4 md:px-0 text-center min-h-[90vh] border-b border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-[#030305]">
+        <section className="relative z-10 flex flex-col items-center justify-center pt-32 pb-32 px-4 md:px-0 text-center min-h-[90vh] bg-gray-50/50 dark:bg-[#030305]">
             {/* Perspective Grid Background */}
             <div className="absolute inset-0 pointer-events-none perspective-container z-[-1] opacity-30 dark:opacity-40">
                 <div 
@@ -125,52 +125,8 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
             </div>
         </section>
 
-        {/* NEW: BACKED BY SECTION */}
-        <section className="relative z-20 py-12 bg-white dark:bg-black border-b border-gray-200 dark:border-white/10">
-            <div className="max-w-7xl mx-auto px-6 text-center">
-                <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.25em] mb-12">Backed By Industry Leaders</h3>
-                
-                <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 grayscale hover:grayscale-0 transition-all duration-500">
-                     {/* Logo 1 */}
-                     <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-[#FCD535]/50 transition-colors shadow-sm dark:shadow-lg">
-                            <svg viewBox="0 0 32 32" className="w-8 h-8 text-[#FCD535] fill-current"><path d="M16 4l-6 6 6 6 6-6-6-6zm-9 9l-6 6 6 6 6-6-6-6zm9 9l-6 6 6 6 6-6-6-6zm9-9l-6 6 6 6 6-6-6-6z" /></svg>
-                        </div>
-                     </div>
-
-                     {/* Logo 2 */}
-                     <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-[#00EF8B]/50 transition-colors shadow-sm dark:shadow-lg">
-                            <svg viewBox="0 0 32 32" className="w-8 h-8 text-[#00EF8B] fill-current"><path d="M8 8h16v4h-16zM8 16h10v4h-10zM8 24h6v4h-6z" /></svg>
-                        </div>
-                     </div>
-
-                     {/* Logo 3 */}
-                     <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-purple-500/50 transition-colors shadow-sm dark:shadow-lg">
-                             <svg viewBox="0 0 32 32" className="w-8 h-8 text-black dark:text-white fill-none stroke-current stroke-2"><circle cx="16" cy="16" r="10" /><path d="M10 20l6-8 6 8" /></svg>
-                        </div>
-                     </div>
-
-                     {/* Logo 4 */}
-                     <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-purple-400/50 transition-colors shadow-sm dark:shadow-lg">
-                            <svg viewBox="0 0 32 32" className="w-8 h-8"><path d="M4 8h24l-4 4H4z" fill="#9945FF"/><path d="M8 16h24l-4 4H8z" fill="#14F195"/><path d="M4 24h24l-4 4H4z" fill="#9945FF"/></svg>
-                        </div>
-                     </div>
-
-                     {/* Logo 5 */}
-                     <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-blue-500/50 transition-colors shadow-sm dark:shadow-lg">
-                            <div className="w-8 h-8 rounded-full border-4 border-blue-500"></div>
-                        </div>
-                     </div>
-                </div>
-            </div>
-        </section>
-
         {/* II. THREE PILLARS (The Pillars of Mastery) */}
-        <section className="relative z-10 py-32 border-t border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#08080a] transition-colors">
+        <section className="relative z-10 py-32 bg-gray-50 dark:bg-[#08080a] transition-colors">
              {/* Background Texture: Dot Pattern */}
              <div className="absolute inset-0 bg-dot-pattern opacity-[0.15] dark:opacity-5 pointer-events-none"></div>
 
@@ -226,8 +182,8 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
             </div>
         </section>
 
-        {/* IV. FINAL CTA */}
-        <section className="relative z-10 py-32 px-6 text-center bg-white dark:bg-[#0a0a0f] border-t border-gray-200 dark:border-white/5">
+        {/* IV. FINAL CTA + BACKED BY */}
+        <section className="relative z-10 py-32 px-6 text-center bg-white dark:bg-[#0a0a0f]">
              {/* Dynamic Background for CTA */}
             <div className="absolute inset-0 bg-gradient-to-t from-purple-50/50 via-transparent to-white dark:from-cyber-neon/5 dark:via-cyber-purple/5 dark:to-[#0a0a0f] pointer-events-none"></div>
             {/* Animated Horizontal Beam */}
@@ -243,33 +199,73 @@ export const Landing: React.FC<LandingProps> = ({ onNavigate }) => {
                 </p>
                 <button 
                     onClick={() => onNavigate(Page.STUDIO)}
-                    className="px-16 py-6 bg-black dark:bg-white text-white dark:text-black font-bold text-2xl uppercase tracking-widest clip-path-polygon hover:bg-purple-700 dark:hover:bg-cyber-neon transition-all duration-300 shadow-xl shadow-black/20 dark:shadow-[0_0_40px_rgba(255,255,255,0.3)] dark:hover:shadow-[0_0_60px_rgba(0,243,255,0.5)] transform hover:-translate-y-1"
+                    className="px-16 py-6 bg-purple-600 dark:bg-white text-white dark:text-black font-bold text-2xl uppercase tracking-widest clip-path-polygon hover:bg-purple-700 dark:hover:bg-cyber-neon transition-all duration-300 shadow-xl shadow-purple-500/20 dark:shadow-[0_0_40px_rgba(255,255,255,0.3)] dark:hover:shadow-[0_0_60px_rgba(0,243,255,0.5)] transform hover:-translate-y-1"
                 >
                     ENTER MASTER STUDIO <ArrowRight className="inline ml-2" />
                 </button>
+
+                {/* BACKED BY SECTION (Moved Here) */}
+                <div className="mt-32 pt-16 border-t border-gray-200 dark:border-white/10">
+                    <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.25em] mb-12">Backed By Industry Leaders</h3>
+                    
+                    <div className="flex flex-wrap justify-center items-center gap-10 md:gap-20 grayscale hover:grayscale-0 transition-all duration-500">
+                         {/* Logo 1 */}
+                         <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-[#FCD535]/50 transition-colors shadow-sm dark:shadow-lg">
+                                <svg viewBox="0 0 32 32" className="w-8 h-8 text-[#FCD535] fill-current"><path d="M16 4l-6 6 6 6 6-6-6-6zm-9 9l-6 6 6 6 6-6-6-6zm9 9l-6 6 6 6 6-6-6-6zm9-9l-6 6 6 6 6-6-6-6z" /></svg>
+                            </div>
+                         </div>
+
+                         {/* Logo 2 */}
+                         <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-[#00EF8B]/50 transition-colors shadow-sm dark:shadow-lg">
+                                <svg viewBox="0 0 32 32" className="w-8 h-8 text-[#00EF8B] fill-current"><path d="M8 8h16v4h-16zM8 16h10v4h-10zM8 24h6v4h-6z" /></svg>
+                            </div>
+                         </div>
+
+                         {/* Logo 3 */}
+                         <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-purple-500/50 transition-colors shadow-sm dark:shadow-lg">
+                                 <svg viewBox="0 0 32 32" className="w-8 h-8 text-black dark:text-white fill-none stroke-current stroke-2"><circle cx="16" cy="16" r="10" /><path d="M10 20l6-8 6 8" /></svg>
+                            </div>
+                         </div>
+
+                         {/* Logo 4 */}
+                         <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-purple-400/50 transition-colors shadow-sm dark:shadow-lg">
+                                <svg viewBox="0 0 32 32" className="w-8 h-8"><path d="M4 8h24l-4 4H4z" fill="#9945FF"/><path d="M8 16h24l-4 4H8z" fill="#14F195"/><path d="M4 24h24l-4 4H4z" fill="#9945FF"/></svg>
+                            </div>
+                         </div>
+
+                         {/* Logo 5 */}
+                         <div className="group opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-white/5 flex items-center justify-center group-hover:border-blue-500/50 transition-colors shadow-sm dark:shadow-lg">
+                                <div className="w-8 h-8 rounded-full border-4 border-blue-500"></div>
+                            </div>
+                         </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        {/* V. FOOTER */}
-        <footer className="py-12 px-6 bg-gray-50 dark:bg-black border-t border-gray-200 dark:border-white/10 z-20 relative">
+        {/* V. FOOTER (UPDATED) */}
+        <footer className="py-8 px-6 bg-white dark:bg-black border-t border-gray-200 dark:border-white/10 z-20 relative font-mono text-xs text-gray-500 dark:text-gray-400">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                 
-                {/* Brand */}
-                <div className="flex flex-col items-center md:items-start">
-                     <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white mb-2 block">
-                        Trading<span className="text-purple-600 dark:text-cyber-neon">Flow</span>
-                     </span>
-                     <p className="text-gray-500 text-xs text-center md:text-left">
-                        &copy; 2024 TradingFlow Protocol. All rights reserved.
-                     </p>
+                {/* System Status Text */}
+                <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span className="uppercase tracking-widest text-[10px] md:text-xs">
+                        SYSTEM_VERSION: 2.0.45 // TRADING_FLOW_PROTOCOL // POWERED_BY_AI
+                    </span>
                 </div>
 
                 {/* Socials */}
                 <div className="flex gap-4">
-                     <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Twitter size={18} /></a>
-                     <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Github size={18} /></a>
-                     <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Disc size={18} /></a>
-                     <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-purple-100 dark:hover:bg-cyber-neon/20 hover:text-purple-600 dark:hover:text-cyber-neon transition-colors"><Linkedin size={18} /></a>
+                     <a href="#" className="hover:text-black dark:hover:text-white transition-colors"><Twitter size={16} /></a>
+                     <a href="#" className="hover:text-black dark:hover:text-white transition-colors"><Github size={16} /></a>
+                     <a href="#" className="hover:text-black dark:hover:text-white transition-colors"><Disc size={16} /></a>
+                     <a href="#" className="hover:text-black dark:hover:text-white transition-colors"><Linkedin size={16} /></a>
                  </div>
             </div>
         </footer>
