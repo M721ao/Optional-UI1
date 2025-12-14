@@ -6,7 +6,7 @@ import {
     BarChart3, Radio, Database, Zap, Lock, Globe, ArrowUpRight,
     Wallet, Shield, History, Plus, Clock, Timer, AlertTriangle, Hammer, Play, Gauge,
     TrendingUp, ShieldCheck, MessageSquare, Trash2, Radar, Target, Eye, PauseCircle, PlayCircle, Settings,
-    Link, RefreshCw, AlertCircle, ArrowLeft, ArrowRight
+    Link, RefreshCw, AlertCircle, ArrowLeft, ArrowRight, XCircle, Coins, Layers
 } from 'lucide-react';
 import { NeonChart } from '../components/NeonChart';
 import { VaultModal } from '../components/VaultModal';
@@ -160,6 +160,42 @@ const SimpleSparkline: React.FC<{ data: number[], isPositive: boolean }> = ({ da
     );
 };
 
+// --- SIMPLE LOADING ANIMATION (LOCAL) ---
+const SimpleVaultLoader: React.FC = () => (
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/80 dark:bg-[#0c0c10]/80 backdrop-blur-sm rounded-xl transition-all duration-300">
+        <div className="relative">
+            {/* Outer Ring */}
+            <div className="w-10 h-10 rounded-full border-2 border-gray-200 dark:border-white/10"></div>
+            {/* Spinning Segment */}
+            <div className="absolute inset-0 w-10 h-10 rounded-full border-2 border-t-purple-600 dark:border-t-cyber-neon border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+        </div>
+        <div className="mt-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest animate-pulse">
+            Syncing Vault Data...
+        </div>
+    </div>
+);
+
+// --- ERROR VIEW COMPONENT ---
+const VaultErrorView: React.FC<{ onRetry: () => void, chain: string }> = ({ onRetry, chain }) => (
+    <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-500/20 rounded-xl p-8 flex flex-col items-center text-center h-full min-h-[300px] justify-center animate-in fade-in zoom-in-95">
+        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-4 text-red-600 dark:text-red-500 shadow-lg shadow-red-500/10">
+            <XCircle size={32} />
+        </div>
+        <div className="text-base font-bold text-gray-900 dark:text-white mb-2">Failed to Load Vaults</div>
+        <div className="text-xs text-gray-500 mb-6 max-w-xs leading-relaxed">
+            Connection to the <span className="font-bold text-red-600 dark:text-red-400">{chain}</span> node timed out. The RPC endpoint might be congested.
+        </div>
+        <CyberButton 
+            variant="danger" 
+            size="sm"
+            icon={<RefreshCw size={14} />}
+            onClick={onRetry}
+        >
+            Retry Connection
+        </CyberButton>
+    </div>
+);
+
 // --- MOCK WALLET TOKENS ---
 const CHAIN_TOKENS: Record<string, VaultAsset[]> = {
     'Flow EVM': [
@@ -196,8 +232,9 @@ export const Dashboard: React.FC = () => {
     const [historyLimit, setHistoryLimit] = useState(6);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
     
-    // Added vault loading state for chain switching
+    // Vault UI States
     const [isVaultLoading, setIsVaultLoading] = useState(false);
+    const [isVaultError, setIsVaultError] = useState(false);
     
     // Wallet State
     const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
@@ -228,12 +265,26 @@ export const Dashboard: React.FC = () => {
         if (chain === selectedChain) return;
         
         setIsVaultLoading(true);
+        setIsVaultError(false);
         setSelectedChain(chain);
         
-        // Simulate data fetch delay
+        // Simulate data fetch delay & random error check
         setTimeout(() => {
+            // DEMO: Simulate error specifically on Solana to demonstrate Error State
+            if (chain === 'Solana') {
+                setIsVaultError(true);
+            }
             setIsVaultLoading(false);
-        }, 800);
+        }, 1000);
+    };
+
+    const handleRetryLoading = () => {
+        setIsVaultError(false);
+        setIsVaultLoading(true);
+        setTimeout(() => {
+             // Simulate successful retry
+             setIsVaultLoading(false);
+        }, 1500);
     };
 
     // --- DATA ---
@@ -259,7 +310,16 @@ export const Dashboard: React.FC = () => {
     const flows = allFlows.slice(0, visibleFlowsCount);
 
     const vaultData: Record<string, Vault[]> = {
-        'Aptos': [],
+        'Aptos': [
+             // Add an empty vault for demonstration
+            {
+                id: 'v-aptos-1', name: 'New Aptos Strategy', chain: 'Aptos', address: '0x123...abc',
+                isDeployed: true,
+                asset: 'APT', apy: 0, balance: 0, risk: 'low',
+                assets: [],
+                history: []
+            }
+        ],
         'Flow EVM': [
             { 
                 id: 'v-flow-1', name: 'Flow Yield Master', chain: 'Flow EVM', address: '0x71c...38a', 
@@ -654,15 +714,17 @@ export const Dashboard: React.FC = () => {
                     </div>
 
                     {/* Vault Content Card */}
-                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 relative" key={`${selectedChain}-${selectedVaultId || 'list'}`}>
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 relative min-h-[400px]" key={`${selectedChain}-${selectedVaultId || 'list'}`}>
                         
                         {/* Loading Overlay for Vault Switching */}
-                        {isVaultLoading && (
-                             <AIConnectionLoader overlay message={`Connecting to ${selectedChain}...`} size="md" />
-                        )}
+                        {isVaultLoading && <SimpleVaultLoader />}
 
-                        {/* CASE 1: EMPTY STATE - No Vaults on Chain */}
-                        {currentChainVaults.length === 0 ? (
+                        {/* CASE 0: ERROR STATE */}
+                        {isVaultError ? (
+                            <VaultErrorView onRetry={handleRetryLoading} chain={selectedChain} />
+                        ) :
+                        /* CASE 1: EMPTY STATE - No Vaults on Chain */
+                        currentChainVaults.length === 0 ? (
                              <div className="bg-gradient-to-br from-gray-50 to-white dark:from-[#151520] dark:to-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl p-8 flex flex-col items-center text-center h-[300px] justify-center">
                                 <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-800/50 flex items-center justify-center mb-4">
                                     <Shield size={32} className="text-gray-500 dark:text-gray-600" />
@@ -814,29 +876,51 @@ export const Dashboard: React.FC = () => {
                                         {/* TAB: ALLOCATION */}
                                         {vaultTab === 'allocation' && (
                                             <div className="p-4 space-y-2">
-                                                 <div className="flex justify-between text-[9px] text-gray-500 font-mono uppercase px-2 mb-2">
-                                                    <span>Asset</span>
-                                                    <span>Value / %</span>
-                                                 </div>
-                                                 {activeVault.assets?.map((asset, idx) => (
-                                                    <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors group border border-transparent hover:border-gray-200 dark:hover:border-white/5 cursor-default">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg ${asset.icon}`}>
-                                                                {asset.symbol[0]}
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-sm font-bold text-gray-900 dark:text-white">{asset.symbol}</div>
-                                                                <div className="text-[10px] text-gray-500">{asset.balance.toLocaleString()}</div>
-                                                            </div>
+                                                 {activeVault.balance === 0 ? (
+                                                    <div className="flex flex-col items-center justify-center h-[250px] space-y-4 animate-in fade-in zoom-in duration-300">
+                                                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-white/10">
+                                                            <Wallet size={24} className="text-gray-400 dark:text-gray-600" />
                                                         </div>
-                                                        <div className="text-right">
-                                                            <div className="text-sm font-mono text-gray-900 dark:text-white">${asset.value.toLocaleString()}</div>
-                                                            <div className="text-[10px] text-gray-500 dark:text-gray-600 group-hover:text-purple-600 dark:group-hover:text-cyber-neon transition-colors">
-                                                                {((asset.value / activeVault.balance) * 100).toFixed(1)}%
-                                                            </div>
+                                                        <div className="text-center space-y-1">
+                                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Vault Ready for Funding</h4>
+                                                            <p className="text-xs text-gray-500 max-w-[200px] mx-auto">This strategy is deployed and ready. Deposit assets to generate yield.</p>
                                                         </div>
+                                                        <CyberButton 
+                                                            variant="neon" 
+                                                            size="sm"
+                                                            onClick={() => setModalConfig({isOpen: true, type: 'deposit'})}
+                                                            icon={<ArrowUpRight size={14} className="rotate-180" />}
+                                                        >
+                                                            Deposit Assets
+                                                        </CyberButton>
                                                     </div>
-                                                ))}
+                                                 ) : (
+                                                    <>
+                                                        <div className="flex justify-between text-[9px] text-gray-500 font-mono uppercase px-2 mb-2">
+                                                            <span>Asset</span>
+                                                            <span>Value / %</span>
+                                                        </div>
+                                                        {activeVault.assets?.map((asset, idx) => (
+                                                            <div key={idx} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors group border border-transparent hover:border-gray-200 dark:hover:border-white/5 cursor-default">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg ${asset.icon}`}>
+                                                                        {asset.symbol[0]}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="text-sm font-bold text-gray-900 dark:text-white">{asset.symbol}</div>
+                                                                        <div className="text-[10px] text-gray-500">{asset.balance.toLocaleString()}</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="text-sm font-mono text-gray-900 dark:text-white">${asset.value.toLocaleString()}</div>
+                                                                    <div className="text-[10px] text-gray-500 dark:text-gray-600 group-hover:text-purple-600 dark:group-hover:text-cyber-neon transition-colors">
+                                                                        {((asset.value / activeVault.balance) * 100).toFixed(1)}%
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </>
+                                                 )}
                                             </div>
                                         )}
 
@@ -844,9 +928,14 @@ export const Dashboard: React.FC = () => {
                                         {vaultTab === 'history' && (
                                              <div className="p-4 space-y-2">
                                                 {visibleHistory.length === 0 ? (
-                                                     <div className="h-full min-h-[200px] flex flex-col items-center justify-center text-gray-400 dark:text-gray-600 opacity-50">
-                                                         <Activity size={32} className="mb-2" />
-                                                         <span className="text-xs">No activity recorded</span>
+                                                     <div className="h-full min-h-[250px] flex flex-col items-center justify-center text-gray-400 dark:text-gray-600 animate-in fade-in zoom-in duration-300 space-y-3">
+                                                         <div className="p-3 bg-gray-100 dark:bg-white/5 rounded-full">
+                                                            <History size={24} className="opacity-50" />
+                                                         </div>
+                                                         <div className="text-center">
+                                                            <span className="text-xs font-bold uppercase tracking-wider block text-gray-500">No Transaction History</span>
+                                                            <span className="text-[10px] text-gray-400">Once you deposit or withdraw, your on-chain records will appear here.</span>
+                                                         </div>
                                                      </div>
                                                 ) : (
                                                     <>
