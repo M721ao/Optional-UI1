@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { X, Copy, Gift, Users, Share2, Award, Zap, Check, Trophy } from 'lucide-react';
+import { X, Copy, Gift, Users, Share2, Award, Zap, Check, Trophy, Info } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface ReferralModalProps {
@@ -9,7 +10,7 @@ interface ReferralModalProps {
 }
 
 export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, user }) => {
-  const [activeTab, setActiveTab] = useState<'invite' | 'network'>('invite');
+  const [activeTab, setActiveTab] = useState<'invite' | 'network' | 'redeem'>('invite');
   const [copied, setCopied] = useState(false);
   const [bindCode, setBindCode] = useState('');
   const [isBinding, setIsBinding] = useState(false);
@@ -74,6 +75,12 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
             >
                 My Network
             </button>
+             <button 
+                onClick={() => setActiveTab('redeem')}
+                className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'redeem' ? 'border-purple-600 dark:border-cyber-neon text-purple-600 dark:text-cyber-neon bg-gray-50 dark:bg-white/5' : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'}`}
+            >
+                Redeem Code
+            </button>
         </div>
 
         {/* Content */}
@@ -127,41 +134,6 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
                             <h4 className="font-bold text-gray-900 dark:text-white text-sm">3. Both Earn</h4>
                             <p className="text-xs text-gray-500 mt-1">You get <span className="text-yellow-600 dark:text-yellow-500 font-bold">500 Credits</span>, they get 200.</p>
                         </div>
-                    </div>
-
-                    {/* Bind Referrer Section */}
-                    <div className="border-t border-gray-200 dark:border-white/10 pt-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Gift size={16} className="text-pink-500" />
-                            <span className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Did someone invite you?</span>
-                        </div>
-                        
-                        {!bindSuccess ? (
-                            <div className="flex gap-3">
-                                <input 
-                                    type="text" 
-                                    value={bindCode}
-                                    onChange={(e) => setBindCode(e.target.value)}
-                                    placeholder="Enter their Invite Code"
-                                    className="flex-1 bg-gray-100 dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-purple-500 dark:focus:border-cyber-neon text-gray-900 dark:text-white"
-                                />
-                                <button 
-                                    onClick={handleBind}
-                                    disabled={!bindCode || isBinding}
-                                    className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold uppercase rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
-                                >
-                                    {isBinding ? '...' : 'Claim'}
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="p-4 rounded-lg bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 flex items-center gap-3">
-                                <div className="p-1 bg-green-500 rounded-full text-white"><Check size={12} /></div>
-                                <span className="text-sm text-green-700 dark:text-green-400 font-bold">Success! You received +200 Credits.</span>
-                            </div>
-                        )}
-                        <p className="text-[10px] text-gray-500 mt-2 ml-1">
-                            * Enter a valid code to receive a one-time welcome bonus of 200 Compute Credits.
-                        </p>
                     </div>
                 </div>
             )}
@@ -229,6 +201,56 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
                         </button>
                     </div>
 
+                </div>
+            )}
+
+            {/* TAB: REDEEM */}
+            {activeTab === 'redeem' && (
+                <div className="flex flex-col items-center justify-center h-full space-y-8 animate-in slide-in-from-right-4 duration-300 text-center py-8">
+                     <div className="w-20 h-20 bg-pink-100 dark:bg-pink-500/10 rounded-full flex items-center justify-center border border-pink-200 dark:border-pink-500/20 mb-2">
+                        <Gift size={40} className="text-pink-500" />
+                     </div>
+                     
+                     <div className="max-w-xs">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">Have an Invite Code?</h3>
+                        <p className="text-xs text-gray-500">Enter a valid referral code from a friend to unlock <span className="text-pink-500 font-bold">200 Compute Credits</span> instantly.</p>
+                     </div>
+
+                     <div className="w-full max-w-sm">
+                        {!bindSuccess ? (
+                            <div className="flex flex-col gap-3">
+                                <input 
+                                    type="text" 
+                                    value={bindCode}
+                                    onChange={(e) => setBindCode(e.target.value)}
+                                    placeholder="Paste Invite Code (e.g. FLOW-8821)"
+                                    className="w-full bg-gray-100 dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-4 text-center text-lg font-mono tracking-widest focus:outline-none focus:border-pink-500 dark:focus:border-pink-500 text-gray-900 dark:text-white transition-colors"
+                                />
+                                <button 
+                                    onClick={handleBind}
+                                    disabled={!bindCode || isBinding}
+                                    className="w-full py-4 bg-pink-600 hover:bg-pink-700 text-white font-bold uppercase rounded-lg shadow-lg hover:shadow-pink-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isBinding ? 'Verifying...' : 'Claim Bonus'}
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="p-6 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 flex flex-col items-center gap-4 animate-in zoom-in duration-300">
+                                <div className="p-2 bg-green-500 rounded-full text-white shadow-lg shadow-green-500/30"><Check size={24} /></div>
+                                <div>
+                                    <div className="text-lg text-green-700 dark:text-green-400 font-bold mb-1">Code Redeemed!</div>
+                                    <div className="text-xs text-green-600/80 dark:text-green-400/80">+200 Credits have been added to your balance.</div>
+                                </div>
+                            </div>
+                        )}
+                     </div>
+
+                     {!bindSuccess && (
+                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/5 text-[10px] text-gray-500 max-w-sm flex items-center justify-center gap-2">
+                            <Info size={14} className="text-gray-400" />
+                            <span>Codes are case-sensitive. One use per account.</span>
+                         </div>
+                     )}
                 </div>
             )}
         </div>

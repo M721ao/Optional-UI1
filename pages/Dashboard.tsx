@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { NeonChart } from '../components/NeonChart';
 import { VaultModal } from '../components/VaultModal';
+import { VaultInfoModal } from '../components/VaultInfoModal';
 import { AIConnectionLoader } from '../components/AIConnectionLoader';
 import { CyberButton } from '../components/CyberButton';
 
@@ -207,6 +208,9 @@ export const Dashboard: React.FC = () => {
         type: 'deposit'
     });
 
+    // Vault Info Modal State
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+
     // --- MY FLOWS STATE ---
     const [visibleFlowsCount, setVisibleFlowsCount] = useState(4);
     const [activeMenuFlowId, setActiveMenuFlowId] = useState<string | null>(null);
@@ -365,6 +369,12 @@ export const Dashboard: React.FC = () => {
                 onClose={() => setModalConfig({ ...modalConfig, isOpen: false })} 
                 type={modalConfig.type} 
                 tokens={CHAIN_TOKENS[selectedChain] || []}
+            />
+
+            {/* Info Modal */}
+            <VaultInfoModal
+                isOpen={isInfoModalOpen}
+                onClose={() => setIsInfoModalOpen(false)}
             />
 
             {/* 1. SLIM GLOBAL TICKER */}
@@ -576,7 +586,13 @@ export const Dashboard: React.FC = () => {
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <Lock size={16} className="text-purple-600 dark:text-cyber-purple" /> Vault Manager
                         </h3>
-                        <button className="text-[10px] text-gray-500 hover:text-black dark:hover:text-white underline" title="Learn more about TradingFlow Vaults">What is this?</button>
+                        <button 
+                            onClick={() => setIsInfoModalOpen(true)}
+                            className="text-[10px] text-gray-500 hover:text-black dark:hover:text-white underline" 
+                            title="Learn more about TradingFlow Vaults"
+                        >
+                            What is this?
+                        </button>
                     </div>
 
                     {/* Merged Header: Chain Tabs & Vault Switcher */}
