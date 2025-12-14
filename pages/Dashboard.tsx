@@ -6,7 +6,7 @@ import {
     BarChart3, Radio, Database, Zap, Lock, Globe, ArrowUpRight,
     Wallet, Shield, History, Plus, Clock, Timer, AlertTriangle, Hammer, Play, Gauge,
     TrendingUp, ShieldCheck, MessageSquare, Trash2, Radar, Target, Eye, PauseCircle, PlayCircle, Settings,
-    Link, RefreshCw, AlertCircle
+    Link, RefreshCw, AlertCircle, ArrowLeft, ArrowRight
 } from 'lucide-react';
 import { NeonChart } from '../components/NeonChart';
 import { VaultModal } from '../components/VaultModal';
@@ -190,7 +190,8 @@ export const Dashboard: React.FC = () => {
     
     // --- VAULT MANAGER STATE ---
     const [selectedChain, setSelectedChain] = useState<'Aptos' | 'Flow EVM' | 'BSC' | 'Solana' | 'Sui'>('Flow EVM');
-    const [selectedVaultIndex, setSelectedVaultIndex] = useState(0);
+    // Change: Use ID instead of index, allow null for list view
+    const [selectedVaultId, setSelectedVaultId] = useState<string | null>(null);
     const [vaultTab, setVaultTab] = useState<'allocation' | 'history'>('allocation');
     const [historyLimit, setHistoryLimit] = useState(6);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
@@ -217,7 +218,7 @@ export const Dashboard: React.FC = () => {
 
     // Effect: Reset vault selection when chain changes
     useEffect(() => {
-        setSelectedVaultIndex(0);
+        setSelectedVaultId(null); // Return to list view
         setVaultTab('allocation');
         setHistoryLimit(6); // Reset history pagination
     }, [selectedChain]);
@@ -310,7 +311,7 @@ export const Dashboard: React.FC = () => {
     };
 
     const currentChainVaults = vaultData[selectedChain] || [];
-    const activeVault = currentChainVaults[selectedVaultIndex];
+    const activeVault = selectedVaultId ? currentChainVaults.find(v => v.id === selectedVaultId) : null;
     const visibleHistory = activeVault?.history?.slice(0, historyLimit) || [];
     const hasMoreHistory = activeVault?.history ? activeVault.history.length > historyLimit : false;
     
@@ -595,7 +596,7 @@ export const Dashboard: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Merged Header: Chain Tabs & Vault Switcher */}
+                    {/* Merged Header: Chain Tabs & Wallet Context */}
                     <div className="bg-white dark:bg-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-lg p-3 flex flex-col gap-3">
                          {/* 1. Chain Selector */}
                          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide border-b border-gray-100 dark:border-white/5 pb-2">
@@ -613,31 +614,7 @@ export const Dashboard: React.FC = () => {
                             ))}
                         </div>
 
-                        {/* 2. Vault Selector (Multi-Vault Support) */}
-                        {currentChainVaults.length > 0 && !isVaultLoading && (
-                            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                                {currentChainVaults.map((vault, index) => (
-                                    <button
-                                        key={vault.id}
-                                        onClick={() => setSelectedVaultIndex(index)}
-                                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all border ${
-                                            selectedVaultIndex === index
-                                            ? 'bg-purple-50 dark:bg-cyber-purple/20 border-purple-200 dark:border-cyber-purple text-purple-600 dark:text-cyber-purple shadow-sm dark:shadow-[0_0_10px_rgba(188,19,254,0.3)]'
-                                            : 'bg-gray-100 dark:bg-black/40 border-gray-200 dark:border-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/30'
-                                        }`}
-                                        title={`Manage ${vault.name}`}
-                                    >
-                                        <Shield size={10} />
-                                        {vault.name}
-                                    </button>
-                                ))}
-                                <button className="flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/5 transition-all" title="Create new vault on this chain">
-                                    <Plus size={10} /> New
-                                </button>
-                            </div>
-                        )}
-
-                        {/* 3. Wallet Context - UPDATED LOGIC */}
+                        {/* 2. Wallet Context - UPDATED LOGIC */}
                         <div className="flex items-center justify-between px-1 mt-1">
                             {connectedWallet ? (
                                 <div className="flex items-center gap-3">
@@ -670,22 +647,23 @@ export const Dashboard: React.FC = () => {
                             )}
 
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Status</span>
-                                <div className={`w-2 h-2 rounded-full ${activeVault?.isDeployed && !isVaultLoading ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,1)]' : 'bg-gray-400 dark:bg-gray-600'}`} title={activeVault?.isDeployed ? 'Vault Active' : 'Vault Inactive'}></div>
+                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Network Status</span>
+                                <div className={`w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,1)]`} title={'Network Active'}></div>
                             </div>
                         </div>
                     </div>
 
                     {/* Vault Content Card */}
-                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 relative" key={`${selectedChain}-${selectedVaultIndex}`}>
+                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 relative" key={`${selectedChain}-${selectedVaultId || 'list'}`}>
                         
                         {/* Loading Overlay for Vault Switching */}
                         {isVaultLoading && (
                              <AIConnectionLoader overlay message={`Connecting to ${selectedChain}...`} size="md" />
                         )}
 
-                        {!activeVault || !activeVault.isDeployed ? (
-                            <div className="bg-gradient-to-br from-gray-50 to-white dark:from-[#151520] dark:to-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl p-8 flex flex-col items-center text-center h-[300px] justify-center">
+                        {/* CASE 1: EMPTY STATE - No Vaults on Chain */}
+                        {currentChainVaults.length === 0 ? (
+                             <div className="bg-gradient-to-br from-gray-50 to-white dark:from-[#151520] dark:to-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl p-8 flex flex-col items-center text-center h-[300px] justify-center">
                                 <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-800/50 flex items-center justify-center mb-4">
                                     <Shield size={32} className="text-gray-500 dark:text-gray-600" />
                                 </div>
@@ -701,10 +679,80 @@ export const Dashboard: React.FC = () => {
                                     Deploy New Vault
                                 </CyberButton>
                             </div>
+                        ) : !activeVault ? (
+                            /* CASE 2: LIST VIEW - Select a Vault */
+                             <div className="bg-white dark:bg-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden flex flex-col min-h-[400px]">
+                                <div className="p-5 border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-[#121218]">
+                                    <h4 className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-sm">Select Vault</h4>
+                                    <p className="text-xs text-gray-500 mt-1">Choose a vault to manage assets and strategies.</p>
+                                </div>
+                                <div className="p-4 grid gap-3">
+                                     {currentChainVaults.map(vault => (
+                                         <div 
+                                            key={vault.id} 
+                                            onClick={() => setSelectedVaultId(vault.id)} 
+                                            className="group p-4 rounded-lg border border-gray-200 dark:border-white/5 hover:border-purple-500 dark:hover:border-cyber-neon hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer relative"
+                                        >
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-cyber-purple/20 flex items-center justify-center text-purple-600 dark:text-cyber-neon">
+                                                        <Shield size={18} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-cyber-neon transition-colors">{vault.name}</div>
+                                                        <div className="text-[10px] text-gray-500 font-mono">{vault.asset} Strategy</div>
+                                                    </div>
+                                                </div>
+                                                <div className={`text-[9px] font-bold px-2 py-0.5 rounded border ${
+                                                    vault.risk === 'low' ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-500 dark:border-green-500/20' : 
+                                                    vault.risk === 'medium' ? 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-500 dark:border-yellow-500/20' : 
+                                                    'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-500 dark:border-red-500/20'
+                                                }`}>
+                                                    {vault.risk.toUpperCase()} RISK
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/5">
+                                                 <div className="flex flex-col">
+                                                     <span className="text-[9px] text-gray-500 uppercase font-bold">APY</span>
+                                                     <span className="text-sm font-mono font-bold text-green-600 dark:text-green-500">{vault.apy}%</span>
+                                                 </div>
+                                                 <div className="flex flex-col text-right">
+                                                     <span className="text-[9px] text-gray-500 uppercase font-bold">Balance</span>
+                                                     <span className="text-sm font-mono font-bold text-gray-900 dark:text-white">${vault.balance.toLocaleString()}</span>
+                                                 </div>
+                                            </div>
+
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                 <ArrowRight size={20} className="text-gray-400 dark:text-gray-600 group-hover:text-purple-600 dark:group-hover:text-cyber-neon" />
+                                            </div>
+                                         </div>
+                                     ))}
+                                     
+                                     {/* Add New Vault Button (List Item) */}
+                                     <button className="p-4 rounded-lg border border-dashed border-gray-300 dark:border-white/10 hover:border-gray-400 dark:hover:border-white/30 hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2 text-gray-500 hover:text-black dark:hover:text-white group">
+                                         <Plus size={16} className="group-hover:scale-110 transition-transform" />
+                                         <span className="text-xs font-bold uppercase tracking-wider">Deploy New Strategy</span>
+                                     </button>
+                                </div>
+                             </div>
                         ) : (
+                            /* CASE 3: DETAIL VIEW - Vault Selected */
                             <div className="bg-white dark:bg-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden flex flex-col">
-                                {/* 1. Net Worth Header */}
+                                {/* 1. Header with Back Button */}
                                 <div className="bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-black p-5 border-b border-gray-200 dark:border-white/5 relative group">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <button 
+                                            onClick={() => setSelectedVaultId(null)}
+                                            className="flex items-center gap-1 text-[10px] font-bold uppercase text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+                                        >
+                                            <ArrowLeft size={12} /> Back to Vaults
+                                        </button>
+                                        <div className="text-[10px] text-gray-500 dark:text-gray-400 font-mono uppercase">
+                                            {activeVault.name}
+                                        </div>
+                                    </div>
+
                                     <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                             {/* Removed settings for now or keep hidden */}
                                     </div>
