@@ -129,9 +129,14 @@ export const Layout: React.FC<LayoutProps> = ({ currentPage, onNavigate, childre
                 <circle cx="50" cy="50" r="4" fill="#fff" />
             </svg>
           </div>
-          <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
-            Trading<span className="text-purple-600 dark:text-cyber-neon">Flow</span>
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
+              Trading<span className="text-purple-600 dark:text-cyber-neon">Flow</span>
+            </span>
+            <span className="px-1.5 py-0.5 rounded border border-gray-300 dark:border-white/20 text-[9px] font-mono font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 uppercase tracking-widest mt-1 self-start">
+              Beta
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-8">
