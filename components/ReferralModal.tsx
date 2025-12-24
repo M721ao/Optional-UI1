@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Copy, Gift, Users, Share2, Award, Zap, Check, Trophy, Info } from 'lucide-react';
+import { X, Copy, Gift, Users, Zap, Check, Trophy, Terminal, ChevronDown, ChevronRight, InputIcon, MessageSquare } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface ReferralModalProps {
@@ -10,11 +10,11 @@ interface ReferralModalProps {
 }
 
 export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, user }) => {
-  const [activeTab, setActiveTab] = useState<'invite' | 'network' | 'redeem'>('invite');
   const [copied, setCopied] = useState(false);
   const [bindCode, setBindCode] = useState('');
   const [isBinding, setIsBinding] = useState(false);
   const [bindSuccess, setBindSuccess] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
 
   if (!isOpen) return null;
 
@@ -27,233 +27,142 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
   const handleBind = () => {
     if (!bindCode) return;
     setIsBinding(true);
-    // Simulate API call
     setTimeout(() => {
         setIsBinding(false);
         setBindSuccess(true);
-    }, 1200);
+    }, 1000);
   };
 
   // Mock Referral Data
   const referrals = [
-      { id: 1, name: 'Alice_WAGMI', date: '2 days ago', status: 'Active', reward: '500 CR', avatar: 'https://i.pravatar.cc/150?u=1' },
-      { id: 2, name: 'CryptoKing99', date: '5 days ago', status: 'Active', reward: '500 CR', avatar: 'https://i.pravatar.cc/150?u=2' },
-      { id: 3, name: 'SolanaMaxi', date: '1 week ago', status: 'Pending', reward: '0 CR', avatar: 'https://i.pravatar.cc/150?u=3' },
+      { id: 1, name: 'Alice_WAGMI', date: '2d', reward: '+500' },
+      { id: 2, name: 'Quant_Dev', date: '5d', reward: '+500' },
+      { id: 3, name: 'Sol_Maxi', date: '1w', reward: '+0' },
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-white dark:bg-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-sm bg-white dark:bg-[#08080a] border border-gray-200 dark:border-white/10 rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col">
         
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#121218]">
-            <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500">
-                    <Trophy size={20} />
-                </div>
-                <div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white uppercase tracking-wider">Referral Program</h2>
-                    <p className="text-xs text-gray-500">Invite friends, earn compute credits.</p>
-                </div>
+        {/* Top Decorative Scanning Line */}
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500 dark:via-cyber-neon to-transparent opacity-50 animate-flow-beam"></div>
+
+        {/* Header: Dense & Industrial */}
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
+          <div className="flex items-center gap-2">
+            <Trophy size={14} className="text-amber-500" />
+            <div className="flex flex-col">
+                <h2 className="text-[11px] font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] leading-none">Affiliate_Engine</h2>
+                <span className="text-[8px] font-bold text-amber-500/60 uppercase mt-0.5">Reward program active</span>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-black dark:hover:text-white transition-colors">
-                <X size={20} />
-            </button>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+            <X size={16} />
+          </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-white/10">
-            <button 
-                onClick={() => setActiveTab('invite')}
-                className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'invite' ? 'border-purple-600 dark:border-cyber-neon text-purple-600 dark:text-cyber-neon bg-gray-50 dark:bg-white/5' : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'}`}
-            >
-                Invite & Earn
-            </button>
-            <button 
-                onClick={() => setActiveTab('network')}
-                className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'network' ? 'border-purple-600 dark:border-cyber-neon text-purple-600 dark:text-cyber-neon bg-gray-50 dark:bg-white/5' : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'}`}
-            >
-                My Network
-            </button>
-             <button 
-                onClick={() => setActiveTab('redeem')}
-                className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 ${activeTab === 'redeem' ? 'border-purple-600 dark:border-cyber-neon text-purple-600 dark:text-cyber-neon bg-gray-50 dark:bg-white/5' : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'}`}
-            >
-                Redeem Code
-            </button>
+        {/* Modal Body */}
+        <div className="p-4 space-y-4">
+          
+          {/* SECTION 1: MY INVITE CODE (Large Centerpiece) */}
+          <div className="space-y-1.5">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">My_Unique_Code</label>
+              <div className="relative group">
+                  <div className="absolute inset-0 bg-purple-500/10 dark:bg-cyber-neon/5 blur-sm opacity-50"></div>
+                  <div className="relative bg-gray-50 dark:bg-black/60 border border-purple-200 dark:border-cyber-neon/30 p-4 flex items-center justify-between overflow-hidden rounded-sm">
+                      <div className="text-2xl font-mono font-bold text-gray-900 dark:text-white tracking-[0.2em]">
+                          {user.inviteCode}
+                      </div>
+                      <button 
+                        onClick={copyToClipboard}
+                        className="px-3 py-1.5 bg-white dark:bg-white/10 border border-gray-300 dark:border-white/20 hover:border-purple-600 dark:hover:border-cyber-neon text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95"
+                      >
+                        {copied ? 'Copied' : 'Copy'}
+                      </button>
+                  </div>
+              </div>
+              <p className="text-[9px] text-gray-400 text-center uppercase tracking-tighter">Share to earn <span className="text-purple-600 dark:text-cyber-neon font-bold">500 Credits</span> per valid user</p>
+          </div>
+
+          {/* SECTION 2: BIND CODE (Compact Inline) */}
+          <div className="space-y-1.5">
+              <label className="text-[9px] font-bold text-gray-500 uppercase tracking-widest ml-1">Redeem_Affiliate</label>
+              {!bindSuccess ? (
+                  <div className="flex gap-2">
+                      <input 
+                          type="text" 
+                          value={bindCode}
+                          onChange={(e) => setBindCode(e.target.value)}
+                          placeholder="PASTE CODE HERE"
+                          className="flex-1 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs font-mono text-gray-900 dark:text-white outline-none focus:border-purple-500 dark:focus:border-cyber-neon transition-colors uppercase placeholder:text-gray-300 dark:placeholder:text-gray-700"
+                      />
+                      <button 
+                          onClick={handleBind}
+                          disabled={!bindCode || isBinding}
+                          className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-[10px] font-bold uppercase tracking-widest hover:opacity-80 transition-opacity disabled:opacity-50 clip-path-polygon"
+                      >
+                          {isBinding ? '...' : 'Claim'}
+                      </button>
+                  </div>
+              ) : (
+                  <div className="p-2 border border-green-500/30 bg-green-500/5 text-green-600 dark:text-green-500 text-[10px] font-bold uppercase flex items-center gap-2 justify-center">
+                      <Check size={12} /> Reward Applied Successfully
+                  </div>
+              )}
+          </div>
+
+          {/* SECTION 3: STATS GRID */}
+          <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 rounded-sm flex flex-col items-center">
+                  <span className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Total_Invited</span>
+                  <span className="text-lg font-mono font-bold text-gray-900 dark:text-white">03</span>
+              </div>
+              <div className="p-3 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 rounded-sm flex flex-col items-center">
+                  <span className="text-[8px] text-gray-500 uppercase tracking-widest mb-1">Earned_Reward</span>
+                  <span className="text-lg font-mono font-bold text-purple-600 dark:text-cyber-neon">1.5K <span className="text-[9px] opacity-40">CR</span></span>
+              </div>
+          </div>
+
+          {/* SECTION 4: LOGS / HISTORY (Compact List) */}
+          <div className="pt-2">
+              <button 
+                onClick={() => setShowLogs(!showLogs)}
+                className="w-full flex items-center justify-between px-1 mb-2 group"
+              >
+                  <span className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em] group-hover:text-gray-800 dark:group-hover:text-gray-300">Invite_Log</span>
+                  <ChevronDown size={12} className={`text-gray-400 transition-transform ${showLogs ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showLogs && (
+                  <div className="bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/5 rounded-sm overflow-hidden animate-in slide-in-from-top-2">
+                      {referrals.map((ref) => (
+                          <div key={ref.id} className="flex items-center justify-between p-2 border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-white dark:hover:bg-white/5 transition-colors">
+                              <div className="flex items-center gap-2">
+                                  <div className="w-4 h-4 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-[8px] font-bold text-white">
+                                      {ref.name[0]}
+                                  </div>
+                                  <span className="text-[10px] text-gray-700 dark:text-gray-400 truncate w-24 font-medium">{ref.name}</span>
+                              </div>
+                              <div className="flex gap-4 items-center">
+                                  <span className="text-[9px] text-gray-400 font-mono">{ref.date}</span>
+                                  <span className="text-[10px] font-mono font-bold text-purple-600 dark:text-cyber-neon">{ref.reward}</span>
+                              </div>
+                          </div>
+                      ))}
+                  </div>
+              )}
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-white dark:bg-[#0c0c10]">
-            
-            {/* TAB: INVITE */}
-            {activeTab === 'invite' && (
-                <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-                    
-                    {/* Your Code Section */}
-                    <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-purple-600 to-pink-600 dark:from-cyber-purple dark:to-cyber-neon p-6 md:p-8 text-white shadow-lg">
-                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                            <div className="text-center md:text-left">
-                                <div className="text-xs font-bold opacity-80 uppercase tracking-widest mb-1">Your Exclusive Invite Code</div>
-                                <div className="text-3xl md:text-4xl font-mono font-bold tracking-wider drop-shadow-md">{user.inviteCode}</div>
-                            </div>
-                            <button 
-                                onClick={copyToClipboard}
-                                className="flex items-center gap-2 px-6 py-3 bg-white text-purple-600 dark:text-black font-bold uppercase rounded-lg shadow-xl hover:scale-105 transition-transform active:scale-95"
-                            >
-                                {copied ? <Check size={18} /> : <Copy size={18} />}
-                                {copied ? 'Copied!' : 'Copy Code'}
-                            </button>
-                        </div>
-                        {/* Decor */}
-                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
-                        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-black opacity-10 rounded-full blur-2xl"></div>
-                    </div>
-
-                    {/* Rules Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col items-center text-center">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
-                                <Share2 size={20} />
-                            </div>
-                            <h4 className="font-bold text-gray-900 dark:text-white text-sm">1. Share Code</h4>
-                            <p className="text-xs text-gray-500 mt-1">Send your unique code to friends or community.</p>
-                        </div>
-                        <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col items-center text-center">
-                            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
-                                <Users size={20} />
-                            </div>
-                            <h4 className="font-bold text-gray-900 dark:text-white text-sm">2. They Join</h4>
-                            <p className="text-xs text-gray-500 mt-1">Friends sign up and connect their wallet.</p>
-                        </div>
-                        <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col items-center text-center relative overflow-hidden group">
-                             <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-500 flex items-center justify-center mb-3">
-                                <Award size={20} />
-                            </div>
-                            <h4 className="font-bold text-gray-900 dark:text-white text-sm">3. Both Earn</h4>
-                            <p className="text-xs text-gray-500 mt-1">You get <span className="text-yellow-600 dark:text-yellow-500 font-bold">500 Credits</span>, they get 200.</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* TAB: NETWORK */}
-            {activeTab === 'network' && (
-                <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-                    
-                    {/* Stats Cards */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="p-5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5">
-                            <div className="text-xs text-gray-500 uppercase font-bold mb-1">Total Earned</div>
-                            <div className="text-2xl font-bold text-purple-600 dark:text-cyber-neon font-mono flex items-baseline gap-1">
-                                1,500 <span className="text-sm text-gray-400">CR</span>
-                            </div>
-                        </div>
-                        <div className="p-5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5">
-                            <div className="text-xs text-gray-500 uppercase font-bold mb-1">Friends Invited</div>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-white font-mono">
-                                3 <span className="text-sm text-gray-400">Users</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* List */}
-                    <div className="bg-white dark:bg-[#0c0c10] border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden">
-                        <div className="px-4 py-3 bg-gray-50 dark:bg-[#121218] border-b border-gray-200 dark:border-white/10 text-[10px] font-bold text-gray-400 uppercase tracking-widest flex justify-between">
-                            <span>User</span>
-                            <span>Reward Status</span>
-                        </div>
-                        <div className="divide-y divide-gray-100 dark:divide-white/5">
-                            {referrals.map((ref) => (
-                                <div key={ref.id} className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                                    <div className="flex items-center gap-3">
-                                        <img src={ref.avatar} alt={ref.name} className="w-8 h-8 rounded-full bg-gray-200" />
-                                        <div>
-                                            <div className="text-sm font-bold text-gray-900 dark:text-white">{ref.name}</div>
-                                            <div className="text-[10px] text-gray-500">{ref.date}</div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className={`text-xs font-bold font-mono ${ref.status === 'Active' ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`}>
-                                            +{ref.reward}
-                                        </div>
-                                        <div className="text-[9px] text-gray-400 uppercase">{ref.status}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Claim Button */}
-                    <div className="p-4 bg-purple-50 dark:bg-cyber-purple/10 rounded-xl border border-purple-100 dark:border-cyber-purple/20 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-purple-100 dark:bg-cyber-purple/20 text-purple-600 dark:text-cyber-neon rounded-lg">
-                                <Zap size={18} />
-                            </div>
-                            <div>
-                                <div className="text-sm font-bold text-gray-900 dark:text-white uppercase">Unclaimed Rewards</div>
-                                <div className="text-xs text-purple-600 dark:text-cyber-neon font-bold font-mono">500 Credits Available</div>
-                            </div>
-                        </div>
-                        <button className="px-5 py-2 bg-purple-600 dark:bg-cyber-neon text-white dark:text-black font-bold uppercase rounded text-xs hover:opacity-90 transition-opacity shadow-lg">
-                            Claim Now
-                        </button>
-                    </div>
-
-                </div>
-            )}
-
-            {/* TAB: REDEEM */}
-            {activeTab === 'redeem' && (
-                <div className="flex flex-col items-center justify-center h-full space-y-8 animate-in slide-in-from-right-4 duration-300 text-center py-8">
-                     <div className="w-20 h-20 bg-pink-100 dark:bg-pink-500/10 rounded-full flex items-center justify-center border border-pink-200 dark:border-pink-500/20 mb-2">
-                        <Gift size={40} className="text-pink-500" />
-                     </div>
-                     
-                     <div className="max-w-xs">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">Have an Invite Code?</h3>
-                        <p className="text-xs text-gray-500">Enter a valid referral code from a friend to unlock <span className="text-pink-500 font-bold">200 Compute Credits</span> instantly.</p>
-                     </div>
-
-                     <div className="w-full max-w-sm">
-                        {!bindSuccess ? (
-                            <div className="flex flex-col gap-3">
-                                <input 
-                                    type="text" 
-                                    value={bindCode}
-                                    onChange={(e) => setBindCode(e.target.value)}
-                                    placeholder="Paste Invite Code (e.g. FLOW-8821)"
-                                    className="w-full bg-gray-100 dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-lg px-4 py-4 text-center text-lg font-mono tracking-widest focus:outline-none focus:border-pink-500 dark:focus:border-pink-500 text-gray-900 dark:text-white transition-colors"
-                                />
-                                <button 
-                                    onClick={handleBind}
-                                    disabled={!bindCode || isBinding}
-                                    className="w-full py-4 bg-pink-600 hover:bg-pink-700 text-white font-bold uppercase rounded-lg shadow-lg hover:shadow-pink-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                >
-                                    {isBinding ? 'Verifying...' : 'Claim Bonus'}
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="p-6 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 flex flex-col items-center gap-4 animate-in zoom-in duration-300">
-                                <div className="p-2 bg-green-500 rounded-full text-white shadow-lg shadow-green-500/30"><Check size={24} /></div>
-                                <div>
-                                    <div className="text-lg text-green-700 dark:text-green-400 font-bold mb-1">Code Redeemed!</div>
-                                    <div className="text-xs text-green-600/80 dark:text-green-400/80">+200 Credits have been added to your balance.</div>
-                                </div>
-                            </div>
-                        )}
-                     </div>
-
-                     {!bindSuccess && (
-                         <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/5 text-[10px] text-gray-500 max-w-sm flex items-center justify-center gap-2">
-                            <Info size={14} className="text-gray-400" />
-                            <span>Codes are case-sensitive. One use per account.</span>
-                         </div>
-                     )}
-                </div>
-            )}
+        {/* Action Button: Share to external */}
+        <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-black/20 flex gap-2">
+            <button className="flex-1 py-2 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 clip-path-polygon shadow-lg shadow-blue-600/20">
+                <MessageSquare size={12} /> Share On Telegram
+            </button>
         </div>
+        
+        {/* Bottom Decorative Data */}
+        <div className="h-0.5 bg-gradient-to-r from-transparent via-purple-500 dark:via-cyber-neon to-transparent opacity-20"></div>
       </div>
     </div>
   );
