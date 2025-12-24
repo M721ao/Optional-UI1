@@ -1,3 +1,4 @@
+
 export enum Page {
   LANDING = 'LANDING',
   STUDIO = 'STUDIO',
@@ -24,7 +25,7 @@ export interface Flow {
   triggers: number;
   lastRun: string;
   tvl: number;
-  thumbnailType: 'linear' | 'branching' | 'complex'; // For CSS visualizer
+  thumbnailType: 'linear' | 'branching' | 'complex'; 
 }
 
 export interface VaultAsset {
@@ -32,7 +33,7 @@ export interface VaultAsset {
   name: string;
   balance: number;
   value: number;
-  icon: string; // Color code or url
+  icon: string; 
 }
 
 export interface VaultTransaction {
@@ -47,11 +48,10 @@ export interface VaultTransaction {
 export interface Vault {
   id: string;
   name: string;
-  asset: string; // Primary asset name for simple list
+  asset: string; 
   apy: number;
   balance: number;
   risk: 'low' | 'medium' | 'high';
-  // Detailed fields
   chain?: string;
   address?: string;
   isDeployed?: boolean;
@@ -59,12 +59,19 @@ export interface Vault {
   history?: VaultTransaction[];
 }
 
+export interface InviteCode {
+  code: string;
+  isUsed: boolean;
+  usedBy?: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
-  avatar: string; // URL
+  avatar: string; 
   credits: number;
-  inviteCode: string;
+  inviteCodes: InviteCode[]; // Changed from single string
+  isActivated: boolean;
   plan: 'FREE' | 'MASTER';
   walletAddress?: string;
   chain?: 'ETH' | 'SOL' | 'ARB' | 'BASE';
