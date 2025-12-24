@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Gift, Users, Check, ShieldCheck, LockOpen, Plus, Sparkles, RefreshCw, UserCircle, Terminal } from 'lucide-react';
+import { X, Copy, Users, Check, ShieldCheck, LockOpen, Plus, Sparkles, RefreshCw, UserCircle, Terminal } from 'lucide-react';
 import { UserProfile, InviteCode } from '../types';
 
 interface ReferralModalProps {
@@ -12,12 +12,27 @@ interface ReferralModalProps {
 export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, user }) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+  const [animateState, setAnimateState] = useState(false);
 
-  // For demonstration: Ensure the user starts with 2 used codes if it's the first time viewing
-  // In a real app, this data comes from the backend
+  // Sync animation states with isOpen prop
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      // Small timeout to allow browser to register shouldRender before starting animation
+      const timer = setTimeout(() => setAnimateState(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimateState(false);
+      // Wait for exit animation to finish before unmounting (match duration-500)
+      const timer = setTimeout(() => setShouldRender(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  // For demonstration: Mock existing codes
   useEffect(() => {
     if (isOpen && user.inviteCodes.length === 1) {
-       // Mocking the '2 records already exist' state requested
        user.inviteCodes = [
          { code: 'FLOW-8821', isUsed: true },
          { code: 'FLOW-4920', isUsed: true },
@@ -26,7 +41,7 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
     }
   }, [isOpen, user]);
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   const copyToClipboard = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -36,7 +51,6 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
 
   const handleGenerateCode = () => {
     if (user.inviteCodes.length >= 3) return;
-    
     setIsGenerating(true);
     setTimeout(() => {
         const newCode = `FLOW-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -45,7 +59,6 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
     }, 800);
   };
 
-  // Generate history based on used codes
   const history = user.inviteCodes.filter(c => c.isUsed).map((c, i) => ({
     id: i,
     user: `operator_${c.code.split('-')[1]}`,
@@ -54,13 +67,22 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
   }));
 
   return (
-    <div className="fixed inset-0 z-[100] flex justify-end bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+    <div 
+      className={`fixed inset-0 z-[100] flex justify-end transition-all duration-500 ease-in-out ${
+        animateState ? 'bg-black/40 backdrop-blur-sm pointer-events-auto' : 'bg-black/0 backdrop-blur-none pointer-events-none'
+      }`}
+    >
+      {/* Background Overlay Click Area */}
       <div className="absolute inset-0" onClick={onClose}></div>
 
       {/* Slide-over Drawer */}
-      <div className="relative w-full max-w-sm h-full bg-white dark:bg-[#0a0a0c] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] border-l border-gray-200 dark:border-white/10 flex flex-col animate-in slide-in-from-right duration-500">
+      <div 
+        className={`relative w-full max-w-sm h-full bg-white dark:bg-[#0a0a0c] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] border-l border-gray-200 dark:border-white/10 flex flex-col transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
+          animateState ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
         
-        {/* Compressed Header with increased vertical padding */}
+        {/* Compressed Header */}
         <div className="relative px-5 py-6 bg-gradient-to-r from-purple-600/5 to-transparent border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -81,7 +103,6 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
 
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto p-5 space-y-8 scrollbar-hide">
-          
           {/* Section 1: Invitation Slots */}
           <div className="space-y-3.5">
             <div className="flex items-center justify-between px-1">
@@ -93,7 +114,7 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
             
             <div className="space-y-2">
               {user.inviteCodes.map((item, idx) => (
-                <div key={idx} className="relative group animate-in slide-in-from-left-2" style={{ animationDelay: `${idx * 100}ms` }}>
+                <div key={idx} className="relative group">
                     <div className={`relative p-3 rounded-lg border flex items-center justify-between transition-all ${item.isUsed ? 'bg-gray-50/30 dark:bg-white/[0.01] border-gray-100 dark:border-white/5 opacity-50' : 'bg-white dark:bg-black/40 border-gray-200 dark:border-white/10 hover:border-purple-500/30 shadow-sm'}`}>
                         <div className="flex flex-col">
                             <span className="text-[7px] text-gray-400 uppercase font-bold tracking-[0.2em] mb-0.5">Slot_0{idx + 1}</span>
@@ -101,15 +122,11 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
                                 {item.code}
                             </span>
                         </div>
-                        
                         <div className="flex items-center gap-2">
                             {item.isUsed ? (
                                 <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 rounded">Exhausted</span>
                             ) : (
-                                <button 
-                                    onClick={() => copyToClipboard(item.code)}
-                                    className="p-2 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg text-purple-600 dark:text-cyber-neon transition-all active:scale-95"
-                                >
+                                <button onClick={() => copyToClipboard(item.code)} className="p-2 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg text-purple-600 dark:text-cyber-neon transition-all active:scale-95">
                                     {copiedCode === item.code ? <Check size={14} /> : <Copy size={14} />}
                                 </button>
                             )}
@@ -119,11 +136,7 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
               ))}
 
               {user.inviteCodes.length < 3 && (
-                <button 
-                  onClick={handleGenerateCode}
-                  disabled={isGenerating}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 border border-dashed border-gray-300 dark:border-white/20 rounded-lg text-[9px] font-bold text-gray-400 hover:text-purple-600 dark:hover:text-cyber-neon hover:border-purple-400 dark:hover:border-cyber-neon/50 transition-all bg-gray-50/50 dark:bg-transparent"
-                >
+                <button onClick={handleGenerateCode} disabled={isGenerating} className="w-full flex items-center justify-center gap-2 py-3.5 border border-dashed border-gray-300 dark:border-white/20 rounded-lg text-[9px] font-bold text-gray-400 hover:text-purple-600 dark:hover:text-cyber-neon hover:border-purple-400 dark:hover:border-cyber-neon/50 transition-all bg-gray-50/50 dark:bg-transparent">
                   {isGenerating ? <RefreshCw size={12} className="animate-spin" /> : <Plus size={12} />}
                   {isGenerating ? 'Decrypting...' : 'Provision New Slot'}
                 </button>
@@ -131,12 +144,11 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
             </div>
           </div>
 
-          {/* Section 2: Invite History (Integrated Rewards) */}
+          {/* Section 2: Invite History */}
           <div className="space-y-4">
              <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
               <Users size={12} className="text-amber-500" /> Invite History
             </h3>
-            
             <div className="bg-gray-50/50 dark:bg-black/20 rounded-xl border border-gray-100 dark:border-white/5 overflow-hidden min-h-[100px] flex flex-col">
                 {history.length > 0 ? (
                   <div className="divide-y divide-gray-100 dark:divide-white/5">
@@ -168,14 +180,13 @@ export const ReferralModal: React.FC<ReferralModalProps> = ({ isOpen, onClose, u
                   </div>
                 )}
             </div>
-
             <p className="text-[9px] text-gray-400 text-center uppercase tracking-tighter leading-relaxed px-4 opacity-60">
               Successful activations grant you <span className="text-purple-600 dark:text-cyber-neon font-bold">500 Compute Credits</span> per operative.
             </p>
           </div>
         </div>
 
-        {/* Techy Footer Decoration */}
+        {/* Footer */}
         <div className="p-4 flex items-center justify-center gap-2 opacity-20 border-t border-gray-100 dark:border-white/5">
           <Terminal size={10} className="text-gray-500" />
           <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">Protocol_Secure // v2.0.45</span>
